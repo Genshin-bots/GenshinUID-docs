@@ -8,7 +8,3 @@
         <a href="https://github.com/KimigaiiWuyi/GenshinUID/wiki/File5-%E3%80%8C%E6%8C%87%E4%BB%A4%E5%88%97%E8%A1%A8%E3%80%8D" target="_blank">指令列表</a> &nbsp; · &nbsp;
         <a href="https://github.com/KimigaiiWuyi/GenshinUID/issues/226">常见问题</a>
 </div>
-<p align="center">
-  <a><img src="https://s2.loli.net/2022/09/09/ZR4LTdNhpUmJHil.jpg"></a>
-</p>
-
