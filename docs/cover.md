@@ -4,7 +4,7 @@
 <h1 align = "center">GenshinUID 4.0</h1>
 <h4 align = "center">✨支持OneBot(QQ)、QQ频道、微信、开黑啦、Telegram的全功能原神Bot插件✨</h4>
 <div align = "center">
-        <a href="BaseInfo" target="_blank">安装文档</a> &nbsp; · &nbsp;
-        <a href="https://github.com/KimigaiiWuyi/GenshinUID/wiki/File5-%E3%80%8C%E6%8C%87%E4%BB%A4%E5%88%97%E8%A1%A8%E3%80%8D" target="_blank">指令列表</a> &nbsp; · &nbsp;
+        <a href="#/BaseInfo" target="_blank">安装文档</a> &nbsp; · &nbsp;
+        <a href="#/CommandList" target="_blank">指令列表</a> &nbsp; · &nbsp;
         <a href="https://github.com/KimigaiiWuyi/GenshinUID/issues/226">常见问题</a>
 </div>
