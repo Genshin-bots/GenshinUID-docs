@@ -22,7 +22,7 @@ git -v
 >>> git version xxxxx
 ```
 
-- 确保安装`poetry`
+- 确保安装`poetry`(版本须`>=1.4.0`)
 
 ```shell
 # 命令行内输入
