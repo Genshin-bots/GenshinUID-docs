@@ -10,7 +10,7 @@
 - 输入安装core命令
 
 ```sh
-git clone https://ghproxy.com/https://github.com/Genshin-bots/gsuid-core.git --depth=1 --single-branch
+git clone https://ghproxy.com/https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
 ```
 - 执行`poetry install`安装依赖
 

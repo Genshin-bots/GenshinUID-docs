@@ -5,5 +5,5 @@
 ## 图片版
 
 <details><summary>图片版帮助</summary><p>
-<img src="help.PNG"/> 
+<img src="https://s2.loli.net/2023/03/27/CgfOIU9sExpFaXJ.png"/> 
 </p></details>
