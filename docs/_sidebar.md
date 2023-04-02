@@ -11,6 +11,7 @@
 ** [数据结构](DataStruct)
 ** [插件编写](CreatePlugin)
 ** [网页控制台](WebConsole)
+** [连接器编写](https://docs.gbots.work/docs/modules/gsuid-core/communication/)
 
 * 额外介绍
 ** [命令列表](CommandList)
