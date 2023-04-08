@@ -19,7 +19,7 @@ from gsuid_core.logger import logger
 
 sv=SV(
     name='复杂的服务',  # 定义一组服务`开关`,
-    pm=2, # 权限 0为master，1为superuser，2为群的群主&管理员，3为普通
+    pm=2, # 权限 0为master，1为superuser，2为群的群主, 3为管理员，6为普通，具体可见文档
     priority=5, # 整组服务的优先级
     enabled=True, # 是否启用
     black_list=[], # 黑名单
@@ -53,5 +53,7 @@ async def notice_job():
             bot_id,    # 实际bot_id、和上面的BOT_id不同，例如onebot等等
             '',        # bot_self_id, 用于同平台多bot连接，例如bot自己的QQ号等，可空
             ''		   # msg_id,要回复的某一个msg的id，可空
+            at_sender, # 是否要at发送者，默认False
+            sender_id, # sender_id, 默认为空，主动发送时，不建议填写这两个选项
         )
 ```

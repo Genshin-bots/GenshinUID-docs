@@ -22,3 +22,4 @@
 * [命令列表](CommandList)
 * [插件资源包](ResourceDownload)
 * [常见问题](FAQ)
+* [第三方插件列表](PluginsList)

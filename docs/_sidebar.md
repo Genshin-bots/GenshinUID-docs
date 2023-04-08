@@ -18,3 +18,4 @@
 ** [插件资源包](ResourceDownload)
 ** [添加CK](AddCK)
 ** [常见问题](FAQ)
+** [第三方插件列表](PluginsList)
