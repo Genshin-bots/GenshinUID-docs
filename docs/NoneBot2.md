@@ -1,10 +1,16 @@
 # NoneBot2
 
-## 安装插件
+## 安装插件（用户模式，建议）
+
+- 进入机器人项目文件夹内，输入`nb plugin install nonebot-plugin-genshinuid`安装本插件
+
+## 安装插件（开发者模式）
 
 > [!WARNING]
 >
 > 需要配置好`.env`文件（SUPERUSER等）
+> 
+> 插件开发者可选此模式，对应nb创建项目模板`simple`
 > 
 - cd至插件文件夹内，一般位于`{Bot目录}/src/plugins`下
 - 输入安装命令（前提安装过git）

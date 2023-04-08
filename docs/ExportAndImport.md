@@ -10,7 +10,7 @@
 
 - 使用命令`导出v3数据`（时间可能比较长，等待Bot回复...）
 
-- 备份{Bot目录}/data/GenshinUID这个文件夹
+- 备份{Bot目录}/data/GenshinUID这个文件夹(`HoshinoBot`对应目录为res/GenshinUID)
 
 ### 导入`GenshinUID v3`数据至`GenshinUID v4`
 
@@ -24,6 +24,7 @@
 
 - 将[导出v3数据](#导出`GenshinUID v3`数据)中第三步的文件夹，拷贝到`{Core目录}/data/GenshinUID`内
 
-- 删除该文件夹`/data/GenshinUID`内`config.json`文件（如有需要可以备份）
+- **删除**该文件夹`/data/GenshinUID`内`config.json`文件（如有需要可以备份）
 
 - 正确启动`gsuid_core`和`bot`之后，使用命令`导入v3数据`
+

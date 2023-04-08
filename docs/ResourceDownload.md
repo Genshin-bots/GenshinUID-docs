@@ -20,7 +20,11 @@
 >
 > ~~https://sg.hljone.com/resource3.3.tar # 3.3资源包~~
 >
-> https://www.123pan.com/s/St4DVv-rrcjH # 3.4资源包  提取码:Wuyi
+> ~~https://www.123pan.com/s/St4DVv-rrcjH # 3.4资源包  提取码:Wuyi~~
+>
+> https://www.123pan.com/s/St4DVv-secjH.html # 3.5资源包 提取码:Wuyi
+
+> // 资源站地址 (仅展示，无下载作用)
 >
 > https://file.microgg.cn/KimigaiiWuyi/ # 资源站
 >
