@@ -24,6 +24,10 @@
 >
 > https://www.123pan.com/s/St4DVv-secjH.html # 3.5资源包 提取码:Wuyi
 
+> // 增量包地址（注意，至少需要下载上一个版本的全量包）
+>
+> https://www.123pan.com/s/St4DVv-mtcjH.html # 3.6增量包 提取码:Wuyi
+
 > // 资源站地址 (仅展示，无下载作用)
 >
 > https://file.microgg.cn/KimigaiiWuyi/ # 资源站
