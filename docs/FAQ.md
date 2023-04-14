@@ -40,3 +40,21 @@
 > Q: Nonebot2的配置、添加适配器的教程
 >
 > A: 请自行前往对应文档查看，例如[NoneBot2文档](https://nb2.baka.icu/)、以及各个适配器的文档，善用[GitHub](https://github.com)的搜索功能
+
+> Q: `ValueError: the greenlet library is required to use this function. DLL load failed while importing _greenlet: 找不到指定的模块。`
+>
+> A: 安装依赖`greenlet`（如果你是windows，还需要额外安装`msvc-runtime`）
+>
+> 视环境使用`poetry run pip install greenlet`或者`pip install greenlet`，`msvc-runtime`同理
+
+> Q: 能不能添加某个功能
+>
+> A: 在GenshinUID的项目里提issuse，如果合理并且有余力，会加入`todo list`
+
+> Q: 能不能修改`v4-nonebot2`连接到`core`的端口
+>
+> A: 在nb2的环境文件中（例如`.env`）添加`gsuid_core_host="127.0.0.1"`和`gsuid_core_port="9527"`，IP地址和端口改成你需要的就可以
+
+> Q: 能不能修改`core`接受链接的端口
+>
+> A: 在`gsuid_core/gsuid_core/config.json`中，调整IP和PORT后重启core
