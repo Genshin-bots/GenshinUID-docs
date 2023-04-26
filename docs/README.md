@@ -2,6 +2,7 @@
 
 * [理解概念](BaseInfo)
 * [环境确认](EnvCheck)
+* [支持Bot](AdapterList)
 
 ## 快速开始
 * [手动安装Core](InstallCore)

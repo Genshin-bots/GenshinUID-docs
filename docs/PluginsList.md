@@ -11,3 +11,6 @@
 [GenshinUID_mys_qrlogin](https://github.com/RBAmeto/GenshinUID_mys_qrlogin) - 扫码登陆游戏插件（比较危险）
 
 [GenshinUID_honkai_sign](https://github.com/RBAmeto/GenshinUID_honkai_sign) - 崩坏三签到插件
+
+[StarRailUID](https://github.com/qwerdvd/StarRailUID) - 星穹铁道插件*（WIP）*
+
