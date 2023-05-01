@@ -7,6 +7,10 @@
     "StarRailUID": {
       "link": "https://github.com/qwerdvd/StarRailUID",
       "info": "全功能星穹铁道插件"
+    },
+    "GenshinUID": {
+      "link": "https://github.com/qwerdvd/StarRailUID",
+      "info": "全功能原神插件"
     }
   },
   "extra": {
