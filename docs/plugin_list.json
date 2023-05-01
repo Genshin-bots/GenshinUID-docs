@@ -1,0 +1,22 @@
+{
+  "plugins": {
+    "gsuidcore_plugin_chat": {
+      "link": "https://github.com/wangyu1997/gsuidcore_plugin_chat",
+      "info": "融合了openai, newbing, 词库, 发病的智障回复插件"
+    },
+    "StarRailUID": {
+      "link": "https://github.com/qwerdvd/StarRailUID",
+      "info": "全功能星穹铁道插件"
+    }
+  },
+  "extra": {
+    "GenshinUID_mys_qrlogin": {
+      "link": "https://github.com/RBAmeto/GenshinUID_mys_qrlogin",
+      "info": "扫码登陆游戏插件（比较危险）"
+    },
+    "GenshinUID_honkai_sign": {
+      "link": "https://github.com/RBAmeto/GenshinUID_honkai_sign",
+      "info": "崩坏三签到插件"
+    }
+  }
+}
