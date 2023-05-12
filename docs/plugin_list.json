@@ -12,12 +12,12 @@
       "link": "https://github.com/KimigaiiWuyi/GenshinUID",
       "info": "全功能原神插件"
     },
-    "GenshinUID_mys_qrlogin": {
-      "link": "https://github.com/RBAmeto/GenshinUID_mys_qrlogin",
+    "gsuidcore_mys_qrlogin": {
+      "link": "https://github.com/RBAmeto/gsuidcore_mys_qrlogin",
       "info": "扫码登陆游戏插件（比较危险）"
     },
-    "GenshinUID_honkai_sign": {
-      "link": "https://github.com/RBAmeto/GenshinUID_honkai_sign",
+    "gsuidcore_honkai_sign": {
+      "link": "https://github.com/RBAmeto/gsuidcore_honkai_sign",
       "info": "崩坏三签到插件"
     }
   },
