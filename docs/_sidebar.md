@@ -8,6 +8,8 @@
 ** [手动启动Core](StartCore)
 ** [NoneBot2](NoneBot2)
 ** [HoshinoBot](HoshinoBot)
+** [ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
+** [YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin)
 
 * 进阶介绍
 ** [v4导入v3数据](ExportAndImport)

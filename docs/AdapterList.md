@@ -12,4 +12,5 @@
 
 [ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot) - 支持OneBot(QQ)
 
-...More
+[YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin) - 支持OneBot(QQ) (也可以使用TRSS-Yunzai以适配更多协议)
+
