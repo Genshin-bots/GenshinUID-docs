@@ -14,3 +14,5 @@
 
 [YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin) - 支持OneBot(QQ) (也可以使用TRSS-Yunzai以适配更多协议)
 
+[Koishi](https://github.com/GithubCin/gscore-adpater) - 支持OneBot(QQ)以及商店内更多适配器(例如不会风控的NTQQ)
+
