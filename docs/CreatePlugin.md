@@ -57,3 +57,35 @@ async def notice_job():
             sender_id, # sender_id, 默认为空，主动发送时，不建议填写这两个选项
         )
 ```
+
+### 插件获取/调用data目录（资源文件夹）
+
+> [!TIP]
+>
+> 可以使用该方法快速的定位资源文件夹（gsuid_core/data）
+>
+> 如文件夹没有建立会自动建立，无需担心建立路径不存在
+> 
+
+```python
+from gsuid_core.data_store import get_res_path
+
+# 以GenshinUID为例
+# path目录为gsuid_core/data/GenshinUID
+path = get_res_path() / 'GenshinUID'
+# 也可以直接传参，示例如下
+path = get_res_path('GenshinUID')
+# 参数支持传入列表，示例如下
+path = get_res_path(['GenshinUID', 'res', 'font'])
+# 该路径为gsuid_core/data/GenshinUID/res/font
+```
+
+### 插件获取/调用/建立数据库(GsData.db)
+
+> [!TIP]
+>
+> **强烈推荐**使用该方法去写数据库，基类提供了大部分较为常用的数据库方法（增删改查）
+> 
+> 继承已经写好的基类，可以在较少代码量的前提下，生成专属插件的表并共享所有基类方法
+>
+> 有非常多额外的扩展方法（实现bot_id管理、多uid绑定、随机调用CK等等）
