@@ -18,7 +18,7 @@
 
 [maimai_plugin](https://github.com/Agnes4m/maimai_plugin/tree/gsuid_core) - MaiMai插件
 
-WzryUID - 全功能王者荣耀插件（WIP）
+[WzryUID](https://github.com/KimigaiiWuyi/WzryUID) - 全功能王者荣耀插件（WIP）
 
 
 

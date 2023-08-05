@@ -29,6 +29,11 @@
       "link": "https://github.com/Agnes4m/maimai_plugin",
       "branch": "gsuid_core",
       "info": "maimai插件"
+    },
+    "WzryUID": {
+      "link": "https://github.com/KimigaiiWuyi/WzryUID",
+      "branch": "main",
+      "info": "全功能王者荣耀插件（WIP）"
     }
   },
   "extra": {
