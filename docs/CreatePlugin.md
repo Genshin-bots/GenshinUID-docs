@@ -126,7 +126,7 @@ srconfig = StringConfig('StarRailUID', CONFIG_PATH, CONIFG_DEFAULT)
 >
 > 有非常多额外的扩展方法（实现bot_id管理、多uid绑定、随机调用CK等等）
 
-#### 第一步、继承基类，建立自己的表
+##### 第一步、继承基类，建立自己的表
 
 ```python
 from gsuid_core.utils.database.base_models import Bind, User
@@ -141,7 +141,7 @@ class WzryUser(User, table=True):
     uid: Optional[str] = Field(default=None, title='王者荣耀UID')
 ```
 
-#### 第二步、调用方法
+##### 第二步、调用方法
 
 ```python
 import asyncio
@@ -155,7 +155,7 @@ async def main():
 asyncio.run(main())
 ```
 
-#### 第三步、（可选）映射数据库到网页控制台
+##### 第三步、（可选）映射数据库到网页控制台
 
 ```python
 from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
