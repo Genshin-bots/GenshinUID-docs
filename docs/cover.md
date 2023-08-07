@@ -5,8 +5,8 @@
 <h4 align = "center">✨支持Bot：NoneBot2 & HoshinoBot & ZeroBot & YunZaiBot✨</h4>
 <h4 align = "center">✨支持平台：OneBot(QQ)、OneBot V12、QQ频道、微信、开黑啦、Telegram、飞书的全功能原神Bot插件✨</h4>
 
-[指令列表](CommandList)
-[常见问题](FAQ)
-[安装文档](BaseInfo)
+[指令列表](额外介绍/CommandList)
+[常见问题](额外介绍/FAQ)
+[安装文档](快速开始/InstallCore)
 
 ![](cover.jpg)
