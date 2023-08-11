@@ -34,6 +34,11 @@
       "link": "https://github.com/KimigaiiWuyi/WzryUID",
       "branch": "main",
       "info": "全功能王者荣耀插件（WIP）"
+    },
+    "ArknightsUID": {
+      "link": "https://github.com/qwerdvd/ArknightsUID",
+      "branch": "main",
+      "info": "全功能明日方舟插件（WIP）"
     }
   },
   "extra": {

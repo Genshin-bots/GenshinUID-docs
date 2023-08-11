@@ -20,5 +20,5 @@
 
 [WzryUID](https://github.com/KimigaiiWuyi/WzryUID) - 全功能王者荣耀插件（WIP）
 
-
+[ArknightsUID](https://github.com/qwerdvd/ArknightsUID/) - 全功能明日方舟插件（WIP）
 
