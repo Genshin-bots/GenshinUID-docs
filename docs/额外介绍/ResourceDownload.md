@@ -25,6 +25,8 @@
 > ~~https://www.123pan.com/s/St4DVv-secjH.html # 3.5资源包 提取码:Wuyi~~
 >
 > https://www.123pan.com/s/St4DVv-L3ejH.html # 3.7资源包 提取码:wuyi
+>
+> https://www.123pan.com/s/St4DVv-sKejH.html # 4.1资源包 提取码:Wuyi
 
 > // 增量包地址（注意，至少需要下载上一个版本的全量包）
 >
