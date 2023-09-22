@@ -33,12 +33,17 @@
     "WzryUID": {
       "link": "https://github.com/KimigaiiWuyi/WzryUID",
       "branch": "main",
-      "info": "全功能王者荣耀插件（WIP）"
+      "info": "全功能王者荣耀插件"
     },
     "ArknightsUID": {
       "link": "https://github.com/qwerdvd/ArknightsUID",
       "branch": "main",
       "info": "全功能明日方舟插件（WIP）"
+    },
+    "BlueArchiveUID": {
+      "link": "https://github.com/KimigaiiWuyi/BlueArchiveUID",
+      "branch": "main",
+      "info": "蔚蓝档案插件（WIP）"
     }
   },
   "extra": {
