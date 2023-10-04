@@ -24,3 +24,5 @@
 
 [BlueArchiveUID](https://github.com/KimigaiiWuyi/BlueArchiveUID) - 碧蓝档案插件
 
+[PsyTest](https://github.com/KimigaiiWuyi/gsuidcore_psytest) - 心理测试集合插件（支持QQGroup按钮）
+

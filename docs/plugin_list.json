@@ -43,7 +43,12 @@
     "BlueArchiveUID": {
       "link": "https://github.com/KimigaiiWuyi/BlueArchiveUID",
       "branch": "main",
-      "info": "蔚蓝档案插件（WIP）"
+      "info": "蔚蓝档案插件"
+    },
+    "gsuidcore_psytest": {
+      "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
+      "branch": "main",
+      "info": "心理测试集合插件"
     }
   },
   "extra": {
