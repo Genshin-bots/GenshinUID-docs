@@ -4,12 +4,13 @@
 ** [支持Bot](简单介绍/AdapterList)
 
 * 快速开始
-** [手动安装Core](快速开始/InstallCore)
-** [手动启动Core](快速开始/StartCore)
-** [NoneBot2](快速开始/NoneBot2)
-** [HoshinoBot](快速开始/HoshinoBot)
-** [ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
-** [YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin)
+  ** [手动安装Core](快速开始/InstallCore)
+  ** [手动启动Core](快速开始/StartCore)
+  ** [NoneBot2](快速开始/NoneBot2)
+  ** [HoshinoBot](快速开始/HoshinoBot)
+  ** [ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
+  ** [YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin)
+  ** [Koishi](https://github.com/GithubCin/gscore-adapter)
 
 * 进阶介绍
 ** [v4导入v3数据](进阶介绍/ExportAndImport)
