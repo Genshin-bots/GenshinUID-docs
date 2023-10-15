@@ -1,0 +1,58 @@
+{
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vitepress dev docs --port 8080 --max-old-space-size=50000",
+    "build": "vitepress build docs",
+    "serve": "vitepress serve docs"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^0.42.0",
+    "@antfu/ni": "^0.21.8",
+    "@iconify/json": "^2.2.115",
+    "@types/fs-extra": "^11.0.1",
+    "@types/md5": "^2.3.2",
+    "@vite-pwa/vitepress": "^0.2.1",
+    "bumpp": "^9.2.0",
+    "busuanzi.pure.js": "^1.0.3",
+    "cloudinary-build-url": "^0.2.4",
+    "dayjs": "^1.11.9",
+    "eslint-plugin-import": "^2.28.1",
+    "esno": "^0.17.0",
+    "fast-glob": "^3.3.1",
+    "feed": "^4.2.2",
+    "fs-extra": "^11.1.1",
+    "gray-matter": "^4.0.3",
+    "less": "^4.2.0",
+    "lint-staged": "^14.0.0",
+    "md5": "^2.3.0",
+    "medium-zoom": "^1.0.8",
+    "moment": "^2.29.4",
+    "ohmyfetch": "^0.4.21",
+    "postcss": "^8.4.29",
+    "postcss-nested": "^6.0.1",
+    "sass": "^1.69.3",
+    "simple-git": "^3.19.1",
+    "simple-git-hooks": "^2.9.0",
+    "sitemap-ts": "^1.4.0",
+    "typescript": "^5.2.2",
+    "unocss": "^0.56.0",
+    "unplugin-icons": "^0.17.0",
+    "unplugin-vue-components": "^0.25.2",
+    "vite": "^4.4.9",
+    "vite-plugin-pwa": "^0.16.5",
+    "vitepress": "1.0.0-rc.20",
+    "vue": "^3.3.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,vue,md}": [
+      "eslint --cache --fix"
+    ]
+  },
+  "dependencies": {
+    "vue-custom-scrollbar": "^1.4.4"
+  }
+}
