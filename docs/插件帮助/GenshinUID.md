@@ -1,5 +1,11 @@
 # GenshinUID命令列表
 
+::: warning
+
+该文档可能更新不及时，请以插件实际功能为主
+
+:::
+
 ## 表格版
 
 [命令列表](https://www.kdocs.cn/l/ccpc6z0bZx6u)

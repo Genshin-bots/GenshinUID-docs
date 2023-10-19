@@ -63,6 +63,7 @@ export default {
       collapsed: true,
       items: [
         { text: 'GenshinUID', link: '/插件帮助/GenshinUID' },
+        { text: 'StarRailUID', link: '/插件帮助/StarRailUID' },
       ],
     },
   ],

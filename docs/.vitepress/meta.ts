@@ -4,7 +4,7 @@ import { version } from '../../package.json'
 export const name = '早柚核心Docs'
 export const site = 'https://docs.gsuid.gbots.work/'
 export const logo = '../public/icon.png'
-export const keywords = 'Dcos，GsCore，早柚核心，GenshinUID，机器人插件，NoneBot2，onebot，HoshinoBot，YunzaiBot，Koishi，ZeroBot，Plugins，Bot。'
+export const keywords = 'Dcos，GsCore，早柚核心，GenshinUID，机器人插件，NoneBot2，onebot，HoshinoBot，YunzaiBot，Koishi，ZeroBot，Plugins，Bot，原神机器人，星铁机器人，方舟机器人，游戏机器人，蔚蓝档案机器人，QQ群，QQ频道，KOOK，Telegram，Discord，飞书。'
 export const description = '安装早柚核心、了解早柚协议、编写GsCore插件，早柚核心，一个可以连接多个Bot和适配多个平台的Python Bot框架。'
 
 // social link
