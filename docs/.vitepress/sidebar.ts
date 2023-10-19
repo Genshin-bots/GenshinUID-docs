@@ -58,5 +58,12 @@ export default {
         { text: '数据结构', link: '/编写适配器/Pack' },
       ],
     },
+    {
+      text: ' 📄 插件帮助',
+      collapsed: true,
+      items: [
+        { text: 'GenshinUID', link: '/插件帮助/GenshinUID' },
+      ],
+    },
   ],
 }

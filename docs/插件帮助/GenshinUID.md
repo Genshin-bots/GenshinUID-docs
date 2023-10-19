@@ -7,5 +7,5 @@
 ## 图片版
 
 <details><summary>图片版帮助</summary><p>
-<img src="https://s2.loli.net/2023/03/27/CgfOIU9sExpFaXJ.png"/> 
+<img src="https://s2.loli.net/2023/10/20/ThMxfHcviZYO4yN.jpg"/> 
 </p></details>
