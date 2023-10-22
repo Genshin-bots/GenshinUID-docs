@@ -14,6 +14,8 @@ const colorMap = {
   Bob: '#00994d',
   Carol: '#1e90ff',
   Dave: '#f4a460',
+  群友A: '#f4a460',
+  干扰用户: '#f4a460',
 }
 
 const avatarMap = {

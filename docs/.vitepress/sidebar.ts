@@ -47,6 +47,7 @@ export default {
         { text: '调用资源目录', link: '/编写插件/GetDataPath' },
         { text: '提供配置项', link: '/编写插件/PluginsConfig' },
         { text: '调用数据库', link: '/编写插件/PluginsDataBase' },
+        { text: '多步会话', link: '/编写插件/Resp' },
         { text: '模块方法', link: '/编写插件/Class' },
       ],
     },
