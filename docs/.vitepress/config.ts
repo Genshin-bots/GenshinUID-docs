@@ -11,6 +11,7 @@ export default withPwa(defineConfig({
   title: name,
   description,
   appearance: true,
+  ignoreDeadLinks: true,
   lastUpdated: true,
   useWebFonts: false,
   markdown: {
