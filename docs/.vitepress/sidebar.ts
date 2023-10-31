@@ -34,6 +34,7 @@ export default {
         { text: '概念理解', link: '/进阶介绍/BaseInfo' },
         { text: '数据存储结构', link: '/进阶介绍/DataStruct' },
         { text: '网页控制台', link: '/进阶介绍/WebConsole' },
+        { text: '常见问题', link: '/常见问题/' },
       ],
     },
     {
@@ -41,6 +42,7 @@ export default {
       collapsed: true,
       items: [
         { text: '简单介绍', link: '/编写插件/Start' },
+        { text: 'VsCode配置', link: '/编写插件/Env' },
         { text: '简单示例', link: '/编写插件/Simple' },
         { text: '简单参考', link: '/编写插件/Exsample' },
         { text: '定时任务', link: '/编写插件/Scheduler' },
@@ -65,6 +67,7 @@ export default {
       items: [
         { text: 'GenshinUID', link: '/插件帮助/GenshinUID' },
         { text: 'StarRailUID', link: '/插件帮助/StarRailUID' },
+        { text: 'ArknightsUID', link: '/插件帮助/ArknightsUID' },
       ],
     },
   ],

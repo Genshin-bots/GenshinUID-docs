@@ -53,6 +53,7 @@ async def get_resp_msg(bot: Bot, ev: Event):
 from gsuid_core.bot import Bot
 from gsuid_core.sv import SL, SV
 from gsuid_core.models import Event
+from async_timeout import timeout
 
 sv_switch = SV('测试开关')
 
@@ -64,6 +65,20 @@ async def get_resp_msg(bot: Bot, ev: Event):
         resp = await bot.receive_mutiply_resp()
         if resp is not None:
             await bot.send(f'你说的是 {resp.text} 吧？')
+            
+# 以下为在规定时间内结束收集回复的代码
+# 常用于定时结束游戏
+@sv_switch.on_fullmatch('开始一场60秒的游戏')
+async def get_time_limit_resp_msg(bot: Bot, ev: Event):
+    await bot.send('接下来开始60秒的游戏！？')
+    try:
+        async with timeout(60): # 限制时长60秒
+            while True:
+                resp = await bot.receive_mutiply_resp()
+                if resp is not None:
+                    await bot.send(f'你说的是 {resp.text} 吧？')
+    except asyncio.TimeoutError:
+        await bot.send('时间到!!现在开始计算每个人的分数...')
 ```
 
 ## 总结
