@@ -79,6 +79,14 @@
       "type": "tip",
       "content": "普通",
       "info": "心理测试集合插件"
+    },
+    "pokemon": {
+      "link": "https://github.com/jiluoQAQ/pokemon",
+      "avatar": "https://github.com/jiluoQAQ.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能宝可梦小游戏插件"
     }
   },
   "extra": {
