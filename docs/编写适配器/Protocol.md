@@ -58,6 +58,10 @@ Bot 平台接收到消息时，插件应向 core 发送 `MessageReceive` 包进�
   * 当 `user_type` 为 `channel` 时，此字段为频道号
   * 当 `user_type` 为 `sub_channel` 时，此字段为子频道号
 * `user_id` (string) 用户 id
+* `sender` (dict) 用户 信息
+  * `card` (string/null) group 名片
+  * `nickname` (string) 用户 昵称
+  * 不同的 `bot_id` 也会传递不同的内容 其他`sender`参数也可自行获取
 * `user_pm` (integer) 用户权限，越小越高
 * `content` (Message[]) 消息正文
 
