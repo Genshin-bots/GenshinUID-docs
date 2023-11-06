@@ -60,6 +60,10 @@ Bot 平台接收到消息时，插件应向 core 发送 `MessageReceive` 包进�
 * `user_id` (string) 用户 id
 * `user_pm` (integer) 用户权限，越小越高
 * `content` (Message[]) 消息正文
+* `sender`(Dictionary) 发送者的一些信息（**于2023/11/6加入**）
+  * 里面的字段根据平台来看不固定，但是会尽可能的提供`nickname`和`avatar`字段，示例如下
+  *  {'age': 0, 'area': '', 'card': '季落', 'level': '', 'nickname': '季落ξ( ✿＞◡❛)✨', 'role': 'owner', 'sex': 'unknown', 'title': '', 'user_id': 376148946, 'avater': 'http://q1.qlogo.cn/g?b=qq&nk=376148946&s=640'},
+
 
 :::tip 对 `user_pm` 的建议
 `user_pm` 建议 `>=1`；

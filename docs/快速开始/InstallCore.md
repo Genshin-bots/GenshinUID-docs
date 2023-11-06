@@ -13,7 +13,7 @@
 - 输入安装core命令
 
 ```sh
-git clone https://ghproxy.com/https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
+git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
 ```
 - 进入文件夹内
 
@@ -35,7 +35,7 @@ poetry install
 cd gsuid_core
 cd plugins
 # 安装v4 GenshinUID
-git clone -b v4 https://ghproxy.com/https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
+git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 ```
 
 -  🎉你已经成功安装GsCore

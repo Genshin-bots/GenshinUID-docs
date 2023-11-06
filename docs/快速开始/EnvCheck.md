@@ -14,6 +14,12 @@ python -V
 
 - 确保安装`git`环境
 
+::: tip
+
+如果你没有安装`git`且的系统是`ubuntu`，安装`git`只需要输入`sudo apt-get install git`
+
+:::
+
 ```shell
 # 命令行内输入(注意v为小写)
 git -v
@@ -24,6 +30,12 @@ git -v
 ```
 
 - 确保安装`poetry`(版本须`>=1.4.0`)
+
+::: tip
+
+如果你没有安装`poetry`，只需要输入`pip install poetry`即可安装
+
+:::
 
 ```shell
 # 命令行内输入
