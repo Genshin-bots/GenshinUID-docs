@@ -68,6 +68,8 @@ export default {
         { text: 'GenshinUID', link: '/插件帮助/GenshinUID' },
         { text: 'StarRailUID', link: '/插件帮助/StarRailUID' },
         { text: 'ArknightsUID', link: '/插件帮助/ArknightsUID' },
+        { text: 'BlueArchiveUID', link: '/插件帮助/BlueArchiveUID' },
+        { text: 'WzryUID', link: '/插件帮助/WzryUID' },
       ],
     },
   ],

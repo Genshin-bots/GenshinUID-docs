@@ -3,6 +3,11 @@
 ### gsuid_core.models
 
 ```python
+from typing import Any, Dict, List, Literal, Optional
+
+from msgspec import Struct
+
+
 class Message(Struct):
     type: Optional[str] = None
     data: Optional[Any] = None
@@ -15,6 +20,7 @@ class MessageReceive(Struct):
     user_type: Literal['group', 'direct', 'channel', 'sub_channel'] = 'group'
     group_id: Optional[str] = None
     user_id: str = ''
+    sender: Dict[str, Any] = {}
     user_pm: int = 3
     content: List[Message] = []
 
