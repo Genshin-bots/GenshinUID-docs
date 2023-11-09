@@ -46,14 +46,17 @@ export default withPwa(defineConfig({
       {
         text: '🎉 快速开始',
         items: [
-          { text: '⭐ 安装Core', link: '/快速开始/InstallCore' },
-          { text: '🤖 链接Bot', link: '/链接支持Bot/AdapterList' },
-          { text: '🔧 安装插件', link: '/安装插件/InstallPlugins' },
-          { text: '💻 编写插件', link: '/编写插件/Start' },
+          { text: '⭐ 安装Core', link: '/Started/InstallCore' },
+          { text: '🤖 链接Bot', link: '/LinkBots/AdapterList' },
+          { text: '🔧 安装插件', link: '/InstallPlugins/InstallPlugins' },
+          { text: '✅ 绑定账号', link: '/Advance/BindDevice' },
+          { text: '💫 常见问题', link: '/FAQ/' },
+          { text: '💻 编写插件', link: '/CodePlugins/Start' },
+          { text: '🧐 编写适配器', link: '/CodeAdapter/Pack' },
         ],
       },
       {
-        text: ' 💖 系列插件',
+        text: '💖 系列插件',
         items: [
           { text: '✨ GenshinUID', link: 'https://github.com/KimigaiiWuyi/GenshinUID' },
           { text: '🚅 StarRailUID', link: 'https://github.com/qwerdvd/StarRailUID' },
