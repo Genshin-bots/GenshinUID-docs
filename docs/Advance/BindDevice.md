@@ -43,15 +43,15 @@
 
 ::: warning
 
-为了应对近期频繁出现的`1034`、`5003`错误，现有一种实验性方法
+ ⚠ ⚠**该方法可能存在一定风险** ⚠ ⚠
+
+为了应对近期频繁出现的`1034`、`5003`、`-999`（实际上也是`1034`）错误，现有一种实验性方法
 
 GsCore提供一种绑定设备的方法，以**尽可能**的减少`1034`的出现（甚至完全不出现）
 
-该方法**仍旧需要一定时间**和数量的样本进行观测
+该方法**确实有效**，但，**仍旧需要一定时间**和数量的样本进行观测
 
-**该方法可能存在一定风险**
-
-**该方法仅限安卓**
+**该方法仅限安卓**（苹果可以通过抓包直接构建fp的方式传入，具体在下面）
 
 ::: 
 
@@ -64,5 +64,19 @@ GsCore提供一种绑定设备的方法，以**尽可能**的减少`1034`的出�
 
 <ChatPanel title="绑定设备(私聊)">
 <ChatMessage nickname="Wuyi无疑">mys设备登录{"oaid":"DD8ice......K110"}</ChatMessage>
+<ChatMessage nickname="GsCore">设备绑定成功!</ChatMessage>
+</ChatPanel>
+
+::: tip
+**`mys设备登录`现在支持直接传入fp**`
+
+抓包之后构建一个带有`fp`和`device_id`的字典（如果可能的话可以携带`device_info`），传入即可
+
+::: 
+
+> 以下示例中的信息已被隐藏，实际内容并非如此
+
+<ChatPanel title="绑定设备(私聊)">
+<ChatMessage nickname="Wuyi无疑">mys设备登录{"fp":"38fff985f","device_id":"1234-5678-9999999-wcdd"}</ChatMessage>
 <ChatMessage nickname="GsCore">设备绑定成功!</ChatMessage>
 </ChatPanel>

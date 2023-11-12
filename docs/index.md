@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 💻
     title: 支持多种平台
-    details: 适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK...
+    details: 适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...
     link: /LinkBots/AdapterList
     linkText: 支持平台
   - icon: 🤖

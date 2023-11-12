@@ -8,7 +8,7 @@
 
 :::
 
-[NoneBot2](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-nonebot2) - 支持OneBot(QQ)、OneBotV12、RedProtocol（NTQQ）、QQ频道、微信（NtChat）、KOOK（开黑啦）、Telegram（电报）、FeiShu（飞书）等
+[NoneBot2](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-nonebot2) - 支持OneBot(QQ)、OneBotV12、RedProtocol（NTQQ）、QQ频道、微信（NtChat）、KOOK（开黑啦）、Telegram（电报）、FeiShu（飞书）、DoDo（渡渡）、Villa（米游社大别野）、Discord等
 
 [Hoshino](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-hoshino) - 支持OneBot(QQ)
 
