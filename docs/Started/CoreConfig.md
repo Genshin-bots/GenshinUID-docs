@@ -6,7 +6,9 @@
 
 `core_config.json`文件位于`gsuid_core/data/core_config.json`
 
-本文关注的是`config.json`，而`core_config.json`请尽量通过[网页控制台](../进阶介绍/WebConsole)去调整！
+本文关注的是`config.json`，而`core_config.json`请尽量通过[网页控制台](../Advance/WebConsole)去调整！
+
+如想关注`core_config.json`，请检查[GsCore 选项](../Advance/CoreConfig)
 
 首次安装GsCore时，两个文件均需要启动Core来进行生成
 

@@ -36,6 +36,7 @@ export default {
         { text: '网页控制台', link: '/Advance/WebConsole' },
         { text: '常见问题', link: '/FAQ/' },
         { text: '绑定账号', link: '/Advance/BindDevice' },
+        { text: 'Core配置项', link: '/Advance/CoreConfig' },
       ],
     },
     {
@@ -49,6 +50,7 @@ export default {
         { text: '定时任务', link: '/CodePlugins/Scheduler' },
         { text: '调用资源目录', link: '/CodePlugins/GetDataPath' },
         { text: '提供配置项', link: '/CodePlugins/PluginsConfig' },
+        { text: '调用配置项', link: '/CodePlugins/GetPluginsConfig' },
         { text: '调用数据库', link: '/CodePlugins/PluginsDataBase' },
         { text: '多步会话', link: '/CodePlugins/Resp' },
         { text: '模块方法', link: '/CodePlugins/Class' },

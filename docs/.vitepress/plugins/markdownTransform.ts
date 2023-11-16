@@ -24,10 +24,10 @@ export function MarkdownTransform(): Plugin {
 
       code = code.replace(/(#\s\S.+)/, `$1\n\n<PageInfo readTime="${readTime}" words="${words}"/>\n`)
 
-      code = code.replace(/::: info([\s\S.]+)?:::/g, '::: info 📝 备注$1:::\n')
-      code = code.replace(/::: warning([\s\S.]+)?:::/g, '::: warning 🚨 警告$1:::\n')
-      code = code.replace(/::: tip([\s\S.]+)?:::/g, '::: tip 💡 提醒$1:::\n')
-      code = code.replace(/::: danger([\s\S.]+)?:::/g, '::: danger 🔥 危险$1:::\n')
+      code = code.replace(/::: info([\s\S]+?)?:::/g, '::: info 📝 备注$1:::\n')
+      code = code.replace(/::: warning([\s\S]+?)?:::/g, '::: warning 🚨 警告$1:::\n')
+      code = code.replace(/::: tip([\s\S]+?)?:::/g, '::: tip 💡 提醒$1:::\n')
+      code = code.replace(/::: danger([\s\S]+?)?:::/g, '::: danger 🔥 危险$1:::\n')
 
       return code
     },
