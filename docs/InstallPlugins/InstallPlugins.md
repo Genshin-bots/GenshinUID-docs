@@ -27,7 +27,7 @@ cd plugins
 # 本文以安装GenshinUID / StarRailUID插件为范例
 
 # 安装v4 GenshinUID
-git clone -b v4 https://ghproxy.com/https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
+git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 
 # 安装StarRailUID
 git clone https://github.com/qwerdvd/StarRailUID.git --depth=1 --single-branch
