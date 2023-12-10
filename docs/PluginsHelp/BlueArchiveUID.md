@@ -81,3 +81,13 @@ B服:<br/>
 B服Ex通过人数: 9750<br/>
 数据最后更新于: 2023-11-02 07:37:25<br/>
 </p></details>
+<details><summary>ba用时 - 参考: ba用时 | ba用时寿司1300w</summary><p>
+  > 输入 Boss+分数 算总力战用时，输入示例：ba用时寿司12345678<br/>
+<a><img src="https://s2.loli.net/2023/12/10/WBKfnXiQPmH9h3b.png"></a>
+</p></details>
+
+<details><summary>ba算分 - 参考: ba算分 | ba算分ex寿司剩1:23.433 56.789</summary><p>
+  > 输入 难度+Boss+剩x:xx.xxx 算总力战分数，输入示例：ba算分ex寿司剩1:23.433 56.789<br/>
+  > 多刀用空格隔开<br/>
+<a><img src="https://s2.loli.net/2023/12/10/q9jzLksQmtGRFlT.png"></a>
+</p></details>

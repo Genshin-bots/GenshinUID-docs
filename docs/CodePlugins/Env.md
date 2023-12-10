@@ -42,6 +42,9 @@
   "python.linting.flake8CategorySeverity.E": "Warning",
   "python.analysis.extraPaths": [
     "${workspaceFolder}/../../../../"
+  ],
+  "python.analysis.include": [
+    "${workspaceFolder}/../../../../"
   ]
 }
 ```
