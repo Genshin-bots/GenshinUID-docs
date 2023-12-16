@@ -1,0 +1,95 @@
+{
+  "plugins": {
+    "plugin_chat": {
+      "link": "https://github.com/wangyu1997/gsuidcore_plugin_chat",
+      "avatar": "https://github.com/wangyu1997.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "融合了openai, newbing, 词库, 发病的智障回复插件"
+    },
+    "StarRailUID": {
+      "link": "https://github.com/qwerdvd/StarRailUID",
+      "avatar": "https://github.com/qwerdvd.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能星穹铁道插件"
+    },
+    "GenshinUID": {
+      "link": "https://github.com/KimigaiiWuyi/GenshinUID",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能原神插件"
+    },
+    "mys_qrlogin": {
+      "link": "https://github.com/RBAmeto/gsuidcore_mys_qrlogin",
+      "avatar": "https://github.com/RBAmeto.png",
+      "branch": "main",
+      "type": "danger",
+      "content": "危险",
+      "info": "扫码登陆游戏插件"
+    },
+    "honkai_sign": {
+      "link": "https://github.com/RBAmeto/gsuidcore_honkai_sign",
+      "avatar": "https://github.com/RBAmeto.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "崩坏三签到插件"
+    },
+    "maimai_plugin": {
+      "link": "https://github.com/Agnes4m/maimai_plugin",
+      "avatar": "https://github.com/Agnes4m.png",
+      "branch": "gsuid_core",
+      "type": "tip",
+      "content": "普通",
+      "info": "maimai插件"
+    },
+    "WzryUID": {
+      "link": "https://github.com/KimigaiiWuyi/WzryUID",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能王者荣耀插件"
+    },
+    "ArknightsUID": {
+      "link": "https://github.com/qwerdvd/ArknightsUID",
+      "avatar": "https://github.com/qwerdvd.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能明日方舟插件（WIP）"
+    },
+    "BlueArchiveUID": {
+      "link": "https://github.com/KimigaiiWuyi/BlueArchiveUID",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "蔚蓝档案插件"
+    },
+    "PsyTest": {
+      "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "心理测试集合插件"
+    },
+    "pokemon": {
+      "link": "https://github.com/jiluoQAQ/Pokemon",
+      "avatar": "https://github.com/jiluoQAQ.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "宝可梦小游戏插件"
+    }
+  },
+  "extra": {
+    
+  }
+}
