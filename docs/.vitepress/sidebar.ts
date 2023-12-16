@@ -37,6 +37,7 @@ export default {
         { text: '常见问题', link: '/FAQ/' },
         { text: '绑定账号', link: '/Advance/BindDevice' },
         { text: '转URL图片发送', link: '/Advance/TransURL' },
+        { text: 'MD模板和按钮模板', link: '/Advance/MarkdownTemplate' },
         { text: 'Core配置项', link: '/Advance/CoreConfig' },
       ],
     },
