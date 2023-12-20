@@ -6,6 +6,9 @@
     "build": "vitepress build docs",
     "serve": "vitepress serve docs"
   },
+  "dependencies": {
+    "vue-custom-scrollbar": "^1.4.4"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^0.42.0",
     "@antfu/ni": "^0.21.8",
@@ -51,8 +54,5 @@
     "*.{js,ts,tsx,vue,md}": [
       "eslint --cache --fix"
     ]
-  },
-  "dependencies": {
-    "vue-custom-scrollbar": "^1.4.4"
   }
 }

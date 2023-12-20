@@ -6,9 +6,9 @@ titleTemplate: 安装早柚核心、了解早柚协议、编写插件的相关�
 
 hero:
   name: "早柚核心"
-  text: ""
+  text: "GsCore"
   tagline: |
-    💖GsCore
+    💖一套业务逻辑，多个平台支持！
   image:
     src: /favicon.ico
     alt: GsCore
