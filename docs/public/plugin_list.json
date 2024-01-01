@@ -87,6 +87,14 @@
       "type": "tip",
       "content": "普通",
       "info": "宝可梦小游戏插件"
+    },
+    "MajsoulUID": {
+      "link": "https://github.com/KimigaiiWuyi/MajsoulUID",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能雀魂查询插件"
     }
   },
   "extra": {
