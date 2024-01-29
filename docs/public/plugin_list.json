@@ -95,6 +95,14 @@
       "type": "tip",
       "content": "普通",
       "info": "全功能雀魂查询插件"
+    },
+    "LOLegendsUID": {
+      "link": "https://github.com/KimigaiiWuyi/LOLegendsUID",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能LOL查询插件"
     }
   },
   "extra": {
