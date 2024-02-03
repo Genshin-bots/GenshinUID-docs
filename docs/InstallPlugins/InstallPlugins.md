@@ -30,7 +30,7 @@ cd plugins
 git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 
 # 安装StarRailUID
-git clone https://github.com/qwerdvd/StarRailUID.git --depth=1 --single-branch
+git clone https://github.com/baiqwerdvd/StarRailUID.git --depth=1 --single-branch
 
 # 返回主目录
 cd ../
