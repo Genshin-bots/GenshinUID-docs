@@ -59,10 +59,11 @@ export default withPwa(defineConfig({
         text: '💖 系列插件',
         items: [
           { text: '✨ GenshinUID', link: 'https://github.com/KimigaiiWuyi/GenshinUID' },
-          { text: '🚅 StarRailUID', link: 'https://github.com/qwerdvd/StarRailUID' },
+          { text: '🚅 StarRailUID', link: 'https://github.com/baiqwerdvd/StarRailUID' },
           { text: '🎮 WzryUID', link: 'https://github.com/KimigaiiWuyi/WzryUID' },
-          { text: '🛶 ArknightsUID', link: 'https://github.com/qwerdvd/ArknightsUID/' },
+          { text: '🛶 ArknightsUID', link: 'https://github.com/baiqwerdvd/ArknightsUID/' },
           { text: '🏫 BlueArchiveUID', link: 'https://github.com/KimigaiiWuyi/BlueArchiveUID' },
+          { text: '🦸‍♂️ LOLegendsUID', link: 'https://github.com/KimigaiiWuyi/LOLegendsUID' },
         ],
       },
       {

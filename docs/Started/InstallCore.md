@@ -22,7 +22,7 @@ git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-bran
 cd gsuid_core
 ```
 
-- 执行`poetry install`安装依赖
+- 执行`poetry install`安装依赖（或者执行`pdm install`安装依赖，二选一即可）
 
 
 ```sh

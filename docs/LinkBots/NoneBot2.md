@@ -22,7 +22,7 @@ nb plugin install nonebot-plugin-genshinuid
 - 输入安装命令（前提安装过git）
 
 ```sh
-git clone -b v4-nonebot2 https://ghproxy.com/https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
+git clone -b v4-nonebot2 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 ```
 
 - 使用命令`cd GenshinUID`进入插件文件夹
