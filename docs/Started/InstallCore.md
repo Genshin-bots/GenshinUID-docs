@@ -22,11 +22,18 @@ git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-bran
 cd gsuid_core
 ```
 
-- 执行`poetry install`安装依赖（或者执行`pdm install`安装依赖，二选一即可）
-
+- 安装依赖（以下两种二选一即可）
+  - 执行`poetry install`安装依赖
+  - 执行`pdm install`安装依赖
+    - 然后执行`pdm run python -m ensurepip`
 
 ```sh
+# poetry安装依赖方式
 poetry install
+
+# pdm安装依赖方式
+pdm install
+pdm run python -m ensurepip
 ```
 
 - 安装所需插件<Badge type="tip" text="可选" />
