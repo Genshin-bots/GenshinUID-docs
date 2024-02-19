@@ -75,6 +75,7 @@ export default {
         { text: 'ArknightsUID', link: '/PluginsHelp/ArknightsUID' },
         { text: 'BlueArchiveUID', link: '/PluginsHelp/BlueArchiveUID' },
         { text: 'WzryUID', link: '/PluginsHelp/WzryUID' },
+        { text: 'MajsoulUID', link: '/PluginsHelp/MajsoulUID' },
         { text: 'LOLegendsUID', link: '/PluginsHelp/LOLegendsUID' },
       ],
     },

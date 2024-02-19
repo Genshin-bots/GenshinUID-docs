@@ -1,5 +1,11 @@
 # NoneBot2<Badge type="tip" text="简单" />
 
+::: info
+
+**以下【用户模式安装插件】和【开发者模式安装插件】二选一即可**
+
+:::
+
 ## 安装插件<Badge type="tip" text="用户模式" />
 
 - 进入机器人项目文件夹内，输入命令安装本插件
@@ -7,6 +13,8 @@
 ```sh
 nb plugin install nonebot-plugin-genshinuid
 ```
+
+- 使用`nb run`启动你的bot
 
 ## 安装插件<Badge type="danger" text="开发者模式" />
 
