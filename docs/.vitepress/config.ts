@@ -72,6 +72,7 @@ export default withPwa(defineConfig({
         items: [
           { text: '📝 文档地址', link: 'https://github.com/Genshin-bots/GenshinUID-docs' },
           { text: '📦️ GsCore地址', link: 'https://github.com/Genshin-bots/gsuid_core' },
+          { text: '🐧 QQ群: Mihomo Group', link: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476' },
         ],
       },
     ],

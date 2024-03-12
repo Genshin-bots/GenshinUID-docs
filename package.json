@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "scripts": {
     "dev": "vitepress dev docs --port 8080 --max-old-space-size=50000",
     "build": "vitepress build docs",

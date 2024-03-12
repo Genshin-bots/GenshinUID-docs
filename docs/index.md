@@ -77,3 +77,6 @@ features:
 </VPTeamPage>
 
 <HomeContributors/>
+
+<Contact>
+</Contact>
