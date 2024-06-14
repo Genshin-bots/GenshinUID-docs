@@ -103,6 +103,14 @@
       "type": "tip",
       "content": "普通",
       "info": "全功能LOL查询插件"
+    },
+    "CS2UID": {
+      "link": "https://github.com/Agnes4m/CS2UID",
+      "avatar": "https://github.com/Agnes4m.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能CS2查询插件"
     }
   },
   "extra": {
