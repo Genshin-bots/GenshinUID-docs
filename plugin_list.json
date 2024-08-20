@@ -1,14 +1,5 @@
 {
   "plugins": {
-    "plugin_chat": {
-      "link": "https://github.com/wangyu1997/gsuidcore_plugin_chat",
-      "avatar": "https://github.com/wangyu1997.png",
-      "cover": "",
-      "branch": "main",
-      "type": "tip",
-      "content": "普通",
-      "info": "融合了openai, newbing, 词库, 发病的智障回复插件"
-    },
     "StarRailUID": {
       "link": "https://github.com/baiqwerdvd/StarRailUID",
       "avatar": "https://github.com/baiqwerdvd.png",
@@ -27,10 +18,19 @@
       "content": "普通",
       "info": "全功能原神插件"
     },
+    "plugin_chat": {
+      "link": "https://github.com/wangyu1997/gsuidcore_plugin_chat",
+      "avatar": "https://github.com/wangyu1997.png",
+      "cover": "",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "融合了openai, newbing, 词库, 发病的智障回复插件"
+    },
     "mys_qrlogin": {
       "link": "https://github.com/RBAmeto/gsuidcore_mys_qrlogin",
       "avatar": "https://github.com/RBAmeto.png",
-      "cover": "",
+      "cover": "https://s2.loli.net/2024/08/21/dOXW1qf9Gz35Qar.png",
       "branch": "main",
       "type": "danger",
       "content": "危险",
@@ -39,7 +39,7 @@
     "honkai_sign": {
       "link": "https://github.com/RBAmeto/gsuidcore_honkai_sign",
       "avatar": "https://github.com/RBAmeto.png",
-      "cover": "",
+      "cover": "https://s2.loli.net/2024/08/21/dOXW1qf9Gz35Qar.png",
       "branch": "main",
       "type": "tip",
       "content": "普通",
