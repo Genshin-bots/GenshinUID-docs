@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import json from '../../../public/plugin_list.json'
+
 function goToPage(url: string) {
   window.open(url, '_blank')
 }
@@ -199,5 +200,11 @@ a {
 
 .card:hover .info .description {
   color: rgb(235, 226, 225);
+}
+
+@media screen and (min-width: 768px) {
+  .card {
+    cursor: pointer;
+  }
 }
 </style>
