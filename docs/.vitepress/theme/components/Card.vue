@@ -35,7 +35,7 @@ function goToPage(url: string) {
         <img
           loading="lazy"
           :src="item.avatar"
-          :alt="`${name}'s avatar`"
+          :alt="`${index}'s avatar`"
         >
       </div>
       <div class="arrow">
@@ -70,7 +70,6 @@ a {
   --border-radius: 0.75rem;
   --primary-color: var(--vp-c-brand);
   --secondary-color: var(--vp-c-text-2);
-  cursor: pointer;
   background: var(--vp-c-bg-soft);
   box-shadow: 0px 8px 16px 0px rgb(0 0 0 / 3%);
   position: relative;
