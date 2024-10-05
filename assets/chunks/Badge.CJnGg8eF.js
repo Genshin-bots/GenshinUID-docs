@@ -1,0 +1,1 @@
+import{d as t,o as a,c as s,r as o,n,a as p,t as r,_}from"./framework.DyGBOWE7.js";const c=t({__name:"Badge",props:{text:{},type:{}},setup(l){return(e,d)=>(a(),s("span",{class:n(["VPBadge",e.type??"tip"])},[o(e.$slots,"default",{},()=>[p(r(e.text),1)],!0)],2))}}),m=_(c,[["__scopeId","data-v-e475422a"]]);export{m as _};
