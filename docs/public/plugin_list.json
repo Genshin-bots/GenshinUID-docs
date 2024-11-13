@@ -143,6 +143,15 @@
       "type": "tip",
       "content": "普通",
       "info": "全功能鸣潮查询插件"
+    },
+    "VAUID": {
+      "link": "https://github.com/Agnes4m/VAUID",
+      "avatar": "https://github.com/Agnes4m.png",
+      "cover": "https://s2.loli.net/2024/10/29/GMS6InAs2bWX8ey.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能无畏契约查询插件"
     }
   },
   "extra": {
