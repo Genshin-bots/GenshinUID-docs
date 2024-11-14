@@ -7,7 +7,13 @@
       "branch": "master",
       "type": "tip",
       "content": "普通",
-      "info": "全功能星穹铁道插件"
+      "info": "全功能星穹铁道插件",
+      "alias": [
+        "sruid",
+        "sr",
+        "星铁",
+        "崩铁"
+      ]
     },
     "GenshinUID": {
       "link": "https://github.com/KimigaiiWuyi/GenshinUID",
@@ -16,7 +22,12 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能原神插件"
+      "info": "全功能原神插件",
+      "alias": [
+        "gsuid",
+        "gs",
+        "原神"
+      ]
     },
     "plugin_chat": {
       "link": "https://github.com/wangyu1997/gsuidcore_plugin_chat",
@@ -25,7 +36,10 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "融合了openai, newbing, 词库, 发病的智障回复插件"
+      "info": "融合了openai, newbing, 词库, 发病的智障回复插件",
+      "alias": [
+        "chat"
+      ]
     },
     "mys_qrlogin": {
       "link": "https://github.com/RBAmeto/gsuidcore_mys_qrlogin",
@@ -34,7 +48,11 @@
       "branch": "main",
       "type": "danger",
       "content": "危险",
-      "info": "扫码登陆游戏插件"
+      "info": "扫码登陆游戏插件",
+      "alias": [
+        "qrlogin",
+        "扫码登陆"
+      ]
     },
     "honkai_sign": {
       "link": "https://github.com/RBAmeto/gsuidcore_honkai_sign",
@@ -43,7 +61,11 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "崩坏三签到插件"
+      "info": "崩坏三签到插件",
+      "alias": [
+        "崩三签到",
+        "bh3_sign"
+      ]
     },
     "maimai_plugin": {
       "link": "https://github.com/Agnes4m/maimai_plugin",
@@ -52,7 +74,11 @@
       "branch": "gsuid_core",
       "type": "tip",
       "content": "普通",
-      "info": "maimai插件"
+      "info": "maimai插件",
+      "alias": [
+        "maimai",
+        "mm"
+      ]
     },
     "WzryUID": {
       "link": "https://github.com/KimigaiiWuyi/WzryUID",
@@ -61,7 +87,12 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能王者荣耀插件"
+      "info": "全功能王者荣耀插件",
+      "alias": [
+        "wzry",
+        "王者",
+        "王者荣耀"
+      ]
     },
     "ArknightsUID": {
       "link": "https://github.com/baiqwerdvd/ArknightsUID",
@@ -70,7 +101,13 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能明日方舟插件（WIP）"
+      "info": "全功能明日方舟插件（WIP）",
+      "alias": [
+        "明日方舟",
+        "方舟",
+        "arknights",
+        "ark"
+      ]
     },
     "BlueArchiveUID": {
       "link": "https://github.com/KimigaiiWuyi/BlueArchiveUID",
@@ -79,7 +116,13 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "蔚蓝档案插件"
+      "info": "蔚蓝档案插件",
+      "alias": [
+        "ba",
+        "档案",
+        "蔚蓝档案",
+        "bauid"
+      ]
     },
     "PsyTest": {
       "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
@@ -88,7 +131,12 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "心理测试集合插件"
+      "info": "心理测试集合插件",
+      "alias": [
+        "心理测试",
+        "心理测试合集",
+        "测试"
+      ]
     },
     "pokemon": {
       "link": "https://github.com/jiluoQAQ/Pokemon",
@@ -97,7 +145,12 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "宝可梦小游戏插件"
+      "info": "宝可梦小游戏插件",
+      "alias": [
+        "宝可梦",
+        "神奇宝贝",
+        "宠物小精灵"
+      ]
     },
     "MajsoulUID": {
       "link": "https://github.com/KimigaiiWuyi/MajsoulUID",
@@ -106,7 +159,13 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能雀魂查询插件"
+      "info": "全功能雀魂查询插件",
+      "alias": [
+        "雀魂",
+        "majs",
+        "majsuid",
+        "majsoul"
+      ]
     },
     "LOLegendsUID": {
       "link": "https://github.com/KimigaiiWuyi/LOLegendsUID",
@@ -115,7 +174,12 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能LOL查询插件"
+      "info": "全功能LOL查询插件",
+      "alias": [
+        "lol",
+        "英雄联盟",
+        "loluid"
+      ]
     },
     "CS2UID": {
       "link": "https://github.com/Agnes4m/CS2UID",
@@ -124,7 +188,11 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能CS2查询插件"
+      "info": "全功能CS2查询插件",
+      "alias": [
+        "csuid",
+        "cs2"
+      ]
     },
     "ZZZeroUID": {
       "link": "https://github.com/ZZZure/ZZZeroUID",
@@ -133,7 +201,12 @@
       "branch": "master",
       "type": "tip",
       "content": "普通",
-      "info": "全功能绝区零查询插件"
+      "info": "全功能绝区零查询插件",
+      "alias": [
+        "zzz",
+        "绝区零",
+        "zzzero"
+      ]
     },
     "WutheringWavesUID": {
       "link": "https://github.com/tyql688/WutheringWavesUID",
@@ -142,7 +215,12 @@
       "branch": "master",
       "type": "tip",
       "content": "普通",
-      "info": "全功能鸣潮查询插件"
+      "info": "全功能鸣潮查询插件",
+      "alias": [
+        "wwuid",
+        "ww",
+        "鸣潮"
+      ]
     },
     "VAUID": {
       "link": "https://github.com/Agnes4m/VAUID",
@@ -151,7 +229,11 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "全功能无畏契约查询插件"
+      "info": "全功能无畏契约查询插件",
+      "alias": [
+        "va",
+        "无畏契约"
+      ]
     }
   },
   "extra": {
