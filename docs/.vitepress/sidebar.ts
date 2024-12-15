@@ -60,7 +60,7 @@ export default {
         { text: '多步会话', link: '/CodePlugins/Resp' },
         { text: '插件帮助', link: '/CodePlugins/PluginsHelp' },
         { text: '✨ 订阅消息', link: '/CodePlugins/Subscribe' },
-        { text: '🔧 触发器', link: '/CodePlugins/Trigger' },
+        { text: '🔧 触发器', link: '/CodePlugins/trigger' },
         { text: '任意位置调用Bot', link: '/CodePlugins/BotCall' },
         { text: '模块方法', link: '/CodePlugins/Class' },
       ],
