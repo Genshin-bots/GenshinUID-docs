@@ -23,6 +23,9 @@
 </p></details>
 
 1. 准备帮助的文件`help.json`, 这里给出[参考](https://github.com/KimigaiiWuyi/MajsoulUID/blob/main/MajsoulUID/majs_help/help.json)，请注意，该文件中的【任何命令】**不需要**添加前缀！
+
+   1. [第二份参考](https://github.com/Genshin-bots/gsuid_core/blob/master/gsuid_core/help/help.json)中的某些项添加了`"pm": 0`等类似权限控制, 可以实现不同权限等级的人触发帮助看到不同的内容，对于有管理帮助的插件十分有用。
+
 2. 准备相应的文件素材，这里有一份[范例](https://github.com/KimigaiiWuyi/MajsoulUID/tree/main/MajsoulUID/majs_help/texture2d)，素材`banner_bg`和`bg`的宽度请尽可能保持为`1545`！
 
 ![image-20241006064022331](./../public/PluginsHelp/image-20241006064022331.png)
@@ -63,7 +66,7 @@ async def get_help_data() -> Dict[str, PluginHelp]:
         return msgjson.decode(await file.read(), type=Dict[str, PluginHelp])
 
 
-async def get_help():
+async def get_help(user_pm: int):
     return await get_new_help(
         # 插件名
         plugin_name='MajsoulUID',
@@ -95,6 +98,8 @@ async def get_help():
         footer=get_footer(),
         # 是否允许缓存, 或者每次使用命令均重新绘制（建议使用缓存）
         enable_cache=True,
+        # 为了让不同权限等级，触发帮助的人展现不同的帮助菜单，需要传递ev.user_pm中的权限信息
+        pm=user_pm,
     )
 ```
 
