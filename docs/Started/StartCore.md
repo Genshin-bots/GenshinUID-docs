@@ -1,32 +1,73 @@
-# 手动启动Core<Badge type="tip" text="简单" />
+# 启动Core<Badge type="tip" text="简单" />
 
 ::: warning
 
-**推荐使用本方法启动Core**
+下面四种启动方式，根据你安装时使用的工具选择即可。
 
-**不推荐使用Bot命令启动Core**
+启动时需移动至主路径, 例如`E:\gsuid_core`
 
-`pdm`启动和`poetry`启动二选一即可
+示例命令 `cd E:\MyPyProject\gsuid_core`
 
 :::
 
-## Poetry启动
+## 启动命令
 
-- 移动至`gsuid_core/gsuid_core`文件夹内
+::: details 【🥳 推荐】UV启动
 
-- 输入命令`poetry run core`或者`poetry run python core.py `
+```sh
+uv run core
+```
 
+:::
+
+::: details Poetry启动
 
 ```sh
 poetry run core
 ```
 
-## Pdm启动
+:::
 
-- 移动至`gsuid_core/gsuid_core`文件夹内
-- 输入命令`pdm run core`或者`pdm run python core.py `
+
+::: details PDM启动
 
 ```sh
 pdm run core
 ```
 
+:::
+
+::: details 【😡 不推荐】直接使用Python
+
+```sh
+# 不推荐使用该方法
+python -m gsuid_core.core
+```
+
+:::
+
+## 下一步你可能需要的页面
+
+::: warning
+
+GsCore并**不能独立使用**，你需要连接NoneBot2或其他支持的Bot才能使用！
+
+【以下是部分支持的Bot列表】：
+
+🔗 [连接 NoneBot2](../LinkBots/NoneBot2) 
+
+🔗 [连接 HoshinoBot](../LinkBots/HoshinoBot) 
+
+🔗 [连接 YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin)
+
+🔗 [连接 ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
+
+🔗 [连接 Koishi](https://github.com/GithubCin/gscore-adapter)
+
+你可以选择前往 🔗[该页面](../LinkBots/AdapterList) 查看更多支持Bot列表
+
+:::
+
+🔧 [配置Core](./CoreConfig)
+
+🤖 [插件市场](../InstallPlugins/PluginsList)

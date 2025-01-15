@@ -1,12 +1,7 @@
-# 手动安装Core<Badge type="danger" text="普通" />
+# 安装Core<Badge type="danger" text="普通" />
 
-::: tip
 
-如需选择`自动安装Core`、可**直接跳转**至对应Bot的安装文档
-
-**推荐使用本方法安装Core**
-
-:::
+## 下载/克隆仓库
 
 - 在`Bot目录`的上级（例如你的bot目录为`./Wuyi/nb2`,则cd至`./Wuyi`处）
 
@@ -22,21 +17,50 @@ git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-bran
 cd gsuid_core
 ```
 
-- 安装依赖（以下两种二选一即可）
-  - 执行`poetry install`安装依赖
-  - 执行`pdm install`安装依赖
-    - 然后执行`pdm run python -m ensurepip`
+## 安装依赖
+::: tip
 
+可以根据你的喜好，自行选择`uv`, `pdm`, `poetry`等环境工具安装Core
+
+或使用裸环境`python`&`pip`安装
+
+:::
+
+::: details 【🥳 推荐】uv
+```sh
+# uv安装依赖方式
+uv sync
+uv run python -m ensurepip
+```
+:::
+
+::: details poetry
 ```sh
 # poetry安装依赖方式
 poetry install
+```
+:::
 
+::: details pdm
+
+```sh
 # pdm安装依赖方式
 pdm install
 pdm run python -m ensurepip
 ```
 
-- 安装所需插件<Badge type="tip" text="可选" />
+:::
+
+::: details 【😡 不推荐】直接使用python
+
+```sh
+# 不推荐该方式
+python -m pip install -r requirements.txt
+```
+
+:::
+
+## 安装所需插件<Badge type="tip" text="可选" />
 
 ```sh
 cd gsuid_core
@@ -45,4 +69,7 @@ cd plugins
 git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 ```
 
--  🎉你已经成功安装GsCore
+##  🎉你已经成功安装GsCore
+
+ ▶ [启动Core](./StartCore)
+
