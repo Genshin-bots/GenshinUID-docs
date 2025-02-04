@@ -59,4 +59,4 @@
 
 ##### Q: 能不能修改`core`接受链接的端口
 
-> 在`gsuid_core/gsuid_core/config.json`中，调整IP和PORT后重启core
+> 在`gsuid_core/data/config.json`中，调整IP和PORT后重启core

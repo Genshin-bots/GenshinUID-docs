@@ -2,7 +2,7 @@
 
 ::: warning
 
-`config.json`文件位于`gsuid_core/gsuid_core/config.json`
+`config.json`文件位于`gsuid_core/data/config.json`
 
 `core_config.json`文件位于`gsuid_core/data/core_config.json`
 

@@ -11,7 +11,7 @@ HTTP调用方式**依旧需要提供**完整的MessageReceive结构体。
 :::
 
 1. 打开GsCore的HTTP模式（和WS**并不冲突**，但仍然建议**不使用时关闭**）
-   - 打开`gsuid_core/gsuid_core/config.json`
+   - 打开`gsuid_core/data/config.json`
    - 找到`ENABLE_HTTP`配置项，将其设置为`true`
 2. 依旧是默认8765端口（如有自行修改，以修改的为准），终结点为`/api/send_msg`
 3. POST方法，数据内容为`MessageReceive`，[数据结构](../CodeAdapter/Pack)，以下为调用示例：
