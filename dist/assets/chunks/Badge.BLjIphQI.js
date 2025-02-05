@@ -1,1 +1,0 @@
-import{d as t,o as s,c as a,r as o,n,a as p,t as r,_}from"./framework.AIsPoTDm.js";const c=t({__name:"Badge",props:{text:{},type:{}},setup(l){return(e,d)=>(s(),a("span",{class:n(["VPBadge",e.type??"tip"])},[o(e.$slots,"default",{},()=>[p(r(e.text),1)],!0)],2))}}),m=_(c,[["__scopeId","data-v-022f02c0"]]);export{m as _};

@@ -7,6 +7,7 @@ export default {
         { text: '确认环境', link: '/Started/EnvCheck' },
         { text: '安装GsCore', link: '/Started/InstallCore' },
         { text: '启动GsCore', link: '/Started/StartCore' },
+        { text: '使用Docker运行GsCore', link: '/Started/DockerCore' },
         { text: '配置GsCore', link: '/Started/CoreConfig' },
       ],
     },

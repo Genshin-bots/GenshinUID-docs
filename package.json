@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.2.1",
   "scripts": {
-    "dev": "vitepress dev docs --port 8080 --max-old-space-size=50000",
+    "dev": "vitepress dev docs --port 8080 --max-old-space-size=50000 --host 0.0.0.0",
     "build": "vitepress build docs",
     "serve": "vitepress serve docs"
   },
