@@ -41,7 +41,7 @@ features:
   - icon: 🌎
     title: 网页控制台
     details: 任何插件均可通过简单继承，令插件配置项直接在网页控制台上修改生效
-    link: /CodePlugins/PluginsConfig
+    link: /Started/WebConsole
     linkText: 如何使用
   - icon: 🔌
     title: 插件统一

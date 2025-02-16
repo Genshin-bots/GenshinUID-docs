@@ -8,6 +8,7 @@ export default {
         { text: '安装GsCore', link: '/Started/InstallCore' },
         { text: '启动GsCore', link: '/Started/StartCore' },
         { text: '配置GsCore', link: '/Started/CoreConfig' },
+        { text: '网页控制台', link: '/Started/WebConsole' },
       ],
     },
     {
@@ -33,7 +34,6 @@ export default {
       items: [
         { text: '概念理解', link: '/Advance/BaseInfo' },
         { text: '数据存储结构', link: '/Advance/DataStruct' },
-        { text: '网页控制台', link: '/Advance/WebConsole' },
         { text: '常见问题', link: '/FAQ/' },
         { text: '绑定账号', link: '/Advance/BindDevice' },
         { text: '转URL图片发送', link: '/Advance/TransURL' },
