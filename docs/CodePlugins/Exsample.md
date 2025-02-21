@@ -2,7 +2,7 @@
 
 ::: tip
 
-该文件位于`gsuid_core/plugins/gs_test.py`
+该文件位于`gsuid_core/buildin_plugins/gs_test.py`
 
 :::
 
