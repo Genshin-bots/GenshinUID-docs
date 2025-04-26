@@ -13,6 +13,7 @@
 [机器人](https://github.com/nonebot/nonebot2) | [适配器](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-nonebot2)
 
 ✨ 跨平台 Python 异步聊天机器人框架 / Asynchronous multi-platform chatbot framework written in Python
+
 ✨ 支持OneBot(QQ)、OneBotV12、RedProtocol（NTQQ）、QQ频道、微信（NtChat）、KOOK（开黑啦）、Telegram（电报）、FeiShu（飞书）、DoDo（渡渡）、Villa（米游社大别野）、Discord等
 
 
