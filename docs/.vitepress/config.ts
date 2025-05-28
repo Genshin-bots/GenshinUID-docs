@@ -1,4 +1,4 @@
-import process from 'process'
+import process from 'node:process'
 import { defineConfig } from 'vitepress'
 import { withPwa } from '@vite-pwa/vitepress'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -51,6 +51,7 @@ export default withPwa(defineConfig({
         text: '🎉 快速开始',
         items: [
           { text: '⭐ 安装Core', link: '/Started/InstallCore' },
+          { text: '🐳 使用Docker运行Core', link: '/Started/DockerCore' },
           { text: '🤖 链接Bot', link: '/LinkBots/AdapterList' },
           { text: '🔧 安装插件', link: '/InstallPlugins/InstallPlugins' },
           { text: '✅ 绑定账号', link: '/Advance/BindDevice' },
