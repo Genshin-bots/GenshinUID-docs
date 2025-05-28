@@ -1,6 +1,6 @@
 # 插件配置项(config.json)<Badge type="tip" text="简单" />
 
-[参考](https://github.com/qwerdvd/StarRailUID/blob/master/StarRailUID/starrailuid_config/config_default.py)
+[参考](https://github.com/baiqwerdvd/StarRailUID/blob/master/StarRailUID/starrailuid_config/config_default.py)
 
 ```python
 # 先导入基础配置模型
@@ -34,5 +34,64 @@ from .config_default import CONIFG_DEFAULT
 
 # 分别传入 配置总名称（不要和其他插件重复），配置路径，以及配置模型
 srconfig = StringConfig('StarRailUID', CONFIG_PATH, CONIFG_DEFAULT)
+```
+
+全部的配置类型[如下](https://github.com/Genshin-bots/gsuid_core/blob/master/gsuid_core/utils/plugins_config/models.py)
+
+```python
+from typing import Dict, List, Union, Optional
+
+import msgspec
+
+
+class GsConfig(msgspec.Struct, tag=True):
+    title: str
+    desc: str
+
+
+class GsStrConfig(GsConfig, tag=True):
+    data: str
+    options: List[str] = []
+
+
+class GsBoolConfig(GsConfig, tag=True):
+    data: bool
+
+
+class GsDictConfig(GsConfig, tag=True):
+    data: Dict[str, List]
+
+
+class GsListStrConfig(GsConfig, tag=True):
+    data: List[str]
+    options: List[str] = []
+
+
+class GsListConfig(GsConfig, tag=True):
+    data: List[int]
+
+
+class GsIntConfig(GsConfig, tag=True):
+    data: int
+    max_value: Optional[int] = None
+    options: List[int] = []
+
+
+class GsImageConfig(GsConfig, tag=True):
+    data: str
+    upload_to: str
+    filename: str
+    suffix: str = 'jpg'
+
+
+GSC = Union[
+    GsDictConfig,
+    GsBoolConfig,
+    GsListConfig,
+    GsListStrConfig,
+    GsStrConfig,
+    GsIntConfig,
+    GsImageConfig,
+]
 ```
 

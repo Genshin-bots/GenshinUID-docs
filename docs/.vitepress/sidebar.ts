@@ -35,6 +35,7 @@ export default {
       items: [
         { text: '概念理解', link: '/Advance/BaseInfo' },
         { text: '数据存储结构', link: '/Advance/DataStruct' },
+        { text: '配置数据库', link: '/Advance/Database' },
         { text: '常见问题', link: '/FAQ/' },
         { text: '绑定账号', link: '/Advance/BindDevice' },
         { text: '转URL图片发送', link: '/Advance/TransURL' },
@@ -63,6 +64,7 @@ export default {
         { text: '✨ 订阅消息', link: '/CodePlugins/Subscribe' },
         { text: '🔧 触发器', link: '/CodePlugins/trigger' },
         { text: '任意位置调用Bot', link: '/CodePlugins/BotCall' },
+        { text: '发送消息给主人', link: '/CodePlugins/SendToMaster' },
         { text: '模块方法', link: '/CodePlugins/Class' },
       ],
     },

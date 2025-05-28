@@ -12,7 +12,7 @@
 
 向机器人发送`绑定uid`即可完成绑定
 
-> 注意此为绑定原神uid, 如绑定星铁uid则发送`sr绑定uid`
+> 注意此为绑定原神uid, 如绑定星铁uid则发送`sr绑定uid`, 绑定绝区零则为`zzz绑定uid`
 
 <ChatPanel title="绑定UID">
 <ChatMessage nickname="Wuyi无疑">绑定uid100740568</ChatMessage>
@@ -49,13 +49,13 @@
 
 GsCore提供一种绑定设备的方法，以**尽可能**的减少`1034`的出现（甚至完全不出现）
 
-该方法**确实有效**，但，**仍旧需要一定时间**和数量的样本进行观测
+该方法**确实有效**，~~但，**仍旧需要一定时间**和数量的样本进行观测~~（一年半后：有效）
 
 **该方法仅限安卓**（苹果可以通过抓包直接构建fp的方式传入，具体在下面）
 
 ::: 
 
-- 使用**常用米游社**手机下载[该项目](https://github.com/forchannot/get_device_info)Action中编译的APK，并安装
+- 使用**常用米游社**手机下载[该项目](https://github.com/forchannot/get_device_info)~~Action中编译的APK~~（请检查该项目的ReadME文件获取下载方式），并安装
 - 打开后点击按钮复制
 - **私聊**Bot`mys设备登录`+粘贴你刚刚复制的内容
 - 发送，完成绑定

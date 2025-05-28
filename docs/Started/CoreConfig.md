@@ -6,7 +6,7 @@
 
 `core_config.json`文件位于`gsuid_core/data/core_config.json`
 
-本文关注的是`config.json`，而`core_config.json`请尽量通过[网页控制台](../WebConsole)去调整！
+本文关注的是`config.json`，而`core_config.json`请尽量通过[网页控制台](../Started/WebConsole)去调整！
 
 如想关注`core_config.json`，请检查[GsCore 选项](../Advance/CoreConfig)
 
@@ -17,7 +17,7 @@
 ### 一、使用网页控制台进行修改（推荐）
 
 1. 启动GsCore
-2. 进入[网页控制台](../WebConsole)
+2. 进入[网页控制台](../Started/WebConsole)
 3. 在左侧【Core配置】页签中的**masters**选项中输入自己的QQ号（或其他平台号码）回车添加，然后点击确认修改
    1. 如果不清楚该填什么（其他平台）, 可以发一条消息，然后在GsCore后端查看你的`user_id`，填入那个即可
 4. 重启GsCore

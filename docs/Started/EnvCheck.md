@@ -79,7 +79,7 @@ uv -V
 
 如果你没有安装`poetry`，只需要输入`pip install poetry`即可安装
 
-如果你没有安装`uv`, 只需要输入`pip install uv`即可安装（**更推荐使用**`pipx`）
+如果你没有安装`uv`, 只需要输入`pip install uv`即可安装
 
 如果你没有安装`pdm`, 则更加复杂一点, 必须使用`pipx`管理`pdm`环境
 `pipx install pdm`

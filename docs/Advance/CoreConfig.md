@@ -1,6 +1,6 @@
 # GsCore配置<Badge type="tip" text="简单" />
 
-该配置可通过[网页控制台](./WebConsole)修改
+该配置可通过[网页控制台](../Started/WebConsole)修改
 
 或者通过修改`gsuid_core/data/core_config.json`文件并保存重启以修改
 

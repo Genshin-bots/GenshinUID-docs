@@ -22,7 +22,7 @@
 
 导入数据应该在安装完成`gsuid_core`、`GenshinUID v4`之后执行
 
-如果你还没有安装`gsuid_core` -> [安装教程](../快速开始/InstallCore)
+如果你还没有安装`gsuid_core` -> [安装教程](../Started/InstallCore)
 
 如果是自动安装Core的话，`Core目录`应该和`Bot目录`同级
 
