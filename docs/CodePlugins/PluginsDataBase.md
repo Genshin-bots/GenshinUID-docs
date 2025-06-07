@@ -163,3 +163,49 @@ class MajsPaipu(BaseIDModel, table=True):
         return bool(data)
 ```
 
+
+
+#### 额外、为定好的表添加列
+
+有时候可能需要为已经写好的表添加额外的列，对于开发者可以迁移表，但对于部署者可能没有这种能力。
+
+所以我们需要一个方法，通过该方法可以无痕的在部署者启动Bot的时候，自动添加列。
+
+方法如下：
+
+1. 修改模型
+2. 为`exec_list`添加SQL语句
+
+[参考](https://github.com/tyql688/WutheringWavesUID/blob/fafebd2893b32742f1d930cb04df92795c59e054/WutheringWavesUID/utils/database/models.py)
+
+```python
+from gsuid_core.utils.database.startup import exec_list
+
+# 先修改模型
+class WavesUser(User, table=True):
+    __table_args__: Dict[str, Any] = {"extend_existing": True}
+    cookie: str = Field(default="", title="Cookie")
+    uid: str = Field(default=None, title="鸣潮UID")
+    record_id: Optional[str] = Field(default=None, title="鸣潮记录ID")
+    platform: str = Field(default="", title="ck平台")
+    stamina_bg_value: str = Field(default="", title="体力背景")
+    bbs_sign_switch: str = Field(default="off", title="自动社区签到")
+    bat: str = Field(default="", title="bat")
+    did: str = Field(default="", title="did")
+    
+# 添加SQL语句
+exec_list.extend(
+    [
+        'ALTER TABLE WavesUser ADD COLUMN platform TEXT DEFAULT ""',
+        'ALTER TABLE WavesUser ADD COLUMN stamina_bg_value TEXT DEFAULT ""',
+        'ALTER TABLE WavesUser ADD COLUMN bbs_sign_switch TEXT DEFAULT "off"',
+        'ALTER TABLE WavesUser ADD COLUMN bat TEXT DEFAULT ""',
+        'ALTER TABLE WavesUser ADD COLUMN did TEXT DEFAULT ""',
+    ]
+)
+
+## 注意上面这个地方类型一定要填对
+# 例如 TEXT 对应python的str; DEFAULT后面跟的是默认值
+# 如果不理解、对SQL不熟悉的，可以让AI帮你写SQL语句
+```
+

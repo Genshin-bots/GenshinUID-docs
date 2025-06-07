@@ -38,12 +38,12 @@
 4. 编写函数，同样是[参考](https://github.com/KimigaiiWuyi/MajsoulUID/blob/main/MajsoulUID/majs_help/get_help.py)，可以直接复制修改
 
 ```python
+import json
 from typing import Dict
 from pathlib import Path
 
 import aiofiles
 from PIL import Image
-from msgspec import json as msgjson
 from gsuid_core.sv import get_plugin_available_prefix
 from gsuid_core.help.model import PluginHelp
 from gsuid_core.help.draw_new_plugin_help import get_new_help
@@ -63,7 +63,7 @@ PREFIX = get_plugin_available_prefix('MajsoulUID')
 # 使用aiofiles异步读取help.json文件
 async def get_help_data() -> Dict[str, PluginHelp]:
     async with aiofiles.open(HELP_DATA, 'rb') as file:
-        return msgjson.decode(await file.read(), type=Dict[str, PluginHelp])
+        return json.loads(await file.read())
 
 
 async def get_help(user_pm: int):
