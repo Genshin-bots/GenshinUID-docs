@@ -1,11 +1,11 @@
+import 'uno.css'
 import { inBrowser, useRoute } from 'vitepress'
 import type { EnhanceAppContext, Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme-without-fonts'
 import { nextTick, onMounted, watch } from 'vue'
-import busuanzi from 'busuanzi.pure.js'
 import mediumZoom from 'medium-zoom'
-import { registerAnalytics, siteIds, trackPageview } from './plugins/baidutongji'
-import googleAnalytics from './plugins/googleAnalytics'
+import ChatLayout from './ChatLayout.vue'
+import TestLayout from './TestLayout.vue'
 import './styles/main.css'
 import './styles/global.css'
 import './styles/demo.css'
@@ -13,30 +13,14 @@ import './styles/utils.css'
 import './styles/vars.css'
 import './styles/custom-block.css'
 import './styles/scrollBar.scss'
-import 'uno.css'
 
 if (inBrowser)
   import('./plugins/pwa')
 
 const theme: Theme = {
   ...DefaultTheme,
-  enhanceApp({ router }: EnhanceAppContext) {
-    googleAnalytics({
-      id: 'G-0F3DLK5BSG',
-    })
-    if (inBrowser) {
-      registerAnalytics(siteIds)
-
-      window.addEventListener('hashchange', () => {
-        const { href: url } = window.location
-        trackPageview(siteIds, url)
-      })
-
-      router.onAfterRouteChanged = (to) => {
-        trackPageview(siteIds, to)
-        busuanzi.fetch()
-      }
-    }
+  enhanceApp({ app, router }: EnhanceAppContext) {
+    app.component('ChatLayout', ChatLayout)
   },
   setup() {
     const route = useRoute()

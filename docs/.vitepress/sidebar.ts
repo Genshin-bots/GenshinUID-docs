@@ -66,6 +66,7 @@ export default {
         { text: '任意位置调用Bot', link: '/CodePlugins/BotCall' },
         { text: '发送消息给主人', link: '/CodePlugins/SendToMaster' },
         { text: '模块方法', link: '/CodePlugins/Class' },
+        { text: '实时聊天室', link: '/SP/chat' },
       ],
     },
     {
