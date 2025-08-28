@@ -205,6 +205,7 @@
       "installMsg": "",
       "alias": [
         "csuid",
+
         "cs2"
       ]
     },
@@ -265,6 +266,21 @@
         "stock",
         "股票",
         "早柚股票"
+      ]
+    },
+    "DeltaUID": {
+      "link": "https://github.com/Agnes4m/DeltaUID",
+      "avatar": "https://github.com/Agnes4m.png",
+      "cover": "https://s2.loli.net/2025/08/27/kvsjNfriEO2UoTy.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "三角洲查询插件",
+      "installMsg": "",
+      "alias": [
+        "delta",
+        "ss",
+        "三角洲"
       ]
     }
   },
