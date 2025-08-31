@@ -1,20 +1,38 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 
-// --- 响应式状态定义 ---
+// --- 响应式状态定义 (这部分不变) ---
 const ws = ref(null)
 const messages = ref([])
 const newMessage = ref('')
 const connectionStatus = ref('disconnected')
 const messageContainer = ref(null)
-
-// ✅ 1. 将 WebSocket URL 改为响应式 ref
 const wsUrl = ref('ws://localhost:8765/ws/web')
 let debounceTimer = null;
+const lightboxImage = ref(null);
+let repaintDebounceTimer = null;
+const lightboxOverlay = ref(null);
+const imageRenderKey = ref(0);
 
-// --- 计算属性，用于UI显示 ---
+// --- 图片放大功能的状态 (这部分不变) ---
+const lightboxImageSrc = ref(null);
+const isLightboxVisible = computed(() => !!lightboxImageSrc.value);
+
+// --- 用于图片缩放和拖动的状态 (这部分不变) ---
+const scale = ref(1);
+const translateX = ref(0);
+const translateY = ref(0);
+const isDragging = ref(false);
+const startDragX = ref(0);
+const startDragY = ref(0);
+
+// --- 计算属性，用于动态生成 transform 样式 (这部分不变) ---
+const imageTransform = computed(() => {
+  return `scale(${scale.value}) translate(${translateX.value}px, ${translateY.value}px)`;
+});
+
+// --- 计算属性 (这部分不变) ---
 const statusText = computed(() => {
-  // ... (此部分代码不变)
   switch (connectionStatus.value) {
     case 'connecting': return '正在连接...'
     case 'connected': return '连接成功'
@@ -25,7 +43,6 @@ const statusText = computed(() => {
 })
 
 const statusClass = computed(() => {
-  // ... (此部分代码不变)
   return {
     connecting: connectionStatus.value === 'connecting',
     connected: connectionStatus.value === 'connected',
@@ -33,56 +50,116 @@ const statusClass = computed(() => {
   }
 })
 
-// --- 消息渲染辅助函数 ---
+// --- 消息渲染辅助函数 (这部分不变) ---
 const renderContent = (content) => {
   const htmlParts = content.map(msg => {
     switch (msg.type) {
       case 'text':
       case 'markdown':
         return `<div>${escapeHtml(msg.data)}</div>`;
-
       case 'image':
         if (msg.data && typeof msg.data === 'string') {
           let src = msg.data;
-          if (src.startsWith('base64:///')) {
-            src = `data:image/jpeg;base64,${src.substring(10)}`;
+          if (src.startsWith('base64://')) {
+            src = `data:image/jpeg;base64,${src.substring(9)}`; 
           } else if (src.startsWith('link://')) {
             src = src.substring(7);
           }
           return `<img src="${src}" alt="image" class="chat-image" />`;
         }
         return '<div>[图片]</div>';
-
+      // *** 注意：按钮渲染已移至模板中，此处不再处理 ***
       default:
         return null;
     }
   });
-
   return htmlParts.filter(part => part).join('');
 }
 
 const escapeHtml = (unsafe) => {
-  // ... (此部分代码不变)
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+    return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+// --- 图片放大相关函数 (这部分不变) ---
+const handleMessageClick = (event) => {
+  const target = event.target;
+  if (target.tagName === 'IMG' && target.classList.contains('chat-image')) {
+    lightboxImageSrc.value = target.src;
+  }
+}
+
+const closeLightbox = () => {
+  lightboxImageSrc.value = null;
+  scale.value = 1;
+  translateX.value = 0;
+  translateY.value = 0;
+  isDragging.value = false;
+  clearTimeout(repaintDebounceTimer); 
+  imageRenderKey.value = 0;
+}
+
+// --- 图片缩放/拖动相关函数 (这部分不变) ---
+const handleWheel = (event) => {
+  event.preventDefault(); 
+  const zoomSpeed = 0.1;
+  if (event.deltaY < 0) {
+    scale.value = Math.min(scale.value + zoomSpeed, 5);
+  } else {
+    scale.value = Math.max(scale.value - zoomSpeed, 0.5);
+  }
+  
+  if (scale.value <= 1) {
+    translateX.value = 0;
+    translateY.value = 0;
+  }
+  clearTimeout(repaintDebounceTimer);
+  repaintDebounceTimer = setTimeout(forceRepaint, 150);
+}
+
+const forceRepaint = () => {
+  imageRenderKey.value++;
+};
+
+const handleMouseDown = (event) => {
+  if (scale.value <= 1) return;
+  event.preventDefault();
+  isDragging.value = true;
+  startDragX.value = event.clientX - translateX.value;
+  startDragY.value = event.clientY - translateY.value;
+  window.addEventListener('mousemove', handleMouseMove);
+  window.addEventListener('mouseup', handleMouseUp);
+}
+
+const handleMouseMove = (event) => {
+  if (isDragging.value) {
+    translateX.value = event.clientX - startDragX.value;
+    translateY.value = event.clientY - startDragY.value;
+  }
+}
+
+const handleMouseUp = () => {
+  isDragging.value = false;
+  window.removeEventListener('mousemove', handleMouseMove);
+  window.removeEventListener('mouseup', handleMouseUp);
 }
 
 
-// --- WebSocket 核心逻辑 ---
+// --- MODIFIED START: WebSocket 消息处理 ---
 const connectWebSocket = () => {
-  // 如果当前有连接，先断开
   if (ws.value) {
     ws.value.close();
   }
-  
   connectionStatus.value = 'connecting'
   messages.value = []
-  
-  // ... (onopen, onmessage, onclose, onerror 逻辑基本不变)
+  try {
+    ws.value = new WebSocket(wsUrl.value);
+  } catch (error) {
+    console.error('创建 WebSocket 失败: 无效的URL?', error);
+    connectionStatus.value = 'error';
+    messages.value.push({ type: 'system', text: `连接失败：无效的URL "${wsUrl.value}"` });
+    ws.value = null;
+    return;
+  }
   ws.value.onopen = () => {
     connectionStatus.value = 'connected'
     messages.value.push({ type: 'system', text: `已连接到 ${wsUrl.value}` })
@@ -97,25 +174,30 @@ const connectWebSocket = () => {
       } else {
         messageText = event.data;
       }
-      
       const messageData = JSON.parse(messageText);
-      
+
       if (messageData.content) {
-          // 这一步不变，生成 HTML 内容
-          const renderedHtml = renderContent(messageData.content);
-          
-          // ✅ 新增判断：只有在内容不为空时，才显示这条消息
-          if (renderedHtml && renderedHtml.trim() !== '') {
-            messages.value.push({
-              type: 'received',
-              html: renderedHtml,
-              sender: messageData.sender || { nickname: '服务器', avatar: 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png' } 
-            });
-            scrollToBottom();
-          } else {
-            // （可选）可以在控制台打印一条日志，表示我们收到并忽略了一条空内容消息
-            console.log('收到一条仅包含不支持内容的消息，已忽略。', messageData);
-          }
+        // 分离主内容和按钮内容
+        const mainContent = messageData.content.filter(c => c.type !== 'buttons');
+        const buttonContent = messageData.content.find(c => c.type === 'buttons');
+        const buttons = buttonContent ? buttonContent.data.flat() : [];
+
+        const renderedHtml = renderContent(mainContent);
+        
+        console.log('Received button data:', JSON.stringify(buttons));
+        
+        // 只有在有HTML内容或有按钮时才显示消息
+        if ((renderedHtml && renderedHtml.trim() !== '') || buttons.length > 0) {
+          messages.value.push({
+            type: 'received',
+            html: renderedHtml,
+            buttons: buttons, // 新增：将按钮数组添加到消息对象
+            sender: messageData.sender || { nickname: '服务器', avatar: 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png' } 
+          });
+          scrollToBottom();
+        } else {
+          console.log('收到一条空消息或仅包含不支持内容的消息，已忽略。', messageData);
+        }
       }
     } catch (error) {
       console.error('解析消息失败:', error, '原始数据:', event.data)
@@ -135,10 +217,16 @@ const connectWebSocket = () => {
     ws.value = null;
   }
 }
+// --- MODIFIED END ---
 
-// --- 发送消息 ---
+const cancelConnection = () => {
+  if (ws.value) {
+    console.log('用户取消连接尝试...');
+    ws.value.close();
+  }
+}
+
 const sendMessage = () => {
-  // ... (此部分代码不变)
   if (connectionStatus.value !== 'connected' || !ws.value || !newMessage.value.trim()) {
     return
   }
@@ -160,14 +248,49 @@ const sendMessage = () => {
   messages.value.push({
     type: 'sent',
     html: escapeHtml(newMessage.value),
-    sender: messageToSend.sender
+    sender: messageToSend.sender,
+    buttons: [] // Sent messages don't have buttons
   });
   newMessage.value = ''
   scrollToBottom()
 }
 
-// --- 滚动到底部 ---
-const scrollToBottom = () => { /* ... (不变) ... */ 
+// --- NEW FUNCTION START: 处理按钮点击 ---
+const handleButtonClick = (button) => {
+  if (connectionStatus.value !== 'connected' || !ws.value) {
+    console.warn('无法发送按钮回调：WebSocket未连接。');
+    return;
+  }
+  
+  // 从按钮的 'data' 字段构建要发送的消息
+  // 结构模仿 sendMessage 函数
+  const messageToSend = {
+    bot_id: 'web',
+    bot_self_id: 'web-client-001',
+    msg_id: `msg_${Date.now()}`,
+    user_type: 'direct',
+    group_id: null,
+    user_id: 'user_web_01',
+    // 发送者信息可以保持和普通消息一致
+    sender: { nickname: '我', avatar: 'https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png' },
+    user_pm: 3,
+    // 核心：按钮的 data 作为 text 内容发送
+    content: [ { type: 'text', data: button.data } ]
+  };
+
+  console.log('发送按钮点击事件:', messageToSend);
+
+  const jsonString = JSON.stringify(messageToSend);
+  const encoder = new TextEncoder();
+  const binaryData = encoder.encode(jsonString);
+  ws.value.send(binaryData);
+  
+  // 根据要求，点击按钮后不渲染新的“我已发送”消息
+}
+// --- NEW FUNCTION END ---
+
+
+const scrollToBottom = () => { 
   nextTick(() => {
     if (messageContainer.value) {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight
@@ -175,25 +298,21 @@ const scrollToBottom = () => { /* ... (不变) ... */
   })
 }
 
-// ✅ 3. 添加 watch 来监听 URL 变化并自动重连
+// --- 生命周期钩子和侦听器 (这部分不变) ---
 watch(wsUrl, (newUrl, oldUrl) => {
   if (newUrl !== oldUrl) {
-    // 使用防抖，防止用户在输入过程中频繁重连
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       console.log(`URL 发生变化，将从 ${oldUrl} 重新连接到 ${newUrl}`);
       connectWebSocket();
-    }, 500); // 停止输入 500ms 后执行
+    }, 500); 
   }
 });
-
-// --- Vue 生命周期钩子 ---
 onMounted(() => {
   connectWebSocket()
 })
-
 onUnmounted(() => {
-  clearTimeout(debounceTimer); // 组件销毁时清除计时器
+  clearTimeout(debounceTimer); 
   if (ws.value) {
     ws.value.onclose = null; 
     ws.value.close()
@@ -215,10 +334,15 @@ onUnmounted(() => {
           :disabled="connectionStatus === 'connecting'"
         />
       </div>
-      <span class="status" :class="statusClass">{{ statusText }}</span>
+      <div class="status-wrapper">
+        <span class="status" :class="statusClass">{{ statusText }}</span>
+        <button v-if="connectionStatus === 'connecting'" @click="cancelConnection" class="cancel-button">
+          取消
+        </button>
+      </div>
     </header>
 
-    <div class="message-list" ref="messageContainer">
+    <div class="message-list" ref="messageContainer" @click="handleMessageClick">
       <div v-for="(msg, index) in messages" :key="index" class="message-item" :class="`message-${msg.type}`">
         <template v-if="msg.type === 'system'">
           <div class="system-message">{{ msg.text }}</div>
@@ -227,8 +351,22 @@ onUnmounted(() => {
           <img :src="msg.sender.avatar" alt="avatar" class="avatar" />
           <div class="message-content">
             <div class="sender-name">{{ msg.sender.nickname }}</div>
-            <div class="message-bubble" v-html="msg.html"></div>
-          </div>
+            <div v-if="msg.html" class="message-bubble" v-html="msg.html"></div>
+            <div v-if="msg.buttons && msg.buttons.length" class="button-container">
+              <button
+                v-for="(button, btnIndex) in msg.buttons"
+                :key="btnIndex"
+                class="chat-button"
+                :class="{
+                  'style-0': button.style === 0,
+                  'style-1': button.style === 1
+                }"
+                @click="handleButtonClick(button)"
+              >
+                {{ button.text || button.data }}
+              </button>
+            </div>
+            </div>
         </template>
       </div>
     </div>
@@ -248,19 +386,170 @@ onUnmounted(() => {
       ></textarea>
       <button @click="sendMessage" class="send-button" :disabled="connectionStatus !== 'connected'">发送</button>
     </footer>
+
+    <Teleport to="body">
+    <div 
+      v-if="isLightboxVisible" 
+      class="lightbox-overlay" 
+      @click="closeLightbox"
+      @wheel="handleWheel"
+    >
+      <img 
+        :key="imageRenderKey"
+        ref="lightboxImage"
+        :src="lightboxImageSrc" 
+        alt="Enlarged image" 
+        class="lightbox-image"
+        :class="{ 'is-dragging': isDragging }"
+        :style="{ transform: imageTransform }"
+        @click.stop
+        @mousedown="handleMouseDown"
+      />
+    </div>
+  </Teleport>
   </div>
 </template>
 
 <style scoped>
-/* ... (大部分样式不变) ... */
+/* --- 图片放大层的样式 (这部分不变) --- */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  cursor: zoom-out;
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.lightbox-image {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+  cursor: zoom-in;
+}
+
+.lightbox-image:hover {
+  cursor: grab;
+}
+
+.lightbox-image.is-dragging {
+  cursor: grabbing;
+}
+
+.message-bubble :deep(img.chat-image) { 
+  max-width: 200px; 
+  border-radius: 8px; 
+  display: block; 
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.message-bubble :deep(img.chat-image:hover) {
+  opacity: 0.8;
+}
+
+/* --- NEW STYLES START: 按钮样式 --- */
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  /* 确保容器不会超出消息内容区域 */
+  max-width: 100%; 
+}
+
+.chat-button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  border: 1px solid;
+  /* --- ADD THESE THREE LINES --- */
+  min-width: 40px; /* Ensures a minimum clickable area */
+  display: inline-flex; /* Improves alignment of content */
+  justify-content: center; /* Centers the text horizontally */
+}
+
+/* Style 0: 灰色线框 */
+.chat-button.style-0 {
+  border-color: var(--vp-c-divider);
+  color: var(--vp-c-text-2);
+}
+.chat-button.style-0:hover {
+  background-color: var(--vp-c-bg-mute);
+  border-color: var(--vp-c-text-2);
+}
+
+/* Style 1: 蓝色线框 */
+.chat-button.style-1 {
+  border-color: var(--vp-c-brand);
+  color: var(--vp-c-brand);
+}
+.chat-button.style-1:hover {
+  background-color: var(--vp-c-brand-soft);
+}
+
+/* 在发送者气泡中的按钮样式调整 */
+.message-sent .chat-button.style-0 {
+   border-color: rgba(255, 255, 255, 0.5);
+   color: rgba(255, 255, 255, 0.9);
+}
+.message-sent .chat-button.style-0:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: white;
+}
+.message-sent .chat-button.style-1 {
+  border-color: white;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.message-sent .chat-button.style-1:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+/* --- NEW STYLES END --- */
+
+
+/* --- 原有样式 (这部分不变) --- */
+.status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.cancel-button {
+  background-color: var(--vp-c-bg-mute);
+  color: var(--vp-c-text-2);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 99px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cancel-button:hover {
+  border-color: var(--vp-c-brand-light);
+  color: var(--vp-c-brand-light);
+}
 .chat-container { display: flex; flex-direction: column; height: 100%; font-family: sans-serif; background-color: var(--vp-c-bg); color: var(--vp-c-text-1); }
 .chat-header { padding: 0.8rem 1rem; border-bottom: 1px solid var(--vp-c-divider); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 1rem; }
-
-/* ✅ 5. 为新的 URL 输入框添加样式 */
 .url-input-wrapper {
   display: flex;
   align-items: center;
-  flex-grow: 1; /* 占据可用空间 */
+  flex-grow: 1;
   background-color: var(--vp-c-bg-soft);
   border-radius: 6px;
   padding: 0 0.5rem;
@@ -286,7 +575,6 @@ onUnmounted(() => {
 .url-input:disabled {
   opacity: 0.7;
 }
-
 .status { font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 99px; color: white; transition: background-color 0.3s; flex-shrink: 0;}
 .status.connecting { background-color: #f0ad4e; }
 .status.connected { background-color: #5cb85c; }
@@ -297,7 +585,6 @@ onUnmounted(() => {
 .message-content { display: flex; flex-direction: column; }
 .sender-name { font-size: 0.8em; color: var(--vp-c-text-2); margin-bottom: 4px; }
 .message-bubble { padding: 0.6rem 1rem; border-radius: 12px; background-color: var(--vp-c-bg-mute); word-wrap: break-word; overflow-wrap: break-word; }
-.message-bubble :deep(img.chat-image) { max-width: 200px; border-radius: 8px; display: block; }
 .message-sent { margin-left: auto; flex-direction: row-reverse; }
 .message-sent .avatar { margin-right: 0; margin-left: 12px; }
 .message-sent .sender-name { text-align: right; }
@@ -305,7 +592,6 @@ onUnmounted(() => {
 .message-item.message-system {
     max-width: 100% !important
 }
-
 .system-message {
   width: 100%;
   text-align: center;
