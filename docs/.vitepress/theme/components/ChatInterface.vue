@@ -56,7 +56,9 @@ const renderContent = (content) => {
     switch (msg.type) {
       case 'text':
       case 'markdown':
-        return `<div>${escapeHtml(msg.data)}</div>`;
+        const safeHtml = escapeHtml(msg.data);
+        const formattedHtml = safeHtml.replace(/\n/g, '<br>');
+        return `<div>${formattedHtml}</div>`;
       case 'image':
         if (msg.data && typeof msg.data === 'string') {
           let src = msg.data;
@@ -68,7 +70,6 @@ const renderContent = (content) => {
           return `<img src="${src}" alt="image" class="chat-image" />`;
         }
         return '<div>[图片]</div>';
-      // *** 注意：按钮渲染已移至模板中，此处不再处理 ***
       default:
         return null;
     }
