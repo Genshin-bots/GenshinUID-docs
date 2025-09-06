@@ -151,7 +151,7 @@ const connectWebSocket = () => {
     ws.value.close();
   }
   connectionStatus.value = 'connecting'
-  messages.value = []
+  // messages.value = []
   try {
     ws.value = new WebSocket(wsUrl.value);
   } catch (error) {
@@ -227,8 +227,8 @@ const cancelConnection = () => {
   }
 }
 
-const sendMessage = () => {
-  if (connectionStatus.value !== 'connected' || !ws.value || !newMessage.value.trim()) {
+const sendMessage = (text) => {
+  if (connectionStatus.value !== 'connected' || !ws.value || !text.trim()) {
     return
   }
   const messageToSend = {
@@ -240,7 +240,7 @@ const sendMessage = () => {
     user_id: 'user_web_01',
     sender: { nickname: '我', avatar: 'https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png' },
     user_pm: 3,
-    content: [ { type: 'text', data: newMessage.value } ]
+    content: [ { type: 'text', data: text } ]
   }
   const jsonString = JSON.stringify(messageToSend);
   const encoder = new TextEncoder();
@@ -248,13 +248,25 @@ const sendMessage = () => {
   ws.value.send(binaryData);
   messages.value.push({
     type: 'sent',
-    html: escapeHtml(newMessage.value),
+    html: escapeHtml(text),
     sender: messageToSend.sender,
-    buttons: [] // Sent messages don't have buttons
+    buttons: []
   });
-  newMessage.value = ''
+  // newMessage.value = '' // 这行不能在这里，否则会影响按钮功能
   scrollToBottom()
 }
+
+// --- NEW FEATURE START ---
+const sendInputMessage = () => {
+  sendMessage(newMessage.value);
+  newMessage.value = '';
+}
+
+const resendMessage = (text) => {
+  if (!text || !text.trim()) return;
+  sendMessage(text);
+}
+// --- NEW FEATURE END ---
 
 // --- NEW FUNCTION START: 处理按钮点击 ---
 const handleButtonClick = (button) => {
@@ -367,8 +379,11 @@ onUnmounted(() => {
                 {{ button.text || button.data }}
               </button>
             </div>
-            </div>
-        </template>
+          </div>
+          <button v-if="msg.type === 'sent'" class="resend-button" @click="resendMessage(msg.html)">
+            +1
+          </button>
+          </template>
       </div>
     </div>
 
@@ -380,12 +395,12 @@ onUnmounted(() => {
       </div>
       <textarea
         v-model="newMessage"
-        @keydown.enter.prevent="sendMessage"
+        @keydown.enter.prevent="sendInputMessage"
         placeholder="输入消息..."
         class="message-input"
         :disabled="connectionStatus !== 'connected'"
       ></textarea>
-      <button @click="sendMessage" class="send-button" :disabled="connectionStatus !== 'connected'">发送</button>
+      <button @click="sendInputMessage" class="send-button" :disabled="connectionStatus !== 'connected'">发送</button>
     </footer>
 
     <Teleport to="body">
@@ -506,8 +521,8 @@ onUnmounted(() => {
 
 /* 在发送者气泡中的按钮样式调整 */
 .message-sent .chat-button.style-0 {
-   border-color: rgba(255, 255, 255, 0.5);
-   color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.9);
 }
 .message-sent .chat-button.style-0:hover {
   background-color: rgba(255, 255, 255, 0.15);
@@ -609,4 +624,61 @@ onUnmounted(() => {
 @media (prefers-color-scheme: dark) { .reconnect-overlay { background-color: rgba(0, 0, 0, 0.6); } }
 .reconnect-button { padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: bold; color: white; background-color: #5cb85c; border: none; border-radius: 8px; cursor: pointer; }
 .reconnect-button:hover { opacity: 0.9; }
+
+/* NEW FEATURE START */
+.message-sent {
+  align-items: flex-end; /* 垂直居右对齐，确保按钮在气泡旁边 */
+}
+
+.resend-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: transparent;
+  color: rgb(48, 179, 255);
+  border: 1px solid rgb(48, 179, 255);
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-right: 8px; /* 调整按钮与气泡的间距 */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* 防止按钮被压缩 */
+}
+
+.resend-button:hover {
+  background-color: var(--vp-c-brand-soft);
+}
+
+
+.message-sent .resend-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 调整发送气泡的布局，让按钮和气泡在一行 */
+.message-sent {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end; /* align items to the bottom */
+  gap: 8px;
+}
+
+/* 调整发送气泡的头像和气泡的布局 */
+.message-sent .avatar {
+  margin-right: 0;
+  margin-left: 0; /* Remove left margin on sent messages */
+}
+
+.message-sent .message-content {
+  align-items: flex-end; /* Align sender name and bubble to the right */
+  margin-right: 0;
+}
+
+/* 确保气泡和按钮之间有间距 */
+.message-sent .message-bubble {
+  margin-right: 0;
+}
+/* NEW FEATURE END */
 </style>
