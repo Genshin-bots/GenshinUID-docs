@@ -17,6 +17,11 @@ const imageRenderKey = ref(0);
 // --- 图片放大功能的状态 (这部分不变) ---
 const lightboxImageSrc = ref(null);
 const isLightboxVisible = computed(() => !!lightboxImageSrc.value);
+const chatImages = ref([]); // 存储聊天记录中所有图片的URL
+const currentImageIndex = ref(-1); // 当前放大图片的索引
+
+const isPrevButtonDisabled = computed(() => currentImageIndex.value <= 0);
+const isNextButtonDisabled = computed(() => currentImageIndex.value >= chatImages.value.length - 1);
 
 // --- 用于图片缩放和拖动的状态 (这部分不变) ---
 const scale = ref(1);
@@ -85,18 +90,57 @@ const escapeHtml = (unsafe) => {
 const handleMessageClick = (event) => {
   const target = event.target;
   if (target.tagName === 'IMG' && target.classList.contains('chat-image')) {
-    lightboxImageSrc.value = target.src;
+    // 1. 更新所有图片列表
+    const allImageElements = messageContainer.value.querySelectorAll('img.chat-image');
+    chatImages.value = Array.from(allImageElements).map(img => img.src);
+    
+    // 2. 找到当前点击图片的索引
+    const clickedSrc = target.src;
+    const index = chatImages.value.findIndex(src => src === clickedSrc);
+
+    if (index !== -1) {
+      // 3. 设置当前索引和图片SRC
+      currentImageIndex.value = index;
+      lightboxImageSrc.value = clickedSrc;
+    }
   }
 }
 
 const closeLightbox = () => {
   lightboxImageSrc.value = null;
+  // --- NEW: 重置索引 ---
+  currentImageIndex.value = -1; 
+  chatImages.value = [];
+  // ---
   scale.value = 1;
   translateX.value = 0;
   translateY.value = 0;
   isDragging.value = false;
   clearTimeout(repaintDebounceTimer); 
   imageRenderKey.value = 0;
+}
+
+const resetImageTransform = () => {
+  scale.value = 1;
+  translateX.value = 0;
+  translateY.value = 0;
+};
+
+
+const showPrevImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+    lightboxImageSrc.value = chatImages.value[currentImageIndex.value];
+    resetImageTransform(); // 切换图片时重置缩放和位置
+  }
+}
+
+const showNextImage = () => {
+  if (currentImageIndex.value < chatImages.value.length - 1) {
+    currentImageIndex.value++;
+    lightboxImageSrc.value = chatImages.value[currentImageIndex.value];
+    resetImageTransform(); // 切换图片时重置缩放和位置
+  }
 }
 
 // --- 图片缩放/拖动相关函数 (这部分不变) ---
@@ -410,6 +454,13 @@ onUnmounted(() => {
       @click="closeLightbox"
       @wheel="handleWheel"
     >
+      <button 
+        class="lightbox-nav-button prev"
+        :disabled="isPrevButtonDisabled"
+        @click.stop="showPrevImage"
+      >
+        &#10094;
+      </button>
       <img 
         :key="imageRenderKey"
         ref="lightboxImage"
@@ -421,7 +472,15 @@ onUnmounted(() => {
         @click.stop
         @mousedown="handleMouseDown"
       />
-    </div>
+
+      <button 
+        class="lightbox-nav-button next"
+        :disabled="isNextButtonDisabled"
+        @click.stop="showNextImage"
+      >
+        &#10095;
+      </button>
+      </div>
   </Teleport>
   </div>
 </template>
@@ -538,6 +597,46 @@ onUnmounted(() => {
 }
 /* --- NEW STYLES END --- */
 
+
+.lightbox-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000000; /* 确保在图片之上 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s, opacity 0.2s;
+  user-select: none; /* 防止双击选中文本 */
+}
+
+.lightbox-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.lightbox-nav-button:disabled {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.lightbox-nav-button.prev {
+  left: 20px;
+}
+
+.lightbox-nav-button.next {
+  right: 20px;
+}
 
 /* --- 原有样式 (这部分不变) --- */
 .status-wrapper {
