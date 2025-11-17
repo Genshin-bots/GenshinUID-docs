@@ -43,6 +43,7 @@ export default [
       '@typescript-eslint/no-redeclare': 'off',
       'vue/require-prop-types': 'off',
       '@typescript-eslint/no-use-before-define': 'off',
+      'vue/no-unused-refs': 'off',
 
       'spaced-comment': [
         'error',
