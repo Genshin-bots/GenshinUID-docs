@@ -205,7 +205,6 @@
       "installMsg": "",
       "alias": [
         "csuid",
-
         "cs2"
       ]
     },
@@ -284,7 +283,20 @@
       ]
     }
   },
-  "extra": {
-    
-  }
+  "DNAUID": {
+    "link": "https://github.com/tyql688/DNAUID",
+    "avatar": "https://github.com/tyql688.png",
+    "cover": "https://s2.loli.net/2025/11/17/SD57tfZIMxOFizV.png",
+    "branch": "master",
+    "type": "tip",
+    "content": "普通",
+    "info": "二重螺旋查询插件",
+    "installMsg": "",
+    "alias": [
+      "dnauid",
+      "dna",
+      "二重螺旋"
+    ]
+  },
+  "extra": {}
 }
