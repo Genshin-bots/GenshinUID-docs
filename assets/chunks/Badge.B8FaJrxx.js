@@ -1,0 +1,1 @@
+import{d as a,c as s,o as n,n as o,r,a as c,t as p,_}from"./framework.CHzpluGF.js";const l=a({__name:"Badge",props:{text:{},type:{}},setup(e){return(t,d)=>(n(),s("span",{class:o(["VPBadge",e.type??"tip"])},[r(t.$slots,"default",{},()=>[c(p(e.text),1)],!0)],2))}}),m=_(l,[["__scopeId","data-v-e475422a"]]);export{m as _};
