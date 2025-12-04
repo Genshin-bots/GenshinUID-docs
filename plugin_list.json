@@ -220,8 +220,22 @@
       "info": "全功能鸣潮查询插件",
       "installMsg": "",
       "alias": [
+      ]
+    },
+    "XutheringWavesUID": {
+      "link": "https://github.com/Loping151/XutheringWavesUID",
+      "avatar": "https://prod-alicdn-community.kurobbs.com/headCode/akijueyuan.jpg?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_264",
+      "cover": "https://s2.loli.net/2024/08/20/m4D3cslY6R1SM2X.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能鸣潮查询插件1127",
+      "installMsg": "",
+      "alias": [
         "wwuid",
         "ww",
+        "xwuid",
+        "xw",
         "鸣潮"
       ]
     },
