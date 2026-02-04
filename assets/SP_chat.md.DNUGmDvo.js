@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as e}from"./chunks/framework.DZk-w_dr.js";const h=JSON.parse('{"title":"","description":"","frontmatter":{"layout":"ChatLayout"},"headers":[],"relativePath":"SP/chat.md","filePath":"SP/chat.md","lastUpdated":1770170241000}'),c={name:"SP/chat.md"};function o(r,s,n,d,p,_){return a(),e("div")}const l=t(c,[["render",o]]);export{h as __pageData,l as default};
