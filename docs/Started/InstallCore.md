@@ -29,7 +29,8 @@ cd gsuid_core
 ::: details 【🥳 推荐】uv
 ```sh
 # uv安装依赖方式
-uv sync
+uv python install 3.13
+uv sync --python 3.13
 uv run python -m ensurepip
 ```
 :::
