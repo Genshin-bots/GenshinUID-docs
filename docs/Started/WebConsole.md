@@ -31,7 +31,7 @@
 
 ![image-20240609030709698](./../public/WebConsole/image-20240609030709698.png)
 
-### GsCore配置 (不可热更新，修改后请`gs重启`)
+### GsCore配置 (不可热更新，修改后请`core重启`)
 
 ![image-20240609025018824](./../public/WebConsole/image-20240609025018824.png)
 

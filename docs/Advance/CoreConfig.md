@@ -28,11 +28,11 @@
 
 > **标题** 重启命令
 >
-> **详情** 自定义使用gs重启时触发的控制台命令(看不懂勿改)
+> **详情** 自定义使用core重启时触发的控制台命令(看不懂勿改)
 >
 > **备注** 可修改成python
 >
-> **默认值** `"poetry run python"`
+> **默认值** `"uv run python"`
 
 ## MhySSLVerify<Badge type="info" text="GsBoolConfig" />
 

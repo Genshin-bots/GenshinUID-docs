@@ -17,7 +17,7 @@
 <ChatPanel title="聊天界面">
 <ChatMessage nickname="Wuyi无疑">core安装插件GenshinUID</ChatMessage>
 <ChatMessage nickname="GsCore">🚀 开始安装...请稍等一段时间...</ChatMessage>
-<ChatMessage nickname="GsCore">🎉 安装成功！请发送`gs重启`或`core重启`以应用插件！.</ChatMessage>
+<ChatMessage nickname="GsCore">🎉 安装成功！请发送`core重启`以应用插件！.</ChatMessage>
 </ChatPanel>
 
 ### 手动安装<Badge type="warning" text="普通" />

@@ -199,9 +199,23 @@ h2[data-v-6ba510aa].text {
 }
 
 .medium-zoom-overlay {
-  z-index: 20;
+  z-index: 100 !important;
 }
 
 .medium-zoom-image {
-  z-index: 21;
+  z-index: 101 !important;
+}
+
+/* Lightbox styles - ensure it's always on top */
+.lightbox-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+}
+
+.lightbox-nav-button {
+  z-index: 2147483647 !important;
 }

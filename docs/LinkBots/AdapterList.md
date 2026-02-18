@@ -23,6 +23,12 @@
 
 ✨ 一个基于Nonebot1的QQ机器人! 支持OneBot通用协议！
 
+### 🤖 AstrBot
+
+[机器人](https://github.com/Soulter/AstrBot) | [适配器](https://github.com/KimigaiiWuyi/astrbot_plugin_gscore_adapter)
+
+✨ 易上手的多平台 LLM 聊天机器人及开发框架 ✨ 平台支持 QQ、QQ频道、Telegram、微信、企微、飞书 | MCP 服务器、OpenAI、DeepSeek、Gemini、硅基流动、月之暗面、Ollama、OneAPI、Dify 等。附带 WebUI。
+
 ### 🤖 ZeroBot
 
 [机器人](https://github.com/wdvxdr1123/ZeroBot) | [适配器](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
@@ -47,14 +53,10 @@
 
 ✨ 功能丰富的微信机器人框架 | AI对话、对接Dify、积分系统、游戏互动、每日新闻、天气查询 | 非Hook非Web实现 | 支持 Windows✅ Linux✅ MacOS✅ | 全新架构解决XYBot第一代痛点！
 
-### 🤖 AstrBot
+## 协议端插件直接链接
 
-[机器人](https://github.com/Soulter/AstrBot) | [适配器](https://github.com/KimigaiiWuyi/astrbot_plugin_gscore_adapter)
-
-✨ 易上手的多平台 LLM 聊天机器人及开发框架 ✨ 平台支持 QQ、QQ频道、Telegram、微信、企微、飞书 | MCP 服务器、OpenAI、DeepSeek、Gemini、硅基流动、月之暗面、Ollama、OneAPI、Dify 等。附带 WebUI。
+[TypeScript] [napcat-plugin-gscore-adapter](https://github.com/xiowo/napcat-plugin-gscore-adapter) - 直接使用NapCat连接GsCore
 
 ## 独立连接器
 
 [Java] [gs-core-adapter](https://gitee.com/WeekDragon/gs-core-adapter) - 该适配器连接RedProtocol协议和GsCore
-
-[TypeScript] [napcat-plugin-gscore-adapter](https://github.com/xiowo/napcat-plugin-gscore-adapter) - 直接使用NapCat连接GsCore

@@ -60,21 +60,21 @@ const lightboxImage = ref<HTMLImageElement | null>(null)
   </Teleport>
 </template>
 
-<style scoped>
+<style>
 .lightbox-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-  cursor: zoom-out;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 2147483647 !important;
+  cursor: zoom-out !important;
   transition: opacity 0.3s ease;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .lightbox-image {
@@ -97,24 +97,24 @@ const lightboxImage = ref<HTMLImageElement | null>(null)
 }
 
 .lightbox-nav-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.4);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 1000000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.2s, opacity 0.2s;
-  user-select: none;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  transition: background-color 0.2s, opacity 0.2s !important;
+  user-select: none !important;
 }
 
 .lightbox-nav-button:hover {

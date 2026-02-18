@@ -56,7 +56,7 @@ export default withPwa(defineConfig({
           { text: '💫 常见问题', link: '/FAQ/' },
           { text: '💻 编写插件', link: '/CodePlugins/Start' },
           { text: '🧐 编写适配器', link: '/CodeAdapter/Pack' },
-          { text: '🔰 在线聊天室', link: '/SP/Chat' },
+          { text: '🔰 在线聊天室', link: '/SP/chat' },
         ],
       },
       {
