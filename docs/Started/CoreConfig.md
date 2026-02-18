@@ -14,6 +14,14 @@
 
 :::
 
+::: danger
+
+如果GsCore和连接端不位于同一台机器上, 
+
+则**强烈建议**需要配置WsToken或者TrustIP以确保安全, [Token说明](../Started/Secure)
+
+:::
+
 ### 一、使用网页控制台进行修改（推荐）
 
 1. 启动GsCore
@@ -21,7 +29,7 @@
 3. 在左侧【Core配置】页签中的**masters**选项中输入自己的QQ号（或其他平台号码）回车添加，然后点击确认修改
    1. 如果不清楚该填什么（其他平台）, 可以发一条消息，然后在GsCore后端查看你的`user_id`，填入那个即可
 4. 重启GsCore
-5. 发送消息，检查自己的PM在后端Log中是否显示pm=0
+5. 发送消息，检查自己的PM在后端Log中是否显示**pm=0**
 
 ### 二、自行修改配置文件
 
@@ -42,6 +50,8 @@
   ],
   "superusers": [], // superuser权限账号, 类型为List[string], 对应权限pm=1
   "misfire_grace_time": 90, // 定时任务超时时间, 一般无需修改
+  "WS_TOKEN": "", // 连接Ws的Token, 如不修改，仅允许本机Bot连接至Core
+  "TRUSTED_IPS": ["127.0.0.1"], // 信任的IP列表, 类型为List[string]
   "log": {
     "level": "DEBUG" // 日志等级，一般为`INFO`且无需修改, 开发者和反馈Bug的时候开到`DEBUG`
   },

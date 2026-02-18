@@ -9,6 +9,7 @@ export default {
         { text: '启动GsCore', link: '/Started/StartCore' },
         { text: '使用Docker运行GsCore', link: '/Started/DockerCore' },
         { text: '配置GsCore', link: '/Started/CoreConfig' },
+        { text: '安全配置', link: '/Started/Secure' },
         { text: '网页控制台', link: '/Started/WebConsole' },
       ],
     },

@@ -36,3 +36,15 @@ git clone -b v4-nonebot2 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=
 - 使用命令`cd GenshinUID`进入插件文件夹
 - 安装依赖`pip install -r requirements.txt`(如果你的`Nonebot2`运行在虚拟环境，需要进入虚拟环境安装依赖)
 - 回到`Bot目录`下，使用命令`nb run`启动Bot
+
+
+## 配置插件<Badge type="tip" text="可选" />
+
+在Bot路径下, 找到或新建`.env`文件, 写入配置即可, 参考配置如下, 一般无需修改也无需手动写入(有默认值)。
+
+```env
+gsuid_core_ws_token=123
+gsuid_core_host=localhost
+gsuid_core_port=8765
+gsuid_core_botid=NoneBot2
+```

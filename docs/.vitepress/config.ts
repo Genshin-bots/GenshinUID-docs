@@ -2,15 +2,12 @@ import process from 'node:process'
 import { defineConfig } from 'vitepress'
 import { withPwa } from '@vite-pwa/vitepress'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import UnoCSS from 'unocss/vite'
 import { description, docsVersion, github, keywords, name, site } from './meta'
 import { pwa } from './plugins/pwa'
 import sidebar from './sidebar'
-import UnoCSS from 'unocss/vite'
 
 export default withPwa(defineConfig({
-  plugins: [
-    nodePolyfills(),
-  ],
   pwa,
   outDir: '../dist',
   title: name,
@@ -59,6 +56,7 @@ export default withPwa(defineConfig({
           { text: '💫 常见问题', link: '/FAQ/' },
           { text: '💻 编写插件', link: '/CodePlugins/Start' },
           { text: '🧐 编写适配器', link: '/CodeAdapter/Pack' },
+          { text: '🔰 在线聊天室', link: '/SP/Chat' },
         ],
       },
       {
@@ -133,7 +131,8 @@ export default withPwa(defineConfig({
   },
   vite: {
     plugins: [
-      UnoCSS(), // Make sure you have the UnoCSS plugin here
+      UnoCSS() as any, // Make sure you have the UnoCSS plugin here
+      nodePolyfills(),
     ],
   },
 }))

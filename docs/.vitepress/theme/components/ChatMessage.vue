@@ -23,7 +23,7 @@ const avatarMap = {
   GsCore: 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png',
 }
 
-const typeMap = {
+const typeMap: Record<string, 'tip' | 'danger' | 'info' | 'warning'> = {
   GsCore: 'tip',
   Wuyi无疑: 'danger',
 }
@@ -38,13 +38,15 @@ const active = ref(false)
 const moving = ref(false)
 const root = ref<HTMLElement>()
 
-const backgroundColor = computed(() => props.color || colorMap[props.nickname])
-const avatar = computed(() => props.avatar || avatarMap[props.nickname])
-const tag = computed(() => props.tag || tagMap[props.nickname])
-const type = computed(() => props.type || typeMap[props.nickname])
+const backgroundColor = computed(() => props.color || colorMap[props.nickname as keyof typeof colorMap])
+const avatar = computed(() => props.avatar || avatarMap[props.nickname as keyof typeof avatarMap])
+const tag = computed(() => props.tag || tagMap[props.nickname as keyof typeof tagMap])
+const type = computed((): 'tip' | 'danger' | 'info' | 'warning' | undefined =>
+  (props.type as 'tip' | 'danger' | 'info' | 'warning' | undefined) || typeMap[props.nickname as keyof typeof typeMap]
+)
 
 function getPrevious() {
-  let last: Element
+  let last: Element | null = null
   for (const current of document.querySelectorAll('.chat-message')) {
     if (current === root.value)
       return last
@@ -61,7 +63,7 @@ watch(active, (value) => {
   const rect = prev.getBoundingClientRect()
   if (rect.bottom < 0)
     return appear()
-  const prevExposed = prev.__vue__.exposed as typeof exposed
+  const prevExposed = (prev as any).__vue__.exposed as typeof exposed
   if (prevExposed.moving.value || !prevExposed.shown.value)
     prevExposed.onappear(appear)
   else
@@ -80,6 +82,8 @@ function appear() {
 }
 
 function handleScroll() {
+  if (!root.value)
+    return
   const rect = root.value.getBoundingClientRect()
   if (rect.top < innerHeight)
     active.value = true
@@ -99,7 +103,9 @@ const exposed = {
 defineExpose(exposed)
 
 onMounted(() => {
-  root.value.__vue__ = instance
+  if (root.value)
+    (root.value as any).__vue__ = instance
+
   handleScroll()
   addEventListener('scroll', handleScroll)
   addEventListener('resize', handleScroll)

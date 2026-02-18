@@ -57,3 +57,4 @@
 
 [Java] [gs-core-adapter](https://gitee.com/WeekDragon/gs-core-adapter) - 该适配器连接RedProtocol协议和GsCore
 
+[TypeScript] [napcat-plugin-gscore-adapter](https://github.com/xiowo/napcat-plugin-gscore-adapter) - 直接使用NapCat连接GsCore
