@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 
 export interface MessageContent {
-  type: 'text' | 'markdown' | 'image' | 'audio' | 'video'
+  type: 'text' | 'markdown' | 'image' | 'audio' | 'video' | 'record'
   data: string
 }
 
@@ -45,31 +45,47 @@ export function useMessageRenderer(): UseMessageRendererReturn {
             else if (src.startsWith('link://'))
               src = src.substring(7)
 
-            return `<img src="${src}" alt="image" class="chat-image" />`
+            return `<img src="${src}" alt="image" class="chat-image chat-media-item" style="max-width: 300px; max-height: 300px; cursor: zoom-in;" onclick="window.dispatchEvent(new CustomEvent('chat:mediaClick', { detail: { src: '${src.replace(/'/g, '\\\'')}', type: 'image' } }))" />`
           }
           return '<div>[图片]</div>'
         }
-        case 'audio': {
+        case 'audio':
+        case 'record': {
           if (msg.data && typeof msg.data === 'string') {
             let src = msg.data
-            if (src.startsWith('base64://'))
-              src = `data:audio/mpeg;base64,${src.substring(9)}`
-            else if (src.startsWith('link://'))
-              src = src.substring(7)
 
-            return `<audio controls class="chat-audio" src="${src}"></audio>`
+            if (src.startsWith('base64://')) {
+              // 使用标准的 audio/mpeg MIME 类型（这是 MP3 的标准 MIME 类型）
+              const base64Data = src.substring(9)
+              src = `data:audio/mpeg;base64,${base64Data}`
+            }
+            else if (src.startsWith('link://')) {
+              src = src.substring(7)
+            }
+
+            // 使用 preload="metadata" 确保音频时长正确显示，添加尺寸限制
+            return `<audio controls class="chat-audio chat-media-item" src="${src}" preload="metadata" style="max-width: 300px;" onclick="window.dispatchEvent(new CustomEvent('chat:mediaClick', { detail: { src: '${src.replace(/'/g, '\\\'')}', type: 'audio' } }))" />`
           }
           return '<div>[音频]</div>'
         }
         case 'video': {
           if (msg.data && typeof msg.data === 'string') {
             let src = msg.data
-            if (src.startsWith('base64://'))
-              src = `data:video/mp4;base64,${src.substring(9)}`
-            else if (src.startsWith('link://'))
-              src = src.substring(7)
+            if (src.startsWith('base64://')) {
+              // 处理视频 base64 数据，移除可能的 Python bytes 表示前缀 b'
+              let base64Data = src.substring(9)
 
-            return `<video controls class="chat-video" src="${src}"></video>`
+              // 移除 Python bytes 表示的 b' 前缀和 ' 后缀
+              if (base64Data.startsWith('b\'') && base64Data.endsWith('\''))
+                base64Data = base64Data.slice(2, -1)
+
+              src = `data:video/mp4;base64,${base64Data}`
+            }
+            else if (src.startsWith('link://')) {
+              src = src.substring(7)
+            }
+
+            return `<video controls class="chat-video chat-media-item" src="${src}" preload="metadata" style="max-width: 300px; max-height: 200px;" onclick="window.dispatchEvent(new CustomEvent('chat:mediaClick', { detail: { src: '${src.replace(/'/g, '\\\'')}', type: 'video' } }))" />`
           }
           return '<div>[视频]</div>'
         }

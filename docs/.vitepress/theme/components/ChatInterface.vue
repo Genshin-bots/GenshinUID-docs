@@ -216,6 +216,44 @@ function sendSimpleMessage(text: string) {
 
   const { userType, groupId: currentGroupId } = getModeParams()
 
+  // 检测文本是否包含 HTML 标签
+  const hasHtmlTags = /<[^>]+>/.test(text)
+
+  // 构建 content 数组
+  const content: Array<{ type: string; data: string }> = []
+
+  if (hasHtmlTags) {
+    // 解析 HTML 提取文本和图片
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = text
+
+    // 提取纯文本（移除图片后的文本）
+    const textDiv = tempDiv.cloneNode(true) as HTMLDivElement
+    const images = textDiv.querySelectorAll('img')
+    images.forEach(img => img.remove())
+    const plainText = (textDiv.textContent || textDiv.innerText || '').trim()
+
+    // 添加文本内容
+    if (plainText)
+      content.push({ type: 'text', data: plainText })
+
+    // 提取图片
+    const originalImages = tempDiv.querySelectorAll('img')
+    originalImages.forEach((img) => {
+      const src = img.getAttribute('src') || ''
+      if (src)
+        content.push({ type: 'image', data: src })
+    })
+  }
+  else {
+    // 纯文本
+    content.push({ type: 'text', data: text.trim() })
+  }
+
+  // 如果没有内容，不发送
+  if (content.length === 0)
+    return
+
   const messageToSend: WebSocketMessage = {
     bot_id: 'web',
     bot_self_id: 'web-client-001',
@@ -225,14 +263,16 @@ function sendSimpleMessage(text: string) {
     user_id: 'user_web_01',
     sender: { nickname: '我', avatar: 'https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png' },
     user_pm: 3,
-    content: [{ type: 'text', data: text }],
+    content,
   }
 
   sendWsMessage(messageToSend)
 
+  // 使用 renderContent 渲染 HTML 用于显示
+  const renderedHtml = renderContent(content as Array<{ type: 'text' | 'audio' | 'video' | 'image' | 'markdown'; data: string }>)
   messages.value.push({
     type: 'sent',
-    text,
+    html: renderedHtml,
     sender: messageToSend.sender,
     buttons: [],
   })
@@ -282,6 +322,73 @@ function handleImageClick(src: string) {
   openLightbox(src, allImages, index >= 0 ? index : 0)
 }
 
+function handleCopyToInput(payload: { text?: string; html?: string }) {
+  // 优先使用原始文本，如果没有则使用 html 内容
+  const contentToCopy = payload.text || payload.html || ''
+
+  // 先清空现有的 content items
+  clearContentItems()
+
+  // 如果内容包含 HTML 标签，需要提取文本和图片
+  if (contentToCopy.includes('<')) {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = contentToCopy
+
+    // 提取纯文本（去除图片后的文本）
+    // 先克隆一份用于提取文本
+    const textDiv = tempDiv.cloneNode(true) as HTMLDivElement
+    // 移除所有图片元素
+    const images = textDiv.querySelectorAll('img')
+    images.forEach(img => img.remove())
+    const plainText = (textDiv.textContent || textDiv.innerText || '').trim()
+
+    // 设置文本到输入框
+    newMessage.value = plainText
+
+    // 提取图片并添加到 content items
+    images.forEach((img, index) => {
+      const src = img.getAttribute('src') || ''
+      if (src) {
+        // 从 URL 或 base64 中提取文件名
+        let fileName = `image_${index + 1}.png`
+        if (src.startsWith('data:')) {
+          // base64 格式，尝试提取 mime 类型
+          const match = src.match(/data:image\/([a-zA-Z]+);/)
+          if (match)
+            fileName = `image_${index + 1}.${match[1]}`
+        }
+        else {
+          // URL 格式，尝试提取文件名
+          const urlParts = src.split('/')
+          const lastPart = urlParts[urlParts.length - 1]
+          if (lastPart && lastPart.includes('.'))
+            fileName = lastPart
+        }
+
+        addItem({
+          type: 'image',
+          data: src,
+          fileName,
+          preview: src,
+        })
+      }
+    })
+  }
+  else {
+    // 纯文本，直接设置
+    newMessage.value = contentToCopy.trim()
+  }
+
+  // 聚焦到输入框并将光标移到末尾
+  nextTick(() => {
+    const textarea = document.querySelector('.message-input') as HTMLTextAreaElement
+    if (textarea) {
+      textarea.focus()
+      textarea.setSelectionRange(newMessage.value.length, newMessage.value.length)
+    }
+  })
+}
+
 // Lifecycle
 onMounted(() => {
   connectWebSocket()
@@ -309,6 +416,7 @@ onUnmounted(() => {
       @resend="sendSimpleMessage"
       @button-click="handleButtonClick"
       @image-click="handleImageClick"
+      @copy="handleCopyToInput"
     />
 
     <ChatInputArea

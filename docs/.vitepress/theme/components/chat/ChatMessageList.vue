@@ -25,6 +25,7 @@ const emit = defineEmits<{
   (e: 'resend', text: string): void
   (e: 'buttonClick', button: { text: string; data: string; style?: number }): void
   (e: 'imageClick', src: string): void
+  (e: 'copy', payload: { text?: string; html?: string }): void
 }>()
 
 const messageContainer = ref<HTMLElement | null>(null)
@@ -50,6 +51,7 @@ defineExpose({ scrollToBottom })
       @resend="$emit('resend', $event)"
       @button-click="$emit('buttonClick', $event)"
       @image-click="$emit('imageClick', $event)"
+      @copy="$emit('copy', $event)"
     />
   </div>
 </template>

@@ -120,36 +120,6 @@
         "bauid"
       ]
     },
-    "PsyTest": {
-      "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
-      "avatar": "https://github.com/KimigaiiWuyi.png",
-      "cover": "https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png",
-      "branch": "main",
-      "type": "tip",
-      "content": "普通",
-      "info": "心理测试集合插件",
-      "installMsg": "",
-      "alias": [
-        "心理测试",
-        "心理测试合集",
-        "测试"
-      ]
-    },
-    "pokemon": {
-      "link": "https://github.com/jiluoQAQ/Pokemon",
-      "avatar": "https://github.com/jiluoQAQ.png",
-      "cover": "https://s2.loli.net/2023/11/03/mW1ykVxItGRSqjN.png",
-      "branch": "main",
-      "type": "tip",
-      "content": "普通",
-      "info": "宝可梦小游戏插件",
-      "installMsg": "",
-      "alias": [
-        "宝可梦",
-        "神奇宝贝",
-        "宠物小精灵"
-      ]
-    },
     "MajsoulUID": {
       "link": "https://github.com/KimigaiiWuyi/MajsoulUID",
       "avatar": "https://github.com/KimigaiiWuyi.png",
@@ -324,8 +294,78 @@
       "alias": [
         "beyonduid"
       ]
+    },
+    "PsyTest": {
+      "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "心理测试集合插件",
+      "installMsg": "",
+      "alias": [
+        "心理测试",
+        "心理测试合集",
+        "测试"
+      ]
+    },
+    "aemeth_ai": {
+      "link": "https://github.com/SyameimaruAyame/aemeth_ai",
+      "avatar": "https://github.com/SyameimaruAyame.png",
+      "cover": "https://github.com/SyameimaruAyame.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "爱弥斯AI对话插件",
+      "installMsg": "",
+      "alias": [
+        "aemeth_ai"
+      ]
+    },
+    "pokemon": {
+      "link": "https://github.com/jiluoQAQ/Pokemon",
+      "avatar": "https://github.com/jiluoQAQ.png",
+      "cover": "https://s2.loli.net/2023/11/03/mW1ykVxItGRSqjN.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "宝可梦小游戏插件",
+      "installMsg": "",
+      "alias": [
+        "宝可梦",
+        "神奇宝贝",
+        "宠物小精灵"
+      ]
     }
   },
+  "fun_plugins": [
+    "PsyTest",
+    "aemeth_ai",
+    "pokemon"
+  ],
+  "tool_plugins": [
+    "SayuStock",
+    "DeltaUID",
+    "DNAUID",
+    "EndUID",
+    "BeyondUID",
+    "VAUID",
+    "GenshinUID",
+    "StarrailUID",
+    "ZZZeroUID",
+    "WzryUID",
+    "XutheringWavesUID",
+    "WutheringWavesUID",
+    "ArknightsUID",
+    "mys_qrlogin",
+    "CS2UID",
+    "maimai_plugin",
+    "honkai_sign",
+    "MajsoulUID",
+    "LOLegendsUID",
+    "BlueArchiveUID"
+  ],
   "extra": {
     
   }

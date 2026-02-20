@@ -9,12 +9,27 @@ const emit = defineEmits<{
   (e: 'resend', text: string): void
   (e: 'buttonClick', button: { text: string; data: string; style?: number }): void
   (e: 'imageClick', src: string): void
+  (e: 'mediaClick', payload: { src: string; type: string; element: HTMLElement }): void
+  (e: 'copy', payload: { text?: string; html?: string }): void
 }>()
 
 function handleClick(event: MouseEvent) {
   const target = event.target as HTMLElement
-  if (target.tagName === 'IMG' && target.classList.contains('chat-image'))
+
+  // 处理图片点击
+  if (target.tagName === 'IMG' && target.classList.contains('chat-image')) {
     emit('imageClick', (target as HTMLImageElement).src)
+    return
+  }
+
+  // 处理媒体项点击（放大显示）
+  if (target.classList.contains('chat-media-item')) {
+    const src = target.getAttribute('src') || ''
+    const type = target.getAttribute('data-type') || 'image'
+
+    // 触发媒体点击事件，由父组件处理 lightbox 显示
+    emit('mediaClick', { src, type, element: target })
+  }
 }
 </script>
 
@@ -47,7 +62,10 @@ function handleClick(event: MouseEvent) {
           </button>
         </div>
       </div>
-      <button v-if="message.type === 'sent'" class="resend-button" @click="$emit('resend', message.text || '')">
+      <button v-if="message.type === 'sent'" class="copy-button" @click="$emit('copy', { text: message.text, html: message.html })">
+        📋
+      </button>
+      <button v-if="message.type === 'sent'" class="resend-button" @click="$emit('resend', message.text || message.html || '')">
         +1
       </button>
     </template>
@@ -163,6 +181,32 @@ function handleClick(event: MouseEvent) {
 }
 
 .message-sent .resend-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.copy-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: transparent;
+  color: rgb(48, 179, 255);
+  border: 1px solid rgb(48, 179, 255);
+  font-size: 0.8rem;
+  margin-right: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.copy-button:hover {
+  background-color: var(--vp-c-brand-soft);
+}
+
+.message-sent .copy-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
