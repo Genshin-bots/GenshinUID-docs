@@ -337,6 +337,21 @@
         "神奇宝贝",
         "宠物小精灵"
       ]
+    },
+    "RH_ComfyUI": {
+      "link": "https://github.com/KimigaiiWuyi/RH_ComfyUI",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://files.seeusercontent.com/2026/03/08/N4bs/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多功能AIG插件, 支持ComfyUI/BLT, 提供绘图、编辑、音乐生成、视频生成等多功能",
+      "installMsg": "",
+      "alias": [
+        "RH_ComfyUI",
+        "ComfyUI",
+        "AIGC"
+      ]
     }
   },
   "fun_plugins": [
@@ -352,7 +367,7 @@
     "BeyondUID",
     "VAUID",
     "GenshinUID",
-    "StarrailUID",
+    "StarRailUID",
     "ZZZeroUID",
     "WzryUID",
     "XutheringWavesUID",
@@ -364,7 +379,8 @@
     "honkai_sign",
     "MajsoulUID",
     "LOLegendsUID",
-    "BlueArchiveUID"
+    "BlueArchiveUID",
+    "RH_ComfyUI"
   ],
   "extra": {
     
