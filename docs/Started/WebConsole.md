@@ -1,52 +1,111 @@
 # 网页控制台<Badge type="tip" text="普通" />
 
+## 简单介绍
+
+在 [commit f903e3](https://github.com/Genshin-bots/gsuid_core/commit/f903e3d0569499e1a8393d37b9605d35480233ed) 之后，将启用**全新的网页控制台**。
+
+如有Bug，欢迎在 [#180](https://github.com/Genshin-bots/gsuid_core/issues/180) 进行反馈
+
 - `网页控制台`无需开关，`gsuid_core`启动时将会自动启动
 
 
-![image-20241006060218860](./../public/WebConsole/image-20241006060218860.png)
+![image-20260314153923711](./../public/WebConsole/image-20260314153923711.png)
 
-- 地址为`IP:PORT/genshinuid`,初始账号密码为`root`/`root`,进入之后请**务必**修改密码
-- 默认的IP为`localhost`，PORT为`8765`，即**默认地址**为`localhost:8765/genshinuid`
+- 地址为`IP:PORT/app`
+- 首次进入需要注册，注册码在`gsuid_core/data/config.json`中可以找到，字段为`REGISTER_CODE`，每个人都不同
+- 只能注册一个管理员账号
+- 默认的IP为`localhost`，PORT为`8765`，即**默认地址**为`localhost:8765/app`
   - 如需挂到公网上请改IP为`0.0.0.0`，并放行服务器端口
   - 修改IP的配置文件为`gsuid_core/data/config.json`(详见[文件结构](../Advance/DataStruct))
-
 - `网页控制台`中`修改设定`一栏，`确认修改`后需要重启（可用命令`core重启`）
 
 
-### 登陆界面
 
-![image-20240609030325816](./../public/WebConsole/image-20240609030325816.png)
+## 登陆界面
 
-### 数据统计
+![image-20260314193431242](./../public/WebConsole/image-20260314193431242.png)
 
-![image-20240609030435574](./../public/WebConsole/image-20240609030435574.png)
 
-![f1132b15-0059-4dae-8ccf-626d79b94aca](./../public/WebConsole/f1132b15-0059-4dae-8ccf-626d79b94aca.png)
 
-### 单个插件功能配置 (可热更新，无需重启)
+## 任务调度
 
-![image-20240609024957506](./../public/WebConsole/image-20240609024957506.png)
+可以监控插件的定时任务，手动运行或者暂停任务（重启会还原/失效）
 
-### 单个插件的配置 (能不能热更新，需要看代码)
+![image-20260314193325165](./../public/WebConsole/image-20260314193325165.png)
 
-![image-20240609030709698](./../public/WebConsole/image-20240609030709698.png)
 
-### GsCore配置 (不可热更新，修改后请`core重启`)
 
-![image-20240609025018824](./../public/WebConsole/image-20240609025018824.png)
+## 主题系统
 
-### 数据表管理 (热更新)
+可自定义背景、图标、纯色/毛玻璃、风格等等
 
-![image-20240609030539347](./../public/WebConsole/image-20240609030539347.png)
+![image-20260314190348272](./../public/WebConsole/image-20260314190348272.png)
 
-### 插件管理
+![image-20260314190405149](./../public/WebConsole/image-20260314190405149.png)
 
-支持更新/安装，不支持卸载
 
-![image-20240609030612851](./../public/WebConsole/image-20240609030612851.png)
 
-### 历史日志
+## 数据统计
+
+![image-20260314154921643](./../public/WebConsole/image-20260314154921643.png)
+
+![image-20260314155003322](./../public/WebConsole/image-20260314155003322.png)
+
+
+
+## 插件功能配置 
+
+(可热更新，无需重启)
+
+![image-20260314190010769](./../public/WebConsole/image-20260314190010769.png)
+
+
+
+## 插件参数配置
+
+ (能不能热更新，需要看代码)
+
+![image-20260314185956213](./../public/WebConsole/image-20260314185956213.png)
+
+
+
+## 核心配置
+
+ (不可热更新，修改后请`core重启`以应用)
+
+![image-20260314190117039](./../public/WebConsole/image-20260314190117039.png)
+
+
+
+## 数据表管理
+
+![image-20260314190141528](./../public/WebConsole/image-20260314190141528.png)
+
+
+
+## 插件管理
+
+![image-20260314190202425](./../public/WebConsole/image-20260314190202425.png)
+
+
+
+## 历史日志
 
 过滤历史日志（可选当天），支持按等级过滤，支持查找对应字符
 
-![f57a271494614bd3960f4e579922f720](./../public/WebConsole/f57a271494614bd3960f4e579922f720.png)
+![image-20260314190230594](./../public/WebConsole/image-20260314190230594.png)
+
+
+
+## 实时日志
+
+![image-20260314193403794](./../public/WebConsole/image-20260314193403794.png)
+
+
+## 备份管理
+
+可以自由选择要备份的路径，立即执行备份/定时执行备份
+
+![image-20260314190306262](./../public/WebConsole/image-20260314190306262.png)
+
+![image-20260314190317783](./../public/WebConsole/image-20260314190317783.png)

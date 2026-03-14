@@ -22,7 +22,7 @@
 
 :::
 
-### 一、使用网页控制台进行修改（推荐）
+## 使用网页控制台进行修改（推荐）
 
 1. 启动GsCore
 2. 进入[网页控制台](../Started/WebConsole)
@@ -31,7 +31,7 @@
 4. 重启GsCore
 5. 发送消息，检查自己的PM在后端Log中是否显示**pm=0**
 
-### 二、自行修改配置文件
+## 自行修改配置文件
 
 ::: tip
 
@@ -52,6 +52,7 @@
   "misfire_grace_time": 90, // 定时任务超时时间, 一般无需修改
   "WS_TOKEN": "", // 连接Ws的Token, 如不修改，仅允许本机Bot连接至Core
   "TRUSTED_IPS": ["127.0.0.1"], // 信任的IP列表, 类型为List[string]
+  "REGISTER_CODE": "4e8cd750c93de5c5", // 网页控制台的注册码, 每个人都不同
   "log": {
     "level": "DEBUG" // 日志等级，一般为`INFO`且无需修改, 开发者和反馈Bug的时候开到`DEBUG`
   },

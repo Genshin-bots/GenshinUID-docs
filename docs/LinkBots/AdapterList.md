@@ -8,6 +8,8 @@
 
 :::
 
+## 适配Bot
+
 ### 🤖 NoneBot2 [推荐]
 
 [机器人](https://github.com/nonebot/nonebot2) | [适配器](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-nonebot2)

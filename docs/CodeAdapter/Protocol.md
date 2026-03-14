@@ -23,6 +23,7 @@ WebSocket 消息均使用 text 类型的 UTF-8 编码的 JSON，数据包结构�
 * `at` 提及
 * `reply` 回复
 * `record` 音频
+* `video`视频
 * `node` 合并转发
 
 此外，还有一种特殊的 `log_{level}` 类型，此类型仅存在于 `MessageSend` 包中，插件收到此消息，应按照 `level` 输出 `data` 中的内容
@@ -35,7 +36,6 @@ WebSocket 消息均使用 text 类型的 UTF-8 编码的 JSON，数据包结构�
   * 如果值均为`Button`，则按照预先设定行列发送（例如`Nonebot2-qq`为默认两个按钮一行）
   * 如果值均为`List[Button]`，则要按照列表为一行形式自定义发送
     * 例如buttons=[[Button1,Button2], [Button3,Button4,Button5,Button6]]，则需要1和2为一行，3456为一行，两行的按钮
-
 * `image` 为一个 `map`，内容如下
   * `type` (url|file|b64) 该图片的 `content` 类型：url/本地文件/base64
   * `content` (string) 该图片内容 -->
@@ -48,9 +48,9 @@ WebSocket 消息均使用 text 类型的 UTF-8 编码的 JSON，数据包结构�
 * `node` 为 `Message[]`（不允许嵌套 `node`）
   * 强烈不建议使用`node`类型，因为合并转发仅QQ有该发送方式
   * 而在大多数平台上，只能遍历node中的消息分步发送
-
 * `reply` 为消息 id
 * `at` 为被提及人的 id
+* `video`和`record`都是一个base64字符串，包含了f"base64://{b64_str}"的内容
 
 ## 上报消息
 

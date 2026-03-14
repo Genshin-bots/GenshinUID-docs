@@ -65,18 +65,48 @@ features:
     linkText: 欢迎 ⭐
 ---
 
-<VPTeamPage>
-  <VPTeamPageTitle>
-    <template #title>
-      核心成员介绍
-    </template>
-  </VPTeamPageTitle>
+<div class="team-section" style="text-align: center;">
+
   <VPTeamMembers
     :members="members"
   />
-</VPTeamPage>
 
-<HomeContributors/>
+  <div style="font-size: 2em; font-weight: bold; margin: 2em 0 0.5em 0;">感谢成员贡献</div>
+  <HomeContributors/>
 
-<Contact>
-</Contact>
+<div style="font-size: 2em; font-weight: bold; margin: 2em 0 1em 0;">获得帮助/支持</div>
+
+<div style="margin-top: 3em;">
+  <div style="display: flex; justify-content: center; gap: 2em; align-items: center; flex-wrap: wrap;">
+    <a href="https://github.com/Genshin-bots/gsuid_core/issues" target="_blank" style="display: flex; align-items: center; gap: 0.5em; font-size: 1.2em; padding: 0.5em 1em; border: 1px solid var(--vp-c-divider); border-radius: 8px; text-decoration: none; color: var(--vp-c-text-1);">
+      <span style="font-size: 1.5em;">🐛</span>
+      GitHub Issues
+    </a>
+    <a href="https://qm.qq.com/q/zLghD5ENva" target="_blank" style="display: flex; align-items: center; gap: 0.5em; font-size: 1.2em; padding: 0.5em 1em; border: 1px solid var(--vp-c-divider); border-radius: 8px; text-decoration: none; color: var(--vp-c-text-1);">
+      <span style="font-size: 1.5em;">🐧</span>
+      Mihomo Bot Group
+    </a>
+  </div>
+</div>
+
+</div>
+
+<style>
+/* 隐藏主内容区域左侧自动生成的H2标题（就是你看到的那两个淡灰色大H2） */
+.vp-doc > h2 {
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* 只保留隐藏的锚点，不影响排版和组件内标题 */
+.vp-doc > h2 .header-anchor::before {
+  display: none !important;
+}
+/* 确保团队成员头像保持水平网格布局并居中 */
+.vp-team-members {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+</style>
