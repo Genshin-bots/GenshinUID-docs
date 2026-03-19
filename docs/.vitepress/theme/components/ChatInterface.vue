@@ -14,7 +14,9 @@ import {
   ChatInputArea,
   ChatMessageList,
   ImageLightbox,
+  NodeMessagePanel,
 } from './chat'
+import type { NodeContent } from './chat/ChatMessageList.vue'
 
 // --- Composables ---
 const {
@@ -68,15 +70,20 @@ const {
 
 // --- State ---
 const messages = ref<Array<{
-  type: 'sent' | 'received' | 'system'
+  type: 'sent' | 'received' | 'system' | 'node'
   text?: string
   html?: string
   sender?: { nickname: string; avatar: string }
   buttons?: Array<{ text: string; data: string; style?: number }>
+  nodeData?: NodeContent[] // 合并转发消息数据
 }>>([])
 
 const newMessage = ref('')
 const messageContainer = ref<HTMLElement | null>(null)
+
+// --- 合并转发面板状态 ---
+const isNodePanelVisible = ref(false)
+const currentNodeData = ref<NodeContent[]>([])
 
 // --- WebSocket ---
 const {
@@ -93,6 +100,27 @@ const {
   (data) => {
     // Handle incoming message
     if (data.content) {
+      // 检查是否有 node 类型的消息（合并转发）
+      const nodeContent = data.content.find((c: any) => c.type === 'node')
+      if (nodeContent && Array.isArray(nodeContent.data)) {
+        // 处理合并转发消息
+        const nodeData: NodeContent[] = nodeContent.data.map((msg: any) => ({
+          id: msg.id || String(Date.now()),
+          username: msg.username || msg.sender?.nickname || '用户',
+          avatar: msg.avatar || msg.sender?.avatar || 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png',
+          messages: Array.isArray(msg.messages) ? msg.messages : [{ type: msg.type || 'text', data: msg.data || '' }],
+        }))
+
+        messages.value.push({
+          type: 'node',
+          nodeData,
+          sender: data.sender || { nickname: '服务器', avatar: 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png' },
+        })
+        scrollToBottom()
+        return
+      }
+
+      // 普通消息处理
       const mainContent = data.content.filter((c: any) => c.type !== 'buttons')
       const buttonContent = data.content.find((c: any) => c.type === 'buttons')
       const buttons = buttonContent ? buttonContent.data.flat() : []
@@ -322,6 +350,12 @@ function handleImageClick(src: string) {
   openLightbox(src, allImages, index >= 0 ? index : 0)
 }
 
+// 处理合并转发消息点击
+function handleNodeClick(nodeData: NodeContent[]) {
+  currentNodeData.value = nodeData
+  isNodePanelVisible.value = true
+}
+
 function handleCopyToInput(payload: { text?: string; html?: string }) {
   // 优先使用原始文本，如果没有则使用 html 内容
   const contentToCopy = payload.text || payload.html || ''
@@ -417,6 +451,7 @@ onUnmounted(() => {
       @button-click="handleButtonClick"
       @image-click="handleImageClick"
       @copy="handleCopyToInput"
+      @node-click="handleNodeClick"
     />
 
     <ChatInputArea
@@ -461,6 +496,13 @@ onUnmounted(() => {
       multiple
       @change="handleFileSelect($event, processFile)"
     >
+
+    <!-- 合并转发消息面板 -->
+    <NodeMessagePanel
+      :visible="isNodePanelVisible"
+      :node-data="currentNodeData"
+      @close="isNodePanelVisible = false"
+    />
   </div>
 </template>
 

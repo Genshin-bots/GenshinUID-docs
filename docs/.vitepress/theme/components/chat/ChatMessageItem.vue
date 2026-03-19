@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Message } from './ChatMessageList.vue'
+import type { Message, NodeContent } from './ChatMessageList.vue'
 
 const props = defineProps<{
   message: Message
@@ -11,6 +11,7 @@ const emit = defineEmits<{
   (e: 'imageClick', src: string): void
   (e: 'mediaClick', payload: { src: string; type: string; element: HTMLElement }): void
   (e: 'copy', payload: { text?: string; html?: string }): void
+  (e: 'nodeClick', nodeData: NodeContent[]): void
 }>()
 
 function handleClick(event: MouseEvent) {
@@ -31,6 +32,30 @@ function handleClick(event: MouseEvent) {
     emit('mediaClick', { src, type, element: target })
   }
 }
+
+// 生成 node 消息的预览文本
+function getNodePreview(nodeData: NodeContent[]): string {
+  if (!nodeData || nodeData.length === 0)
+    return '[聊天记录]'
+  const count = nodeData.length
+  const first = nodeData[0]
+  let preview = `${first.username}: `
+  const firstMsg = first.messages?.[0]
+  if (firstMsg) {
+    const content = firstMsg.data?.substring(0, 20) || '[消息]'
+    preview += content + (firstMsg.data && firstMsg.data.length > 20 ? '...' : '')
+  }
+  if (count > 1)
+    preview += ` 等${count}条消息`
+
+  return preview
+}
+
+// 点击打开合并转发面板
+function handleNodeClick() {
+  if (props.message.type === 'node' && props.message.nodeData)
+    emit('nodeClick', props.message.nodeData)
+}
 </script>
 
 <template>
@@ -38,6 +63,26 @@ function handleClick(event: MouseEvent) {
     <template v-if="message.type === 'system'">
       <div class="system-message">
         {{ message.text }}
+      </div>
+    </template>
+    <template v-else-if="message.type === 'node'">
+      <img :src="message.sender?.avatar" alt="avatar" class="avatar">
+      <div class="message-content">
+        <div class="sender-name">
+          {{ message.sender?.nickname }}
+        </div>
+        <div
+          class="message-bubble node-message-bubble"
+          @click="handleNodeClick"
+        >
+          <div class="node-preview">
+            <span class="node-icon">📋</span>
+            <span class="node-text">{{ getNodePreview(message.nodeData || []) }}</span>
+          </div>
+          <div class="node-hint">
+            点击查看详情
+          </div>
+        </div>
       </div>
     </template>
     <template v-else>
@@ -83,6 +128,10 @@ function handleClick(event: MouseEvent) {
   max-width: 100% !important;
 }
 
+.message-item.message-node {
+  max-width: 70%;
+}
+
 .system-message {
   width: 100%;
   text-align: center;
@@ -116,6 +165,37 @@ function handleClick(event: MouseEvent) {
   background-color: var(--vp-c-bg-mute);
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+/* 合并转发消息样式 */
+.node-message-bubble {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.node-message-bubble:hover {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.node-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-icon {
+  font-size: 1.2em;
+}
+
+.node-text {
+  color: var(--vp-c-text-1);
+  font-size: 0.9em;
+}
+
+.node-hint {
+  font-size: 0.7em;
+  color: var(--vp-c-text-3);
+  margin-top: 4px;
 }
 
 .message-bubble :deep(img.chat-image) {
