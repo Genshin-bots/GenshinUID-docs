@@ -352,6 +352,20 @@
         "ComfyUI",
         "AIGC"
       ]
+    },
+    "RocomUID": {
+      "link": "https://github.com/jiluoQAQ/RocomUID",
+      "avatar": "https://github.com/jiluoQAQ.png",
+      "cover": "https://files.seeusercontent.com/2026/04/02/Knq0/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多功能洛克王国：世界查询插件",
+      "installMsg": "",
+      "alias": [
+        "洛克王国",
+        "洛克王国：世界"
+      ]
     }
   },
   "fun_plugins": [
@@ -380,7 +394,8 @@
     "MajsoulUID",
     "LOLegendsUID",
     "BlueArchiveUID",
-    "RH_ComfyUI"
+    "RH_ComfyUI",
+    "RocomUID"
   ],
   "extra": {
     
