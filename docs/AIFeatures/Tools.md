@@ -1,0 +1,342 @@
+# 工具注册
+
+::: tip
+
+**适合场景**：
+
+- 🔍 想让 AI 查询游戏角色信息并回复用户
+- 📤 需要 AI 主动发送消息或图片
+- 🧮 想让 AI 执行计算、数据处理等操作
+- 🔐 需要限制某些功能仅管理员可用
+
+如果把 AI 比作一个聪明的助手，`@ai_tools` 就是给助手配备的工具箱。
+
+没有工具，助手只能聊天；有了工具，助手就能帮你查资料、发消息、处理数据！
+:::
+
+本文档详细介绍如何使用 `@ai_tools` 装饰器为 AI 注册工具函数。
+
+## 概述
+
+`@ai_tools` 装饰器是 GsCore AI Core 的核心功能之一，允许插件开发者将 Python 函数注册为 AI 可调用的工具。AI 可以根据用户输入自动选择合适的工具执行。
+
+## 入口函数
+
+```python
+from gsuid_core.ai_core.register import ai_tools
+```
+
+## 函数签名
+
+```python
+def ai_tools(
+    func: Optional[Callable] = None,
+    /,
+    *,
+    check_func: Optional[Callable[..., Awaitable[Tuple[bool, str]]]] = None,
+    **check_kwargs,
+) -> Callable[[F], F] | F
+```
+
+## 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `func` | `Callable` | 否 | 被装饰的异步函数（装饰器模式自动传入） |
+| `check_func` | `Callable` | 否 | 权限校验函数，签名为 `async def check_xxx(...) -> Tuple[bool, str]` |
+| `**check_kwargs` | `Any` | 否 | 额外传递给 `check_func` 的参数 |
+
+## 被装饰函数的签名要求
+
+```python
+@ai_tools()
+async def my_tool(
+    ctx: RunContext[ToolContext],   # 可选: RunContext / ToolContext / 不传
+    param1: str,                    # 业务参数
+    param2: int = 10,              # 可选参数
+) -> str:
+    """工具描述 - 将作为 AI 看到的工具说明"""
+    # ctx.deps.bot  - Bot 对象
+    # ctx.deps.ev   - Event 对象
+    return f"结果: {param1}"
+```
+
+## 三种上下文模式
+
+| 模式 | 函数签名 | 说明 |
+|------|----------|------|
+| RunContext | `async def tool(ctx: RunContext[ToolContext], ...)` | PydanticAI 推荐方式，可访问 `ctx.deps.bot` 和 `ctx.deps.ev` |
+| ToolContext | `async def tool(ctx: ToolContext, ...)` | 直接使用上下文对象 |
+| 无上下文 | `async def tool(param1: str, ...)` | 简单工具不需要上下文 |
+
+### 模式一：使用 RunContext（推荐）
+
+```python
+from pydantic_ai import RunContext
+from gsuid_core.ai_core.models import ToolContext
+
+@ai_tools()
+async def query_user_info(
+    ctx: RunContext[ToolContext],
+    user_id: str,
+) -> str:
+    """
+    查询用户信息
+
+    Args:
+        user_id: 用户ID
+    """
+    bot = ctx.deps.bot
+    ev = ctx.deps.ev
+    # 使用 bot 和 ev 进行操作
+    return f"用户 {user_id} 的信息"
+```
+
+### 模式二：使用 ToolContext
+
+```python
+from gsuid_core.ai_core.models import ToolContext
+
+@ai_tools()
+async def simple_query(
+    ctx: ToolContext,
+    query: str,
+) -> str:
+    """
+    简单查询
+
+    Args:
+        query: 查询内容
+    """
+    bot = ctx.bot
+    ev = ctx.ev
+    return f"查询结果: {query}"
+```
+
+### 模式三：无上下文
+
+```python
+@ai_tools()
+async def calculate(
+    a: int,
+    b: int,
+    operation: str = "add",
+) -> str:
+    """
+    简单计算器
+
+    Args:
+        a: 第一个数
+        b: 第二个数
+        operation: 操作类型，add/sub/mul/div
+    """
+    if operation == "add":
+        return str(a + b)
+    return "未知操作"
+```
+
+## 权限校验（check_func）
+
+### 定义权限校验函数
+
+```python
+from gsuid_core.models import Event
+
+async def check_admin(ev: Event) -> tuple[bool, str]:
+    """仅允许管理员使用此工具"""
+    if ev.user_id == "123456":  # 管理员ID
+        return True, ""
+    return False, "仅管理员可用"
+```
+
+### 使用权限校验
+
+```python
+@ai_tools(check_func=check_admin)
+async def admin_command(
+    ctx: RunContext[ToolContext],
+    command: str,
+) -> str:
+    """
+    管理员命令
+
+    Args:
+        command: 要执行的命令
+    """
+    return f"执行命令: {command}"
+```
+
+### check_func 参数注入
+
+`check_func` 的参数会根据类型自动注入：
+
+| 参数类型 | 注入值 |
+|----------|--------|
+| `Event` | `ctx.deps.ev` |
+| `Bot` | `ctx.deps.bot` |
+
+```python
+async def check_permission(
+    ev: Event,      # 自动注入 Event
+    bot: Bot,       # 自动注入 Bot
+) -> tuple[bool, str]:
+    # 使用 ev 和 bot 进行权限判断
+    return True, ""
+```
+
+## 返回值类型处理
+
+| 返回类型 | 处理方式 |
+|----------|----------|
+| `str` | 直接返回 |
+| `Message` | 调用 `bot.send()` 发送，并返回描述 |
+| `dict` | JSON 序列化后返回 |
+| `Image.Image` | 转换为图片发送，返回资源ID |
+| `bytes` | 作为资源发送 |
+
+### 返回字符串示例
+
+```python
+@ai_tools()
+async def get_time() -> str:
+    """获取当前时间"""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+```
+
+### 返回图片示例
+
+```python
+from PIL import Image
+
+@ai_tools()
+async def generate_image(
+    ctx: RunContext[ToolContext],
+    text: str,
+) -> Image.Image:
+    """
+    生成图片
+
+    Args:
+        text: 图片上的文字
+    """
+    # 创建图片
+    img = Image.new('RGB', (200, 100), color='white')
+    # ... 绘制文字 ...
+    return img  # 自动发送并返回资源ID
+```
+
+## 工具描述规范
+
+工具函数的 docstring 非常重要，AI 会根据它理解工具的用途和参数。
+
+### 推荐格式
+
+```python
+@ai_tools()
+async def my_tool(
+    ctx: RunContext[ToolContext],
+    param1: str,
+    param2: int = 10,
+) -> str:
+    """
+    工具的简短描述 - 一句话说明用途
+
+    详细说明（可选）：描述工具的具体功能、使用场景等。
+
+    Args:
+        param1: 参数1的说明
+        param2: 参数2的说明，默认为10
+
+    Returns:
+        返回值的说明
+    """
+    return f"结果"
+```
+
+## 完整示例
+
+```python
+from pydantic_ai import RunContext
+from gsuid_core.ai_core.register import ai_tools
+from gsuid_core.ai_core.models import ToolContext
+from gsuid_core.models import Event
+
+# 权限校验函数
+async def check_admin(ev: Event) -> tuple[bool, str]:
+    """仅允许管理员使用"""
+    admin_ids = ["123456", "789012"]
+    if ev.user_id in admin_ids:
+        return True, ""
+    return False, "仅管理员可用"
+
+# 带权限校验的工具
+@ai_tools(check_func=check_admin)
+async def admin_query(
+    ctx: RunContext[ToolContext],
+    uid: str,
+) -> str:
+    """
+    管理员查询接口
+
+    Args:
+        uid: 要查询的用户ID
+    """
+    return f"管理员查询了用户 {uid} 的信息"
+
+# 无需上下文的工具
+@ai_tools()
+async def simple_calc(
+    a: int,
+    b: int,
+    operation: str = "add",
+) -> str:
+    """
+    简单计算器
+
+    Args:
+        a: 第一个数
+        b: 第二个数
+        operation: 操作类型，add/sub/mul/div
+    """
+    if operation == "add":
+        return str(a + b)
+    elif operation == "sub":
+        return str(a - b)
+    elif operation == "mul":
+        return str(a * b)
+    elif operation == "div":
+        if b == 0:
+            return "错误：除数不能为0"
+        return str(a / b)
+    return "未知操作"
+
+# 使用 RunContext 的工具
+@ai_tools()
+async def send_greeting(
+    ctx: RunContext[ToolContext],
+    user_id: str,
+) -> str:
+    """
+    向用户发送问候
+
+    Args:
+        user_id: 目标用户ID
+    """
+    bot = ctx.deps.bot
+    await bot.send(f"你好，用户 {user_id}！")
+    return "问候已发送"
+```
+
+## 注意事项
+
+1. **必须使用异步函数**：被装饰的函数必须是 `async def`
+2. **参数类型注解**：建议为所有参数添加类型注解，帮助 AI 理解参数类型
+3. **默认值**：为可选参数提供默认值
+4. **错误处理**：工具内部应妥善处理异常，避免影响 AI 流程
+
+## 下一步
+
+- [知识库注册](./KnowledgeBase) - 学习如何注册知识库
+- [内置工具](./BuiltinTools) - 查看可用的内置工具
+- [完整示例](./Examples) - 查看更多开发示例

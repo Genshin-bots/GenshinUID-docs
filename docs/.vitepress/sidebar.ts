@@ -34,6 +34,7 @@ export default {
       text: ' 🚀 进阶介绍',
       collapsed: true,
       items: [
+        { text: '🧠 AI配置', link: '/Advance/AIConfig' },
         { text: '概念理解', link: '/Advance/BaseInfo' },
         { text: '数据存储结构', link: '/Advance/DataStruct' },
         { text: '配置数据库', link: '/Advance/Database' },
@@ -43,6 +44,20 @@ export default {
         { text: 'MD模板和按钮模板', link: '/Advance/MarkdownTemplate' },
         { text: 'Core配置项', link: '/Advance/CoreConfig' },
         { text: 'HTTP调用', link: '/Advance/HTTPCall' },
+      ],
+    },
+    {
+      text: ' 🧠 AI功能',
+      collapsed: true,
+      items: [
+        { text: 'AI功能概述', link: '/AIFeatures/' },
+        { text: '工具注册', link: '/AIFeatures/Tools' },
+        { text: '知识库注册', link: '/AIFeatures/KnowledgeBase' },
+        { text: 'Agent创建', link: '/AIFeatures/Agent' },
+        { text: '别名注册', link: '/AIFeatures/Alias' },
+        { text: '内置工具', link: '/AIFeatures/BuiltinTools' },
+        { text: 'Skills系统', link: '/AIFeatures/Skills' },
+        { text: '完整示例', link: '/AIFeatures/Examples' },
       ],
     },
     {

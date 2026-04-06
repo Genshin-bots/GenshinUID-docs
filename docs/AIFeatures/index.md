@@ -1,0 +1,132 @@
+# AI功能
+
+::: tip
+
+本章适合所有想要为插件添加 AI 能力的**开发者**。
+
+如果是**使用者/部署者**, 请直接前往 [AI配置](../Advance/AIConfig) 章节!
+
+无论你是想做一个智能问答助手、自动翻译工具，还是想让 AI 帮你处理游戏数据，这里都有你需要的全部知识。
+
+**适合场景**：
+
+- 🤖 想让机器人拥有"大脑"，能理解和回答复杂问题
+- 🛠️ 需要 AI 调用插件功能（如查询角色信息、发送消息）
+- 📚 想让 AI 学习游戏知识，成为专业攻略助手
+- 🎭 想创建特定风格的 AI 角色（如派蒙、客服等）
+:::
+
+GsCore 提供了强大的 AI 功能支持，允许插件开发者为机器人集成 AI 能力，包括工具函数、知识库、自定义 Agent 等。
+
+## 概述
+
+GsCore AI Core 模块基于 [PydanticAI](https://ai.pydantic.dev/) 构建，为插件开发者提供了一套完整的 AI 功能开发接口。
+
+**核心模块路径**: `gsuid_core/ai_core/`
+
+## 功能特性
+
+- **工具注册**: 通过装饰器轻松注册 AI 可调用的工具函数
+- **知识库管理**: 支持插件知识库和手动知识库两种模式
+- **临时 Agent**: 创建自定义 Agent 处理特定任务
+- **别名系统**: 为实体名称注册别名，提升 AI 理解能力
+- **内置工具**: 提供丰富的内置工具函数
+- **Skills 系统**: 支持 YAML/Markdown 格式的技能定义
+
+## 快速开始
+
+### 1. 模块导入
+
+```python
+# 工具注册装饰器
+from gsuid_core.ai_core.register import ai_tools, ai_entity, ai_alias, add_manual_knowledge
+
+# 临时 Agent 创建
+from gsuid_core.ai_core.gs_agent import create_agent
+
+# 工具上下文
+from gsuid_core.ai_core.models import ToolContext
+
+# PydanticAI RunContext
+from pydantic_ai import RunContext
+
+# 内置工具
+from gsuid_core.ai_core.buildin_tools import (
+    search_knowledge,      # 知识库检索
+    web_search,            # Web搜索
+    send_message_by_ai,    # 发送消息
+    query_user_favorability,   # 查询好感度
+    query_user_memory,     # 查询用户记忆
+    set_user_favorability,     # 设置好感度
+    update_user_favorability,  # 更新好感度
+)
+```
+
+### 2. 注册一个简单的 AI 工具
+
+```python
+from gsuid_core.ai_core.register import ai_tools
+
+@ai_tools()
+async def simple_calc(a: int, b: int, operation: str = "add") -> str:
+    """
+    简单计算器
+
+    Args:
+        a: 第一个数
+        b: 第二个数
+        operation: 操作类型，add/sub/mul/div
+    """
+    if operation == "add":
+        return str(a + b)
+    elif operation == "sub":
+        return str(a - b)
+    elif operation == "mul":
+        return str(a * b)
+    elif operation == "div":
+        if b == 0:
+            return "错误：除数不能为0"
+        return str(a / b)
+    return "未知操作"
+```
+
+### 3. 注册知识库
+
+```python
+from gsuid_core.ai_core.register import ai_entity
+from gsuid_core.ai_core.models import KnowledgePoint
+
+ai_entity(KnowledgePoint(
+    id="plugin_help_001",
+    plugin="MyPlugin",
+    title="插件帮助文档",
+    content="""
+    # MyPlugin 插件帮助
+
+    ## 命令列表
+    - /help - 显示帮助
+    - /admin - 管理员命令
+
+    ## 功能说明
+    本插件提供...功能
+    """,
+    tags=["帮助", "命令", "文档"],
+))
+```
+
+## 文档目录
+
+- [AI配置](./Config) - AI 功能的基础配置
+- [工具注册](./Tools) - 使用 `@ai_tools` 装饰器注册工具
+- [知识库注册](./KnowledgeBase) - 注册和管理知识库
+- [Agent创建](./Agent) - 创建临时 Agent
+- [别名注册](./Alias) - 注册实体别名
+- [内置工具](./BuiltinTools) - 内置工具函数一览
+- [Skills系统](./Skills) - Skills 系统使用指南
+- [完整示例](./Examples) - 完整的开发示例
+
+## 相关文档
+
+- [AI 处理流程](./ai_handle_flow.md)
+- [知识库重构设计](./knowledge_base_restructuring.md)
+- [WebConsole API](./webconsole/API.md)

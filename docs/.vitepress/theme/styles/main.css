@@ -219,3 +219,23 @@ h2[data-v-6ba510aa].text {
 .lightbox-nav-button {
   z-index: 2147483647 !important;
 }
+
+/* 隐藏主内容区域左侧自动生成的H2标题（就是你看到的那两个淡灰色大H2） */
+.vp-doc > h2 {
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 只保留隐藏的锚点，不影响排版和组件内标题 */
+.vp-doc > h2 .header-anchor::before {
+  display: none !important;
+}
+
+/* 确保团队成员头像保持水平网格布局并居中 */
+.vp-team-members {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
