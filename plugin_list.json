@@ -366,6 +366,22 @@
         "洛克王国",
         "洛克王国：世界"
       ]
+    },
+    "NTEUID": {
+      "link": "https://github.com/tyql688/NTEUID",
+      "avatar": "https://github.com/tyql688.png",
+      "cover": "https://raw.githubusercontent.com/tyql688/NTEUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能异环插件",
+      "installMsg": "",
+      "alias": [
+        "nte",
+        "nteuid",
+        "yh",
+        "异环"
+      ]
     }
   },
   "fun_plugins": [
@@ -395,7 +411,8 @@
     "LOLegendsUID",
     "BlueArchiveUID",
     "RH_ComfyUI",
-    "RocomUID"
+    "RocomUID",
+    "NTEUID"
   ],
   "extra": {
     
