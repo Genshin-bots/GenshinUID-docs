@@ -382,6 +382,20 @@
         "yh",
         "异环"
       ]
+    },
+    "PGRUID": {
+      "link": "https://github.com/Loping151/PGRUID",
+      "avatar": "https://github.com/Loping151.png",
+      "cover": "https://raw.githubusercontent.com/Loping151/PGRUID/refs/heads/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能战双插件",
+      "installMsg": "",
+      "alias": [
+        "pgr",
+        "战双"
+      ]
     }
   },
   "fun_plugins": [
@@ -412,7 +426,8 @@
     "BlueArchiveUID",
     "RH_ComfyUI",
     "RocomUID",
-    "NTEUID"
+    "NTEUID",
+    "PGRUID"
   ],
   "extra": {
     
