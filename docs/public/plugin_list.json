@@ -1,5 +1,19 @@
 {
   "plugins": {
+	"core_plugin_memes": {
+      "link": "https://github.com/Loping151/core_plugin_memes",
+      "avatar": "https://github.com/Loping151",
+      "cover": "https://pic1.imgdb.cn/item/69a110b7d9fa54ce3f18b9fe.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "表情包制作插件, 可连接python版或rust版",
+      "installMsg": "",
+      "alias": [
+        "meme",
+        "memes"
+      ]
+    },
     "StarRailUID": {
       "link": "https://github.com/baiqwerdvd/StarRailUID",
       "avatar": "https://github.com/baiqwerdvd.png",
@@ -401,7 +415,8 @@
   "fun_plugins": [
     "PsyTest",
     "aemeth_ai",
-    "pokemon"
+    "pokemon",
+    "core_plugin_memes"
   ],
   "tool_plugins": [
     "SayuStock",
