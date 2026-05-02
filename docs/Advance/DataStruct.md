@@ -4,6 +4,7 @@
 
 - 目录`gsuid_core/data`下保存着全部的插件数据
   - 目录`gsuid_core/data/GsData.db`下保存着`GsCore`**大部分插件**绑定的所有CK和UID数据
+  - 目录`gsuid_core/data/plugins_configs/`下保存着**每个插件的独立配置文件**（JSON格式）
   - 目录`gsuid_core/data/GenshinUID`下保存着`GenshinUID`的数据（不同的插件对应不同文件夹名称，目前以GenshinUID为示例讲解）
     - 其中`players`文件夹内保存着`GenshinUID`所有用户的**面板文件**和**抽卡记录**等
     - 其中`bg`文件夹内**可以**存放部分功能的自定义背景图，重启Bot后随机调用，格式任意

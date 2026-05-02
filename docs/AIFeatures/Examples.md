@@ -2,7 +2,7 @@
 
 ::: tip
 
-本章提供 5 个完整的开发示例，从简单到复杂，手把手教你实现各种 AI 功能。
+本章提供 6 个完整的开发示例，从简单到复杂，手把手教你实现各种 AI 功能。
 
 **适合场景**：
 
@@ -782,8 +782,102 @@ async def query_with_context(
 4. **成本控制**：注意 AI 调用的 token 消耗
 5. **测试覆盖**：为工具函数编写单元测试
 
+## 示例六：触发器桥接（to_ai）— 让 AI 调用插件命令
+
+### 场景
+
+将已有的插件触发器（如查询股票、查天气等）自动注册为 AI 工具，让 AI 可以根据用户意图自动调用这些功能。
+
+### 完整代码
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+sv = SV("股票插件")
+
+# ==================== 触发器 + AI 工具 ====================
+# to_ai 参数的字符串将作为 AI 工具的 docstring
+# AI 会根据这段描述判断何时调用该工具
+
+@sv.on_command(
+    "个股",
+    to_ai="""
+    查询指定股票或ETF的K线图或分时图。
+    当用户询问某只股票/ETF走势时调用。
+
+    Args:
+        text: 股票名称或代码，可加前缀 "日k"/"周k"/"月k"，多个以空格分隔
+              例如 "证券ETF"、"日k 白酒ETF"
+    """,
+)
+async def send_stock_img(bot: Bot, ev: Event):
+    content = ev.text.strip().lower()
+    if not content:
+        ai_return("错误：未提供股票代码")
+        return await bot.send("请后跟股票代码使用")
+
+    # ... 原有业务逻辑完全不变 ...
+    # 生成图片后发送
+    im = await generate_stock_chart(content)
+    await bot.send(im)
+
+# ==================== 天气查询示例 ====================
+
+@sv.on_command(
+    "天气",
+    to_ai="""
+    查询指定城市的天气信息。
+    当用户询问天气、气温、是否下雨等问题时调用。
+
+    Args:
+        text: 城市名称，例如 "北京"、"上海"、"深圳"
+    """,
+)
+async def query_weather(bot: Bot, ev: Event):
+    city = ev.text.strip()
+    if not city:
+        ai_return("错误：未提供城市名称")
+        return await bot.send("请输入城市名称")
+
+    weather_data = await fetch_weather(city)
+    await bot.send(weather_data)
+```
+
+### 交互效果
+
+```
+用户直接发送 "个股 证券ETF"：
+  → 触发器匹配 → 直接发送 K 线图 ✅
+
+用户对 AI 说 "帮我看看证券ETF最近走势怎么样"：
+  → AI 识别意图 → 调用 send_stock_img(text="证券ETF")
+  → MockBot 拦截图片 → AI 决定是否发送
+  → AI 调用 send_trigger_images() → 图片发出 ✅
+
+用户对 AI 说 "今天北京天气怎么样"：
+  → AI 识别意图 → 调用 query_weather(text="北京")
+  → AI 将天气数据整合到回复中 ✅
+```
+
+### 关键点
+
+1. **零侵入**：原有触发器逻辑完全不变，只是多了一个 `to_ai` 参数
+2. **AI 自主决策**：AI 根据 docstring 判断何时调用，调用后决定是否发送图片
+3. **`ai_return()`**：在普通用户触发时静默忽略，AI 调用时返回文本给 AI
+4. **图片拦截**：AI 调用时 `bot.send(image)` 被 MockBot 拦截，图片暂存，AI 可后续通过 `send_trigger_images` 发送
+
+::: tip
+
+更多关于 `to_ai` 参数的详细说明，请参考 [触发器文档](../CodePlugins/trigger#to_ai-参数--触发器自动注册为-ai-工具)。
+
+:::
+
 ## 下一步
 
 - [工具注册](./Tools) - 深入了解工具注册
 - [知识库注册](./KnowledgeBase) - 深入了解知识库
 - [Agent创建](./Agent) - 深入了解 Agent 创建
+- [触发器文档](../CodePlugins/trigger) - 深入了解触发器和 to_ai 参数

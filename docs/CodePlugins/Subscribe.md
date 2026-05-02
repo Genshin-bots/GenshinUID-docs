@@ -14,122 +14,89 @@
 
 :::
 
-### Interface
+## 订阅类型
 
-[代码位置](https://github.com/Genshin-bots/gsuid_core/blob/2dda8aa0bb16c418bf008a281915be1a54119021/gsuid_core/subscribe.py)
-[测试示例](https://github.com/Genshin-bots/gsuid_core/blob/2dda8aa0bb16c418bf008a281915be1a54119021/gsuid_core/plugins/gs_test.py#L158)
+| `subscribe_type` | 行为 |
+|-----------------|------|
+| `"session"` | 同一群聊/私聊只保留一条记录，适合公告、推送 |
+| `"single"` | 同一群聊可有多条记录（如多个签到任务），私聊仍只保留一条 |
 
-### 流程概览
-
-```python
-from gsuid_core.utils.database.models import Subscribe
-
-# 订阅公告
-GsCoreSubscribe.add_task("鸣朝公告", event)
-# 订阅推送
-GsCoreSubscribe.add_task("鸣朝推送", event)
-
-# 发送主动消息
-all_push_task: Optional[List[Subscribe]] = GsCoreSubscribe.get_task("鸣朝推送")
-for subscribe in all_push_task:
-    user_id = subscribe.user_id
-    group_id = subscribe.group_id
-    msg = process(user_id, group_id)  # 处理业务逻辑，并拿到消息
-    subscribe.send(msg)  # 发送消息
-```
-
-### 一些重要的传参信息
-
-```python
-async def add_subscribe(
-        self,
-        subscribe_type: Literal['session', 'single'],
-        task_name: str,
-        event: Event,
-        extra_message: Optional[str] = None,
-    ):
-        '''📝简单介绍:
-
-            该方法允许向数据库添加一个订阅信息的持久化保存
-            注意`subscribe_type`参数必须为`session`或`single`
-            `session`模式下, 订阅都将在每个有效的session(group或direct)内独立存在 (公告推送)
-            `single`模式下, 同个session(group)可能同时存在多个订阅 (签到任务)
-
-        🌱参数:
-
-            🔹subscribe_type (`Literal['session', 'single']`):
-                    'session'模式: 同个group/user下只存在一条订阅
-                    'single'模式: 同个group下存在多条订阅, 同个user只存在一条订阅
-
-            🔹task_name (`str`):
-                    订阅名称
-
-            🔹event (`Event`):
-                    事件Event
-
-            🔹extra_message (`Optional[str]`, 默认是 `None`):
-                    额外想要保存的信息, 例如推送信息或者数值阈值
-
-        🚀使用范例:
-
-            `await GsCoreSubscribe.add_subscribe('single', '签到', event)`
-        '''
-        pass
-```
-
-### 订阅消息
+## 注册订阅（在命令中调用）
 
 ```python
 from gsuid_core.subscribe import gs_subscribe
-from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
+from gsuid_core.models import Event
 
-async def handle_subscribe(bot: Bot, ev: Event):
+sv = SV("订阅管理")
+
+@sv.on_prefix("订阅公告")
+async def subscribe_notice(bot: Bot, ev: Event):
     await gs_subscribe.add_subscribe(
-        'single',
-        '订阅测试',
-        ev,
-        extra_message='测试',
+        subscribe_type="session",   # 每个群/私聊仅保留一条记录
+        task_name="每日公告",
+        event=ev,
     )
-    data = await gs_subscribe.get_subscribe('订阅测试')
-    logger.info(data)
-    await bot.send('订阅成功！')
+    await bot.send("已订阅每日公告！")
 ```
 
-### 获取订阅角色/群聊&发送消息
+## 获取订阅并发送消息
 
 ```python
 from gsuid_core.subscribe import gs_subscribe
-from gsuid_core.models import Event
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
 
 async def handle_get_subscribe(bot: Bot, ev: Event):
     # 可以拿到所有该类命名的订阅信息
-    datas = await gs_subscribe.get_subscribe('订阅测试')
+    datas = await gs_subscribe.get_subscribe('每日公告')
     # 进行循环
     if datas:
-        # 发送
         for subscribe in datas:
-            await subscribe.send(f'[订阅] {subscribe.extra_message}')
+            # sub.send() 自动识别平台、Bot、目标会话
+            await subscribe.send(f'[公告] {subscribe.extra_message}')
     await bot.send('查看订阅成功！')
 ```
 
-### 删除订阅
+## 删除订阅
 
 ```python
-from gsuid_core.subscribe import gs_subscribe
-from gsuid_core.models import Event
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-
-async def handle_unsubscribe(bot: Bot, ev: Event):
-    # 执行删除
-    await gs_subscribe.delete_subscribe('single', '订阅测试', ev)
-    # 检查是否存在
-    data = await gs_subscribe.get_subscribe('订阅测试')
-    logger.info(data)
-    await bot.send('取消订阅成功！')
+@sv.on_prefix("取消公告")
+async def unsubscribe_notice(bot: Bot, ev: Event):
+    await gs_subscribe.delete_subscribe("session", "每日公告", ev)
+    await bot.send("已取消订阅。")
 ```
+
+## 在定时任务中批量推送（推荐用法）
+
+```python
+from gsuid_core.aps import scheduler
+from gsuid_core.subscribe import gs_subscribe
+
+@scheduler.scheduled_job('cron', hour=8)
+async def send_daily_notice():
+    subs = await gs_subscribe.get_subscribe("每日公告")
+    if not subs:
+        return
+    for sub in subs:
+        await sub.send("📢 每日公告：维护完成，各项服务已恢复。")
+```
+
+## `add_subscribe` 参数说明
+
+```python
+async def add_subscribe(
+    self,
+    subscribe_type: Literal['session', 'single'],
+    task_name: str,
+    event: Event,
+    extra_message: Optional[str] = None,
+):
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `subscribe_type` | `Literal['session', 'single']` | `'session'` 同一群/用户只保留一条；`'single'` 同一群可有多条 |
+| `task_name` | `str` | 订阅任务名称 |
+| `event` | `Event` | 事件对象，自动提取平台、Bot、目标等信息 |
+| `extra_message` | `Optional[str]` | 额外保存的信息，可通过 `sub.extra_message` 读取 |
 

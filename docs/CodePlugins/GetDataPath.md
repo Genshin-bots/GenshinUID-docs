@@ -20,4 +20,3 @@ path = get_res_path('GenshinUID')
 path = get_res_path(['GenshinUID', 'res', 'font'])
 # 该路径为gsuid_core/data/GenshinUID/res/font
 ```
-

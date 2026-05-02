@@ -52,10 +52,12 @@ export default {
       items: [
         { text: 'AI功能概述', link: '/AIFeatures/' },
         { text: 'AI插件编写简介', link: '/AIFeatures/ai_core_api_for_plugins' },
+        { text: '触发器桥接(to_ai)', link: '/AIFeatures/TriggerBridge' },
         { text: '工具注册', link: '/AIFeatures/Tools' },
         { text: '知识库注册', link: '/AIFeatures/KnowledgeBase' },
         { text: 'Agent创建', link: '/AIFeatures/Agent' },
         { text: '别名注册', link: '/AIFeatures/Alias' },
+        { text: 'MCP工具集成', link: '/AIFeatures/MCP' },
         { text: '内置工具', link: '/AIFeatures/BuiltinTools' },
         { text: 'Skills系统', link: '/AIFeatures/Skills' },
         { text: '完整示例', link: '/AIFeatures/Examples' },

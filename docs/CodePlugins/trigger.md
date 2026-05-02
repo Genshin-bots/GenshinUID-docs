@@ -164,3 +164,107 @@ async def message_trigger(bot: Bot, ev: Event):
     await asyncio.sleep(1)
     await bot.send(f'处理完成：{ev.text}')
 ```
+
+---
+
+### `to_ai` 参数 — 触发器自动注册为 AI 工具
+
+所有 `on_xxx` 装饰器支持 `to_ai: str = ""` 参数，可以将触发器自动注册为 AI 工具，无需额外编写工具注册代码。
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+sv = SV("股票插件")
+
+@sv.on_command(
+    "个股",
+    to_ai="""
+    查询指定股票或ETF的K线图或分时图。
+    当用户询问某只股票/ETF走势时调用。
+
+    Args:
+        text: 股票名称或代码，可加前缀 "日k"/"周k"/"月k"，多个以空格分隔
+              例如 "证券ETF"、"日k 白酒ETF"
+    """,
+)
+async def send_stock_img(bot: Bot, ev: Event):
+    content = ev.text.strip().lower()
+    if not content:
+        ai_return("错误：未提供股票代码")
+        return await bot.send("请后跟股票代码使用")
+    # ... 原有逻辑完全不变 ...
+    await bot.send(im)
+```
+
+**关键点**：
+
+- `to_ai` 默认为 `""`，不注册 AI 工具，行为完全不变
+- `ai_return()` 在普通用户触发时静默忽略，AI 调用时收集文本作为工具返回值
+- AI 调用时使用 `MockBot` 拦截 `bot.send()`，AI 可决定是否真正发送图片
+- 详见 [AI Core API 文档](../AIFeatures/ai_core_api_for_plugins#83-by_trigger-工具categoryby_trigger)
+- 完整示例见 [触发器桥接示例](../AIFeatures/Examples#示例六触发器桥接to_ai让-ai-调用插件命令)
+
+#### `to_ai` 的 docstring 写法规范
+
+`to_ai` 写得好不好，决定 AI 能否正确调用触发器。**必须包含**：
+
+1. **一句话功能描述**
+2. **用户在什么自然语言场景下会需要这个功能**
+3. **Args 部分**：参数格式、可选前缀/后缀、至少两个具体例子
+
+```python
+# ✅ 有参数的命令
+to_ai="""查询指定游戏角色的培养详情和属性数据。
+当用户询问某个角色的命座、圣遗物、天赋、属性面板时调用。
+需要用户已绑定 UID。
+
+Args:
+    text: 角色名称，支持昵称。
+          例如 "雷电将军"、"雷神"（等同于雷电将军）、"胡桃"
+"""
+
+# ✅ 无参数的 fullmatch
+to_ai="""查看当前用户绑定的游戏 UID。
+当用户询问"我绑定了什么"、"我的UID是多少"时调用。
+无需参数。
+
+Args:
+    text: 无需参数，留空即可
+"""
+```
+
+#### `ai_return` — 向 AI 返回文本摘要
+
+在触发器函数中调用 `ai_return(text)`，向 AI 返回结构化文本摘要：
+
+- **普通用户触发时**：完全静默，不影响任何逻辑
+- **AI 调用时**：文本被收集，作为工具的返回值传回给 AI
+
+```python
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+@sv.on_command("查角色", to_ai="查询角色详情...")
+async def get_char_info(bot: Bot, ev: Event) -> None:
+    char_name = ev.text.strip()
+    if not char_name:
+        ai_return("错误：未提供角色名称")
+        return await bot.send("请输入角色名")
+
+    data = await fetch_char_data(char_name)
+    # 在数据拿到后、图片生成前注入 AI 文本摘要
+    ai_return(f"【{char_name}】等级: {data['level']}  命座: {data['constellation']}命")
+    im = await render_image(data)
+    await bot.send(im)
+```
+
+#### 哪些触发器不适合加 `to_ai`
+
+| 情况 | 原因 |
+|------|------|
+| 管理员/超级用户专用命令 | 不应让 AI 绕过权限 |
+| 危险操作（清数据、重载配置） | AI 不应独立执行破坏性操作 |
+| 需要多轮 Response 会话的命令 | 当前不支持 |
+| `on_file` 文件接收命令 | AI 无法构建文件输入 |

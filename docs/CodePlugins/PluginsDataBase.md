@@ -80,7 +80,7 @@ class WzryUseradmin(GsAdminModel):
     model = WzryUser
 ```
 
-#### 额外、继承Base_Model
+#### 额外、继承BaseModel（推荐）
 
 ::: tip
 
@@ -97,33 +97,133 @@ GsCore当然也提供了更上游的基类以供继承，下面是具体代码�
 
 ![image-20240818182411857](./../public/PluginsDataBase/image-20240818182411857.png)
 
+##### 三级基类
 
-演示参考如下 ⬇
+GsCore 使用 SQLModel 作为 ORM，提供三级基类：
+
+| 基类 | 字段 | 适用场景 |
+|------|------|----------|
+| `BaseIDModel` | 仅 `id`（自增主键） | 不需要 bot_id 和 user_id 的通用数据表 |
+| `BaseBotIDModel` | `id` + `bot_id` | 需要区分 Bot 来源的数据表 |
+| `BaseModel` | `id` + `bot_id` + `user_id` | 用户级数据表（最常用） |
+
+##### `@with_session` 装饰器规则
+
+所有数据库操作方法**必须**使用 `@with_session` 装饰器：
+
+- **必须是 `classmethod`** 且 **`async def`**
+- `session: AsyncSession` 必须是第二个参数（紧跟 `cls`）
+- 装饰器自动 commit，异常自动回滚
+- **不要**在方法内手动 `await session.commit()`
+
+##### 完整示例
 
 ```python
 from typing import Optional
-
 from sqlmodel import Field
-
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from gsuid_core.utils.database.base_models import BaseModel, with_session
 
-# 创建类时传参带上`table=True`才是建表，否则只是Python内部的类继承，不会实际建立表格
-class MyTable(BaseModel, table=True):
-    # 注意，这里的列名无需新增id等基类已经有的列，只需要根据自己实际需求新增列名即可
-    # 具体基类有什么列可以点进BaseModel类去查看
-    city: Optional[str] = Field(default=None, title='城市')
 
-    # 示例一个类方法
+class GameBind(BaseModel, table=True):
+    """游戏账号绑定表"""
+    uid: str = Field(title="游戏 UID")
+    region: str = Field(default="cn", title="大区")
+    cookie: Optional[str] = Field(default=None, title="Cookie")
+
     @classmethod
     @with_session
-    async def get_user_city(
+    async def get_bind(
+        cls, session: AsyncSession, user_id: str, bot_id: str
+    ) -> Optional["GameBind"]:
+        """根据用户 ID 查询绑定"""
+        stmt = (
+            select(cls)
+            .where(cls.user_id == user_id)
+            .where(cls.bot_id == bot_id)
+        )
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    @classmethod
+    @with_session
+    async def bind_uid(
         cls,
         session: AsyncSession,
         user_id: str,
-    ) -> Optional[str]:
-        '''根据传入`user_id`，判定是否绑定城市'''
-        data = await cls.select_data(user_id)
-        return data.city if data else None
+        bot_id: str,
+        uid: str,
+        region: str = "cn",
+    ) -> "GameBind":
+        """绑定或更新 UID"""
+        existing = await cls.get_bind(user_id, bot_id)
+        if existing:
+            existing.uid = uid
+            existing.region = region
+            session.add(existing)
+            return existing
+        bind = cls(user_id=user_id, bot_id=bot_id, uid=uid, region=region)
+        session.add(bind)
+        return bind
+
+    @classmethod
+    @with_session
+    async def get_uid_list(
+        cls, session: AsyncSession, user_id: str, bot_id: str
+    ) -> list[str]:
+        """获取用户所有绑定的 UID 列表"""
+        stmt = (
+            select(cls.uid)
+            .where(cls.user_id == user_id)
+            .where(cls.bot_id == bot_id)
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
+
+    @classmethod
+    @with_session
+    async def delete_bind(
+        cls, session: AsyncSession, user_id: str, bot_id: str, uid: str
+    ) -> bool:
+        """删除绑定"""
+        stmt = (
+            select(cls)
+            .where(cls.user_id == user_id)
+            .where(cls.bot_id == bot_id)
+            .where(cls.uid == uid)
+        )
+        result = await session.execute(stmt)
+        bind = result.scalar_one_or_none()
+        if bind is None:
+            return False
+        await session.delete(bind)
+        return True
+```
+
+##### 在触发器中使用数据库
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+
+sv = SV("游戏查询")
+
+@sv.on_command(("绑定", "bind"))
+async def bind_uid(bot: Bot, ev: Event) -> None:
+    uid = ev.text.strip()
+    if not uid or not uid.isdigit():
+        return await bot.send("请输入正确的 UID（纯数字）")
+    await GameBind.bind_uid(ev.user_id, ev.bot_id, uid)
+    await bot.send(f"✅ 已绑定 UID: {uid}")
+
+@sv.on_fullmatch("我的UID")
+async def show_uid(bot: Bot, ev: Event) -> None:
+    uid_list = await GameBind.get_uid_list(ev.user_id, ev.bot_id)
+    if not uid_list:
+        return await bot.send("您还没有绑定 UID，发送 '绑定 您的UID' 进行绑定")
+    await bot.send("您绑定的 UID：\n" + "\n".join(uid_list))
 ```
 
 [实例参考](https://github.com/KimigaiiWuyi/MajsoulUID/blob/main/MajsoulUID/utils/database/models.py) ⬇
@@ -171,6 +271,12 @@ class MajsPaipu(BaseIDModel, table=True):
 
 所以我们需要一个方法，通过该方法可以无痕的在部署者启动Bot的时候，自动添加列。
 
+::: tip
+
+`exec_list` 中的 SQL 语句会在 `on_core_start_before` 阶段（WS 服务启动之前）执行，确保数据库 Schema 变更在消息处理前完成。
+
+:::
+
 方法如下：
 
 1. 修改模型
@@ -209,3 +315,71 @@ exec_list.extend(
 # 如果不理解、对SQL不熟悉的，可以让AI帮你写SQL语句
 ```
 
+---
+
+## 基类详情
+
+GsCore 使用 SQLModel 作为 ORM，提供三级基类：
+
+| 基类 | 字段 | 适用场景 |
+|------|------|----------|
+| `BaseIDModel` | 仅 `id` | 不需要 bot_id 和 user_id 的通用数据表 |
+| `BaseBotIDModel` | `id` + `bot_id` | 需要区分 Bot 来源的数据表 |
+| `BaseModel` | `id` + `bot_id` + `user_id` | 用户级数据表（最常用） |
+
+### `@with_session` 装饰器
+
+所有数据库操作方法必须使用 `@with_session` 装饰器：
+
+```python
+from gsuid_core.utils.database.base_models import with_session
+from sqlalchemy.ext.asyncio import AsyncSession
+
+class UserData(BaseModel, table=True):
+    name: str = Field(title="名称")
+    level: int = Field(default=1, title="等级")
+
+    @classmethod
+    @with_session
+    async def get_user_by_name(cls, session: AsyncSession, name: str) -> 'UserData | None':
+        """根据名称查询用户"""
+        from sqlalchemy import select
+        stmt = select(cls).where(cls.name == name)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    @classmethod
+    @with_session
+    async def create_user(cls, session: AsyncSession, name: str, level: int = 1) -> 'UserData':
+        """创建新用户"""
+        user = cls(name=name, level=level)
+        session.add(user)
+        # @with_session 会自动 commit
+        return user
+```
+
+**注意**：
+- 方法签名必须包含 `session: AsyncSession` 参数
+- `@with_session` 会自动处理 commit 和异常回滚
+- 方法必须是 `async def`
+
+### `async_maker` — 手动管理 Session
+
+当需要在类方法外手动管理 session 时（例如批量操作、定时任务中的数据库清理等）：
+
+```python
+from gsuid_core.utils.database.base_models import async_maker
+
+async def batch_cleanup():
+    async with async_maker() as session:
+        from sqlalchemy import delete
+        stmt = delete(GameBind).where(GameBind.cookie == None)
+        await session.execute(stmt)
+        await session.commit()
+```
+
+::: warning
+
+使用 `async_maker` 时需要**手动调用** `await session.commit()`，这与 `@with_session` 装饰器自动 commit 不同。
+
+:::

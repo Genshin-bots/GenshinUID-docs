@@ -95,17 +95,21 @@ async def get_time_limit_resp_msg(bot: Bot, ev: Event):
 
 他们三个的参数都差不多，实际使用，功能区别如下：
 
-- `Bot.send_option()`只会发送按钮（仅在QQGroup）或者在`unsuported_platform`参数为`True`的的情况下，为所有不适配按钮的发送多选消息。
-
-- `Bot.receive_resp()`在上面这个方法的基础上，还会等待**触发命令用户**的**下一条回复**。
-
-- `Bot.receive_mutiply_resp()`则是在上面方法的基础上，还会等待该群**接下来所有用户**的回复
+| 方法 | 说明 |
+|------|------|
+| `bot.send_option(...)` | 发送按钮或选项提示，**不等待**回复 |
+| `bot.receive_resp(...)` | 发送可选消息，并等待**触发命令用户**的下一条消息 |
+| `bot.receive_mutiply_resp(...)` | 发送可选消息，并等待**群内任意用户**的后续消息 |
 
 ### 参数
 
-- `reply`参数可以填入`Bot.send()`内可填入的任何值，会让Bot发送一次消息，然后继续执行流程
+- **`reply`**：可填入 `bot.send()` 接受的任何值（字符串、`Message`、`MessageSegment` 等），会在等待回复前先发送一次消息。
 
-- `option_list`参数可以填入类型`List[str], List[Button]`
-  - 会按照列表，每行两个，发送按钮（仅在QQGroup ）
-  - 该参数也可以填入`List[List[str]], List[List[Button]]`，代表每行几个按钮
+- **`option_list`**：类型 `List[str]`、`List[Button]`、`List[List[str]]` 或 `List[List[Button]]`，用于生成按钮或多选提示（部分平台支持）。
+
+- **`timeout`**：等待回复的超时时间（秒），默认 `60`。
+
+- **`unsuported_platform`**：当平台不支持按钮时，是否转为发送多选文本提示（默认 `False`）。
+
+- **`sep`**、**`command_tips`**、**`command_start_text`**：在文本模式下自定义选项分隔符和提示语。
 

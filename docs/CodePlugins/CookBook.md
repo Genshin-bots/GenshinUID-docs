@@ -703,3 +703,158 @@ KEY = tq_config.get_config('tq_key').data
 - 插件上传商店？
 - `天气`命令返回图片？
 
+## 8、添加 AI 功能
+
+::: tip
+
+GsCore 内置了强大的 AI Core 系统，可以让你的插件命令被 AI 自动调用。
+
+用户可以直接对 AI 说"帮我查一下漳州天气"，AI 会自动识别意图并调用你的天气查询命令，**无需修改任何原有业务逻辑**。
+
+:::
+
+### 8.1 使用 `to_ai` 参数 — 零成本接入 AI
+
+只需在已有的 `on_command` 装饰器上添加 `to_ai` 参数，即可将触发器自动注册为 AI 工具：
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+gs_weather_info = SV('天气信息查询')
+
+
+@gs_weather_info.on_command(
+    '天气',
+    block=True,
+    to_ai="""查询指定城市的天气信息。
+    当用户询问天气、气温、是否下雨等问题时调用。
+
+    Args:
+        text: 城市名称，例如 "北京"、"上海"、"漳州"
+    """,
+)
+async def send_weather_msg(bot: Bot, ev: Event):
+    text = ev.text.strip()
+    if not text:
+        # 检查是否有绑定城市
+        uuid = await WeatherBind.get_uid_by_game(ev.user_id, ev.bot_id)
+        if uuid is None:
+            ai_return("错误：用户未绑定城市且未提供城市名称")
+            return await bot.send('请输入城市名称，或使用 tq绑定城市 命令！')
+        pos_id, pos_name = uuid.split('|')
+    else:
+        # ... 原有的城市查询逻辑 ...
+        pass
+
+    # ... 原有的天气查询逻辑 ...
+
+    # 在发送前注入 AI 可读的文本摘要
+    ai_return(f"【{pos_name}天气】温度：{now_temp}度，体感温度：{now_feels}度")
+    await bot.send(text)
+```
+
+### 8.2 关键点说明
+
+| 概念 | 说明 |
+|------|------|
+| `to_ai` 参数 | 非空字符串时自动注册为 AI 工具，AI 根据这段描述理解何时调用 |
+| `ai_return()` | 向 AI 返回文本摘要；普通用户触发时**完全静默**，不影响任何逻辑 |
+| `MockBot` | AI 调用时 `bot` 被替换为 MockBot，`bot.send()` 的文字被收集而非真正发送 |
+
+### 8.3 `to_ai` 的 docstring 写法规范
+
+`to_ai` 写得好不好，决定 AI 能否正确调用你的触发器。**必须包含**：
+
+1. **一句话功能描述**
+2. **用户在什么自然语言场景下会需要这个功能**
+3. **Args 部分**：参数格式、可选前缀/后缀、至少两个具体例子
+
+```python
+# ✅ 好的写法
+to_ai="""查询指定城市的天气信息。
+当用户询问天气、气温、是否下雨等问题时调用。
+
+Args:
+    text: 城市名称，例如 "北京"、"上海"、"漳州"
+"""
+
+# ✅ 无参数的 fullmatch
+to_ai="""查看当前用户绑定的城市列表。
+当用户说"我绑定了哪些城市"时调用。
+无需参数，留空即可。
+
+Args:
+    text: 无需参数，留空即可
+"""
+```
+
+### 8.4 哪些触发器不适合加 `to_ai`
+
+| 情况 | 原因 |
+|------|------|
+| 管理员/超级用户专用命令 | 不应让 AI 绕过权限 |
+| 危险操作（清数据、重置配置） | AI 不应独立执行破坏性操作 |
+| 需要多轮 Response 会话的命令 | 当前不支持 |
+| `on_file` 文件接收命令 | AI 无法构建文件输入 |
+
+### 8.5 进阶：注册 AI 工具和知识库
+
+如果你需要更强大的 AI 集成（纯数据查询工具、知识库检索等），可以使用 `@ai_tools` 装饰器和 `ai_entity` 注册：
+
+```python
+from pydantic_ai import RunContext
+from gsuid_core.ai_core.register import ai_tools, ai_entity, ai_alias
+from gsuid_core.ai_core.models import ToolContext, KnowledgePoint
+
+# 注册别名：让 AI 理解用户输入的别名
+ai_alias("漳州", ["漳州", "漳州市"])
+
+# 注册知识库：让 AI 在 RAG 检索时找到插件相关知识
+ai_entity(KnowledgePoint(
+    id="gs_weather_help",
+    plugin="gs_weather",
+    title="天气插件使用指南",
+    content="""
+# 天气插件使用指南
+
+## 命令列表
+- `天气 <城市名>` — 查询指定城市天气
+- `tq绑定城市 <城市名>` — 绑定默认城市
+- `tq删除绑定城市` — 删除绑定的城市
+
+## 注意事项
+1. 绑定城市后可直接发送 `天气` 查询
+2. 支持绑定多个城市
+""",
+    tags=["天气", "帮助", "命令"],
+))
+
+# 注册纯数据查询工具（不返回图片）
+@ai_tools(category="default")
+async def get_weather_text(
+    ctx: RunContext[ToolContext],
+    city: str,
+) -> str:
+    """
+    查询城市天气的文本数据（不返回图片）。
+    当 AI 需要天气数据但不需要图片时调用。
+
+    Args:
+        city: 城市名称，例如 "北京"、"漳州"
+    """
+    # 复用已有的天气查询逻辑
+    weather_data = await fetch_weather(city)
+    return f"{city}天气：{weather_data['temp']}度，体感{weather_data['feelsLike']}度"
+```
+
+### 8.6 完整的 AI 功能文档
+
+更多 AI 功能的详细文档，请参考：
+
+- [AI 功能概述](/AIFeatures/) — AI Core 系统整体介绍
+- [AI 插件编写简介](/AIFeatures/ai_core_api_for_plugins) — 完整的 AI API 文档
+- [完整示例](/AIFeatures/Examples) — 从简单到复杂的 AI 开发示例
+- [触发器文档](/CodePlugins/trigger) — `to_ai` 参数的详细说明

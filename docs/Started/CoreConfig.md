@@ -14,6 +14,23 @@
 
 :::
 
+::: tip 配置存储变更
+
+从新版本开始，插件配置不再存储在 `config.json` 的 `"plugins"` key 下，而是拆分为独立文件：
+
+```
+data/
+├── config.json              # Core 配置（不再包含 "plugins" key）
+└── plugins_configs/         # 插件配置目录（新增）
+    ├── plugin_a.json        # 插件 A 的独立配置
+    ├── plugin_b.json        # 插件 B 的独立配置
+    └── ...
+```
+
+首次启动时会自动从旧版 `config.json` 迁移，无需手动操作。
+
+:::
+
 ::: danger
 
 如果GsCore和连接端不位于同一台机器上, 

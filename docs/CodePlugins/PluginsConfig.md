@@ -38,8 +38,21 @@ srconfig = StringConfig('StarRailUID', CONFIG_PATH, CONIFG_DEFAULT)
 
 全部的配置类型[如下](https://github.com/Genshin-bots/gsuid_core/blob/master/gsuid_core/utils/plugins_config/models.py)
 
+| 类型 | 说明 | `data` 类型 |
+|------|------|------------|
+| `GsStrConfig` | 字符串配置 | `str` |
+| `GsBoolConfig` | 布尔配置 | `bool` |
+| `GsIntConfig` | 整数配置（可限制 `max_value`） | `int` |
+| `GsListStrConfig` | 字符串列表 | `List[str]` |
+| `GsListConfig` | 整数列表 | `List[int]` |
+| `GsDictConfig` | 字典配置 | `Dict[str, List]` |
+| `GsImageConfig` | 图片配置（上传相关） | `str` |
+| `GsTimeRConfig` | 时间范围配置（定时任务相关） | `Tuple[int, int]` |
+
+所有配置类型继承自 `GsConfig(msgspec.Struct)`，必须包含 `title`、`desc`、`data` 字段。
+
 ```python
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Tuple, Union, Optional
 
 import msgspec
 
@@ -84,6 +97,10 @@ class GsImageConfig(GsConfig, tag=True):
     suffix: str = 'jpg'
 
 
+class GsTimeRConfig(GsConfig, tag=True):
+    data: Tuple[int, int]
+
+
 GSC = Union[
     GsDictConfig,
     GsBoolConfig,
@@ -92,6 +109,7 @@ GSC = Union[
     GsStrConfig,
     GsIntConfig,
     GsImageConfig,
+    GsTimeRConfig,
 ]
 ```
 

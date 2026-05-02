@@ -1,22 +1,52 @@
 # 定时任务<Badge type="tip" text="普通" />
 
+## 使用 APScheduler
+
 ```python
 from gsuid_core.aps import scheduler
 from gsuid_core.gss import gss
 
 @scheduler.scheduled_job('cron', minute='*/30') #设定一个定时任务、每隔三十分钟执行一次
 async def notice_job():
-	im = await process(name)  # 自己的业务逻辑
-	for BOT_ID in gss.active_bot: # 获取全部连接中的Bot，注意，这里的BOT_ID和bot_id并不等价
-		bot = gss.active_bot[BOT_ID] # 拿到bot实例
-		await bot.target_send(
+    im = await process(name)  # 自己的业务逻辑
+    for BOT_ID in gss.active_bot: # 获取全部连接中的Bot，注意，这里的BOT_ID和bot_id并不等价
+        bot = gss.active_bot[BOT_ID] # 拿到bot实例
+        await bot.target_send(
             msg,       # 具体要发送的消息
             'direct',  # 发送方式group或者direct
             target_id, # 发送目标，群号或者用户id，str
             bot_id,    # 实际bot_id、和上面的BOT_id不同，例如onebot等等
             '',        # bot_self_id, 用于同平台多bot连接，例如bot自己的QQ号等，可空
-            ''		   # msg_id,要回复的某一个msg的id，可空
-            at_sender, # 是否要at发送者，默认False
-            sender_id, # sender_id, 默认为空，主动发送时，不建议填写这两个选项
+            '',        # msg_id,要回复的某一个msg的id，可空
+            False,     # at_sender, 是否要at发送者，默认False
+            '',        # sender_id, 默认为空，主动发送时，不建议填写这两个选项
         )
+```
+
+## 定时任务触发方式
+
+| 触发方式 | 说明 | 示例 |
+|---------|------|------|
+| `cron` | 定时触发，支持 hour/minute 等参数 | `@scheduler.scheduled_job('cron', hour=8, minute=30)` |
+| `interval` | 间隔触发 | `@scheduler.scheduled_job('interval', minutes=30)` |
+| `date` | 一次性触发 | `scheduler.add_job(func, trigger='date', run_date=...)` |
+
+## 使用订阅系统推送（推荐）
+
+对于需要持续向某些用户/群聊推送消息的场景（公告、签到、数据更新等），推荐使用**订阅系统**将目标会话持久化，在定时任务中直接调用 `send()`，省去手动获取和传递平台参数的麻烦。
+
+详见 [订阅消息](./Subscribe) 文档。
+
+```python
+from gsuid_core.aps import scheduler
+from gsuid_core.subscribe import gs_subscribe
+
+@scheduler.scheduled_job('cron', hour=8)
+async def send_daily_notice():
+    subs = await gs_subscribe.get_subscribe("每日公告")
+    if not subs:
+        return
+    for sub in subs:
+        # sub.send() 自动识别平台、Bot、目标会话
+        await sub.send("📢 每日公告：维护完成，各项服务已恢复。")
 ```
