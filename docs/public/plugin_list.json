@@ -1,6 +1,6 @@
 {
   "plugins": {
-	"core_plugin_memes": {
+    "core_plugin_memes": {
       "link": "https://github.com/Loping151/core_plugin_memes",
       "avatar": "https://github.com/Loping151",
       "cover": "https://pic1.imgdb.cn/item/69a110b7d9fa54ce3f18b9fe.png",
@@ -203,8 +203,7 @@
       "content": "停止维护",
       "info": "全功能鸣潮查询插件",
       "installMsg": "",
-      "alias": [
-      ]
+      "alias": []
     },
     "XutheringWavesUID": {
       "link": "https://github.com/Loping151/XutheringWavesUID",
@@ -410,6 +409,21 @@
         "pgr",
         "战双"
       ]
+    },
+    "gs_sign_calendar": {
+      "link": "https://github.com/nnlmc/gs_sign_calendar",
+      "avatar": "https://github.com/nnlmc.png",
+      "cover": "",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮签到日历插件",
+      "installMsg": "",
+      "alias": [
+        "lu",
+        "签到日历",
+        "sign"
+      ]
     }
   },
   "fun_plugins": [
@@ -444,7 +458,5 @@
     "NTEUID",
     "PGRUID"
   ],
-  "extra": {
-    
-  }
+  "extra": {}
 }
