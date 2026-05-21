@@ -1,8 +1,51 @@
 {
   "plugins": {
-	"core_plugin_memes": {
+    "RoverSign": {
+      "link": "https://github.com/Loping151/RoverSign",
+      "avatar": "https://github.com/Loping151.png",
+      "cover": "https://files.seeusercontent.com/2026/05/21/6wVj/ICON-1.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮签到",
+      "installMsg": "",
+      "alias": [
+        "鸣潮签到",
+        "roversign",
+        "rs"
+      ]
+    },
+    "ScoreEcho": {
+      "link": "https://github.com/Loping151/ScoreEcho",
+      "avatar": "https://github.com/Loping151.png",
+      "cover": "https://files.seeusercontent.com/2026/05/21/6wVj/ICON-1.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮声骸评分",
+      "installMsg": "",
+      "alias": [
+        "声骸评分",
+        "scoreecho"
+      ]
+    },
+    "TodayEcho": {
+      "link": "https://github.com/Loping151/TodayEcho",
+      "avatar": "https://github.com/Loping151.png",
+      "cover": "https://files.seeusercontent.com/2026/05/21/6wVj/ICON-1.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮模拟梭哈声骸，基于XWUID",
+      "installMsg": "",
+      "alias": [
+        "todayecho",
+        "模拟梭哈声骸"
+      ]
+    },
+    "core_plugin_memes": {
       "link": "https://github.com/Loping151/core_plugin_memes",
-      "avatar": "https://github.com/Loping151",
+      "avatar": "https://github.com/Loping151.png",
       "cover": "https://pic1.imgdb.cn/item/69a110b7d9fa54ce3f18b9fe.png",
       "branch": "main",
       "type": "tip",
@@ -204,12 +247,13 @@
       "info": "全功能鸣潮查询插件",
       "installMsg": "",
       "alias": [
+        
       ]
     },
     "XutheringWavesUID": {
       "link": "https://github.com/Loping151/XutheringWavesUID",
       "avatar": "https://prod-alicdn-community.kurobbs.com/headCode/akijueyuan.jpg?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_264",
-      "cover": "https://s2.loli.net/2024/08/20/m4D3cslY6R1SM2X.png",
+      "cover": "https://files.seeusercontent.com/2026/05/21/6wVj/ICON-1.png",
       "branch": "main",
       "type": "tip",
       "content": "普通",
@@ -442,7 +486,10 @@
     "RH_ComfyUI",
     "RocomUID",
     "NTEUID",
-    "PGRUID"
+    "PGRUID",
+    "RoverSign",
+    "ScoreEcho",
+    "TodayEcho"
   ],
   "extra": {
     
