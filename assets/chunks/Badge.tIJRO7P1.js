@@ -1,0 +1,1 @@
+import{o as a,L as s,h as o,A as n,S as r,l as c,Y as p,c as l}from"./framework.Do575yDT.js";const _=a({__name:"Badge",props:{text:{},type:{}},setup(e){return(t,d)=>(s(),o("span",{class:n(["VPBadge",e.type??"tip"])},[r(t.$slots,"default",{},()=>[c(p(e.text),1)],!0)],2))}}),m=l(_,[["__scopeId","data-v-e475422a"]]);export{m as _};
