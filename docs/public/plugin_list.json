@@ -454,6 +454,20 @@
         "pgr",
         "战双"
       ]
+    },
+    "CCUID": {
+      "link": "https://github.com/tyql688/CCUID",
+      "avatar": "https://github.com/tyql688.png",
+      "cover": "https://raw.githubusercontent.com/tyql688/CCUID/master/ICON.png",
+      "branch": "master",
+      "type": "tip",
+      "content": "普通",
+      "info": "把 cli coding agents 装进 gscore",
+      "installMsg": "",
+      "alias": [
+        "ccuid",
+        "CCUID"
+      ]
     }
   },
   "fun_plugins": [
@@ -489,7 +503,8 @@
     "PGRUID",
     "RoverSign",
     "ScoreEcho",
-    "TodayEcho"
+    "TodayEcho",
+    "CCUID"
   ],
   "extra": {
     
