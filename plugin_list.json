@@ -468,6 +468,22 @@
         "ccuid",
         "CCUID"
       ]
+    },
+    "BBBUID": {
+      "link": "https://github.com/Neroliu/BBBUID",
+      "avatar": "https://github.com/Neroliu.png",
+      "cover": "https://raw.githubusercontent.com/Neroliu/BBBUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能崩坏3插件",
+      "installMsg": "",
+      "alias": [
+        "bbbuid",
+        "BBBUID",
+        "bbb",
+        "BBB"
+      ]
     }
   },
   "fun_plugins": [
@@ -504,7 +520,8 @@
     "RoverSign",
     "ScoreEcho",
     "TodayEcho",
-    "CCUID"
+    "CCUID",
+    "BBBUID"
   ],
   "extra": {
     
