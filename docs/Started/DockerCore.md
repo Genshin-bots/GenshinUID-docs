@@ -33,8 +33,8 @@ docker run -d \
   docker.cnb.cool/gscore-mirror/gsuid_core:latest
 ```
 
-在本地按照以上指令容器运行后，可直接进入`localhost:8765/genshinuid`进入核心的后台管理界面
-相关文档见：
+在本地按照以上指令容器运行后，可直接进入`localhost:8765/app`进入核心的后台管理界面
+相关文档见：[网页控制台](./WebConsole)
 
 **镜像参数说明：**
 
@@ -47,8 +47,7 @@ docker run -d \
 | `-v /opt/gscore_plugins:/gsuid_core/gsuid_core/plugins` | 插件持久化：可在宿主机直接管理插件文件。                                                     |
 | `-v gsuid_core_venv:/venv`                              | python 虚拟环境：使用命名卷来持久化存储容器内的 Python 虚拟环境。                            |
 | `--add-host host.docker.internal:host-gateway`          | 映射宿主机 IP：这能让容器内部通过 host.docker.internal 这个域名直接访问宿主机的网络          |
-| `-e UV_INDEX=`                                          | Python 镜像源: 如 `https://pypi.org/simple/`                                                 |
-| `-e UV_NO_CONFIG=0`                                     | UV 配置读取开关：设为 1 可忽略自带配置，强制使用环境变量中的`UV_INDEX`镜像源。               |
+| `-e UV_DEFAULT_INDEX=`                                  | Python 镜像源: 如 `https://pypi.org/simple/`                                                 |
 | `-e http_proxy=`                                        | HTTP 代理：如 http://host.docker.internal:7890（需开启代理软件 LAN 共享）。                  |
 | `-e https_proxy=`                                       | HTTPS 代理：同上。（git 代理需要单独设置，在`高级操作指南`下面有介绍）                       |
 | `-e no_proxy=`                                          | 代理白名单：指定哪些地址不走代理。通常包含 localhost,127.0.0.1,cnb.cool 以及国内镜像源地址。 |
@@ -87,7 +86,7 @@ docker-compose up -d --build
 
 4. **管理**
    - 服务运行在端口 `8765`。
-   - 启动后可通过 `localhost:8765/genshinuid` 进入核心的后台管理界面
+   - 启动后可通过 `localhost:8765/app` 进入核心的后台管理界面
 
 ---
 
@@ -100,7 +99,7 @@ _(注意：请确保代理软件开启了 "允许局域网连接/LAN" 模式)_
 **容器内的全局代理（不包括 Git 代理）**
 docker-compose 模式可在 `.env` 中添加：
 
-```yaml
+```properties
 GSCORE_HTTP_PROXY=http://host.docker.internal:7890
 GSCORE_HTTPS_PROXY=http://host.docker.internal:7890
 ```
@@ -118,7 +117,29 @@ docker run 模式可增加 -e 参数
 docker exec -it gsuid_core git config --global http.proxy http://host.docker.internal:7890
 ```
 
-### 2. 安装额外的 Python 包
+### 2. 配置 Python 镜像源（国内加速）
+
+可运行仓库根目录的 [check_pypi_mirrors.py](https://github.com/Genshin-bots/gsuid_core/blob/master/check_pypi_mirrors.py) 实测各镜像源的延迟与下载速度，脚本结尾会给出推荐（仅需 Python 标准库，macOS / Linux / Windows 均可运行）：
+
+```shell
+python3 check_pypi_mirrors.py
+```
+
+> 💡 测试完成后会直接给出推荐镜像源对应的启动命令（docker compose / docker run / 手动启动），复制执行即可。
+
+将测得最快的镜像源填入配置，docker-compose 模式可在 `.env` 中设置：
+
+```properties
+GSCORE_PYTHON_INDEX=https://mirrors.aliyun.com/pypi/simple/
+```
+
+docker run 模式可增加 -e 参数：
+
+```
+-e UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
+```
+
+### 3. 安装额外的 Python 包
 
 如果你安装了第三方插件需要额外依赖：
 
@@ -126,7 +147,7 @@ docker exec -it gsuid_core git config --global http.proxy http://host.docker.int
 docker exec -it gsuid_core uv pip install <包名>
 ```
 
-### 3. python 环境重置 (解决依赖冲突)
+### 4. python 环境重置 (解决依赖冲突)
 
 如果更新镜像后报错，请执行以下命令**彻底清理**旧环境：
 
@@ -141,4 +162,4 @@ docker volume rm gsuid_core_venv
 # 然后重新执行前面的 docker run 命令
 ```
 
-_(警告：这将删除 `venv-data` pypi 环境卷，所有手动安装的包需要重新安装，但 `data` 游戏数据不会丢失)_
+_(警告：这将删除 Python 虚拟环境卷（compose 模式为 `venv-data`，docker run 模式为 `gsuid_core_venv`），所有手动安装的包需要重新安装，但 `data` 游戏数据不会丢失)_
