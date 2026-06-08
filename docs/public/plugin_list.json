@@ -484,6 +484,19 @@
         "bbb",
         "BBB"
       ]
+    },    
+    "VrChatUID": {
+      "link": "https://github.com/Agnes4m/VrChatUID",
+      "avatar": "https://github.com/Agnes4m.png",
+      "cover": "https://raw.githubusercontent.com/Agnes4m/VrchatUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "VrChat查询插件",
+      "installMsg": "",
+      "alias": [
+        "vrc"
+      ]
     }
   },
   "fun_plugins": [
@@ -521,7 +534,8 @@
     "ScoreEcho",
     "TodayEcho",
     "CCUID",
-    "BBBUID"
+    "BBBUID",
+    "VrChatUID"
   ],
   "extra": {
     
