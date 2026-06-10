@@ -484,7 +484,22 @@
         "bbb",
         "BBB"
       ]
-    },    
+    },
+    "gs_kuro_cos": {
+      "link": "https://github.com/nnlmc/gs_kuro_cos",
+      "avatar": "https://github.com/nnlmc.png",
+      "cover": "https://raw.githubusercontent.com/nnlmc/gs_kuro_cos/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "库街区 COS/同人搬运插件",
+      "installMsg": "视频功能依赖 ffmpeg 处理媒体文件，请确认运行环境已安装 ffmpeg 后继续。是否安装该插件？",
+      "alias": [
+        "cos",
+        "同人",
+        "库街区"
+      ]
+    },
     "VrChatUID": {
       "link": "https://github.com/Agnes4m/VrChatUID",
       "avatar": "https://github.com/Agnes4m.png",
@@ -535,6 +550,7 @@
     "TodayEcho",
     "CCUID",
     "BBBUID",
+    "gs_kuro_cos",
     "VrChatUID"
   ],
   "extra": {
