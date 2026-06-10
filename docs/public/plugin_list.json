@@ -498,6 +498,18 @@
         "cos",
         "同人",
         "库街区"
+    },    
+    "VrChatUID": {
+      "link": "https://github.com/Agnes4m/VrChatUID",
+      "avatar": "https://github.com/Agnes4m.png",
+      "cover": "https://raw.githubusercontent.com/Agnes4m/VrchatUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "VrChat查询插件",
+      "installMsg": "",
+      "alias": [
+        "vrc"
       ]
     }
   },
@@ -537,7 +549,8 @@
     "TodayEcho",
     "CCUID",
     "BBBUID",
-    "gs_kuro_cos"
+    "gs_kuro_cos",
+    "VrChatUID"
   ],
   "extra": {
     
