@@ -1,1 +1,0 @@
-import{d as a,o as s,c as n,n as o,r,a as c,t as p,_}from"./framework.DhqkAO_J.js";const l=a({__name:"Badge",props:{text:{},type:{}},setup(e){return(t,d)=>(s(),n("span",{class:o(["VPBadge",e.type??"tip"])},[r(t.$slots,"default",{},()=>[c(p(e.text),1)],!0)],2))}}),m=_(l,[["__scopeId","data-v-e475422a"]]);export{m as _};

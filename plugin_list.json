@@ -246,9 +246,7 @@
       "content": "停止维护",
       "info": "全功能鸣潮查询插件",
       "installMsg": "",
-      "alias": [
-        
-      ]
+      "alias": []
     },
     "XutheringWavesUID": {
       "link": "https://github.com/Loping151/XutheringWavesUID",
@@ -512,6 +510,23 @@
       "alias": [
         "vrc"
       ]
+    },
+    "TodayWaifu": {
+      "link": "https://github.com/nnlmc/TodayWaifu",
+      "avatar": "https://github.com/nnlmc.png",
+      "cover": "https://raw.githubusercontent.com/nnlmc/TodayWaifu/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮今日老婆插件，支持抽老婆、抽老公、抢老婆和自定义老婆图片，依赖 XWUID 本地角色图片资源。",
+      "installMsg": "",
+      "alias": [
+        "TodayWaifu",
+        "todaywaifu",
+        "今日老婆",
+        "老婆",
+        "jrlp"
+      ]
     }
   },
   "fun_plugins": [
@@ -551,9 +566,8 @@
     "CCUID",
     "BBBUID",
     "gs_kuro_cos",
-    "VrChatUID"
+    "VrChatUID",
+    "TodayWaifu"
   ],
-  "extra": {
-    
-  }
+  "extra": {}
 }
