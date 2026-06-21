@@ -53,6 +53,12 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
 
   return (
     <html lang={lang} suppressHydrationWarning className={inter.className}>
+      <head>
+        <link rel="stylesheet" href="/font/MiSans-Medium/font.css" />
+        <link rel="stylesheet" href="/font/MiSans-Bold/font.css" />
+        <link rel="stylesheet" href="/font/MiSans-Demibold/font.css" />
+        <link rel="stylesheet" href="/font/MiSans-Heavy/font.css" />
+      </head>
       <body className="flex min-h-screen flex-col">
         <RootProvider i18n={i18nUI.provider(lang as Language)}>
           {children}

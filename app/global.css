@@ -16,11 +16,9 @@
   --color-fd-ring: oklch(0.55 0.2 25);
 }
 
-/* MiSans 字体 - 引入原始 font-slice 生成的 unicode-range 子字体 */
-@import url('/font/MiSans-Bold/font.css') layer(fonts);
-@import url('/font/MiSans-Demibold/font.css') layer(fonts);
-@import url('/font/MiSans-Heavy/font.css') layer(fonts);
-@import url('/font/MiSans-Medium/font.css') layer(fonts);
+/* MiSans 字体 - 使用 next/font 或 layout.tsx 中的 link 标签加载
+   原始 font.css 在 /public/font/*/font.css 包含 unicode-range 子字体声明
+   通过 layout.tsx 的 <link rel="stylesheet"> 加载 */
 
 :root {
   --font-sans: 'MiSans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
