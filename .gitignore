@@ -1,6 +1,5 @@
 node_modules
 .temp
-docs/.vitepress/cache
 .vscode
 cache
 .eslintcache
@@ -19,7 +18,7 @@ pnpm-debug.log*
 # lock files
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
+bun.lockb
 
 # json
 meta.json

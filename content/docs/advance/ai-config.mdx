@@ -5,25 +5,28 @@ icon: FileText
 ---
 # AI配置
 
-<Callout type="info">
+<Callout type="info" title="">
+
 - 🌐 配置 API 接口和密钥
 - 🧠 想更换 AI 模型（GPT-4、Claude 等）
 - 📝 需要自定义 AI 的角色定位和行为风格
 
-:::
+</Callout>
+
 ## 配置文件位置
 
 AI 配置通常位于 GsCore 的配置目录中，可以通过 [WebConsole](../Started/WebConsole) 或配置文件进行设置。
 
 建议使用 [网页控制台](../Started/WebConsole) 进行配置。
 
-![image-20260406041551375](./../public/Config/image-20260406041551375.png)
+![image-20260406041551375](/Config/image-20260406041551375.png)
 
 ## 配置一览
 
 ### 基础配置
 
-<Callout type="info">
+<Callout type="info" title="">
+
 最核心的基础配置，
 
 决定了是否启用AI、以及决定了AI的行为模式。
@@ -36,8 +39,9 @@ AI 配置通常位于 GsCore 的配置目录中，可以通过 [WebConsole](../S
 
 建议通过网页控制台进行配置。
 
-:::
-![image-20260406191907952](./../public/AIConfig/image-20260406191907952.png)
+</Callout>
+
+![image-20260406191907952](/AIConfig/image-20260406191907952.png)
 
 | 配置项               | 类型        | 默认值         | 说明                                                         |
 | -------------------- | ----------- | -------------- | ------------------------------------------------------------ |
@@ -55,15 +59,17 @@ AI 配置通常位于 GsCore 的配置目录中，可以通过 [WebConsole](../S
 
 ### 模型配置
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 目前仅提供OpenAI SDK兼容的接口
 
 文件位置 `gsuid_core\data\ai_core\openai_config.json` 
 
 建议通过网页控制台进行配置
 
-:::
-![image-20260406174338868](./../public/AIConfig/image-20260406174338868.png)
+</Callout>
+
+![image-20260406174338868](/AIConfig/image-20260406174338868.png)
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -76,15 +82,17 @@ AI 配置通常位于 GsCore 的配置目录中，可以通过 [WebConsole](../S
 
 ### 网络搜索配置
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 目前仅提供Tavily的网络搜索功能, 请先前往 https://tavily.com 获取 API Key
 
 文件位置 `gsuid_core\data\ai_core\tavily_config.json` 
 
 建议通过网页控制台进行配置
 
-:::
-![image-20260407054714488](./../public/AIConfig/image-20260407054714488.png)
+</Callout>
+
+![image-20260407054714488](/AIConfig/image-20260407054714488.png)
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|

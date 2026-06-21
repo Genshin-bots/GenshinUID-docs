@@ -3,9 +3,13 @@ title: "本地图转网络地址发送"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 本地图转网络地址发送<Badge type="warning" text="普通" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 在QQGroup（或之后的其他平台）的适配中，该平台并不支持本地图发送（即直接传入Base64）
 
 这时候需要将本地图转为网络图发送
@@ -14,7 +18,8 @@ GsCore提供两种方式进行转换
 
 **以下两种方式二选一即可**
 
-:::
+</Callout>
+
 ## 一、通过带有公网IP的服务器自动转为Web图片
 
 如果你的GsCore部署于带有公网IP的服务器下，那么首选该方法。
@@ -41,14 +46,16 @@ GsCore提供两种方式进行转换
 
 如果你部署GsCore的服务器不存在公网，或者不想暴露端口，或服务器上行速度过慢（当然再慢应该也比图床服务快），则选择该方法。
 
-<Callout type="info">
+<Callout type="info" title="">
+
 该方法提供了`sm.ms`图床和`s3对象存储`的两种调用方式
 
 有关配置方法不具体细聊，后者大多情况是付费的，而[sm.ms](https://sm.ms/)的服务是免费的，可以首选smms
 
 **以下以`smms`为示例进行配置**
 
-:::
+</Callout>
+
 **【通过修改文件】和【通过网页控制台配置】二选一即可**
 
 #### 通过修改文件进行配置

@@ -3,7 +3,6 @@
     "target": "es2020",
     "module": "esnext",
     "types": [
-      "bun-types",
       "node"
     ],
     "lib": [
@@ -20,11 +19,11 @@
     "resolveJsonModule": true,
     "rootDir": ".",
     "baseUrl": ".",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "allowJs": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "incremental": true,
     "noEmit": true,
     "isolatedModules": true,
@@ -34,13 +33,27 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/content/*": ["./content/*"],
-      "@/package.json": ["./package.json"],
-      "collections/*": [".source/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/content/*": [
+        "./content/*"
+      ],
+      "@/package.json": [
+        "./package.json"
+      ],
+      "collections/*": [
+        ".source/*"
+      ]
     }
   },
   "include": [
@@ -48,16 +61,16 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".source/**/*.ts",
-    "docs",
-    "docs/src/*.json",
-    "docs/.vitepress/components/*.vue",
-    "docs/.vitepress/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".source/**/*.ts"
   ],
   "exclude": [
     "**/node_modules/**",
     "**/dist/**",
     "**/out/**",
-    "**/.next/**"
+    "**/.next/**",
+    "docs",
+    "docs/.vitepress",
+    "scripts"
   ]
 }

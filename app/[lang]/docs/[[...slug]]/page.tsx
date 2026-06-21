@@ -6,7 +6,6 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page
 import { getMDXComponents } from '@/components/mdx'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
-import { notImplemented } from '@/lib/utils'
 
 interface PageProps {
   params: Promise<{ lang: string; slug?: string[] }>
@@ -54,7 +53,7 @@ export default async function Page({ params }: PageProps) {
 
   const MDX = page.data.body
   const githubUrl = process.env.GITHUB_URL || 'https://github.com/Genshin-bots/GenshinUID-docs'
-  const editUrl = `${githubUrl}/edit/fumadocs/content/docs/${page.file.path}`
+  const editUrl = `${githubUrl}/edit/fumadocs/content/docs/${page.path}`
 
   return (
     <DocsPage

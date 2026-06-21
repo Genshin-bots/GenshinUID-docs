@@ -18,30 +18,32 @@ jobs:
           ref: fumadocs
           fetch-depth: 0
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: 🚧 Install dependencies
-        run: |
-          npm install -g yarn
-          yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: 🔨 Type check
-        run: yarn tsc --noEmit
+        run: pnpm typecheck
         continue-on-error: true
 
       - name: 🚀 Build Next.js application
         env:
           UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
           UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-        run: |
-          yarn build:next
+        run: pnpm build
 
       - name: 📦 Post-build (CNAME)
-        run: yarn postbuild:next
+        run: pnpm postbuild
 
       - name: 🎉 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

@@ -3,9 +3,13 @@ title: "配置GsCore"
 description: "::: warning"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 配置GsCore<Badge type="warning" text="普通" />
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 `config.json`文件位于`gsuid_core/data/config.json`
 
 `core_config.json`文件位于`gsuid_core/data/core_config.json`
@@ -16,8 +20,9 @@ icon: FileText
 
 首次安装GsCore时，两个文件均需要启动Core来进行生成
 
-:::
-::: tip 配置存储变更
+</Callout>
+
+<Callout type="info" title="配置存储变更">
 
 从新版本开始，插件配置不再存储在 `config.json` 的 `"plugins"` key 下，而是拆分为独立文件：
 
@@ -32,16 +37,19 @@ data/
 
 首次启动时会自动从旧版 `config.json` 迁移，无需手动操作。
 
-:::
-<Callout type="error">
+</Callout>
+
+<Callout type="error" title="">
+
 如果GsCore和连接端不位于同一台机器上, 
 
 则**强烈建议**需要配置WsToken或者TrustIP以确保安全, [Token说明](../Started/Secure)
 
-:::
+</Callout>
+
 ## 使用网页控制台进行修改（推荐）
 
-::: tip 权限字段说明
+<Callout type="info" title="权限字段说明">
 
 `masters`为主人账号列表，对应`pm=0`，拥有最高权限；`superusers`为超级用户账号列表，对应`pm=1`。
 
@@ -49,7 +57,8 @@ data/
 
 部分网页控制台版本会把`masters`显示为“管理员列表”，这里的“管理员”指主人账号列表，并不是群管理员（群管理员通常为`pm=3`）。
 
-:::
+</Callout>
+
 1. 启动GsCore
 2. 进入[网页控制台](../Started/WebConsole)
 3. 在左侧【Core配置】页签中找到主人账号列表（部分版本显示为“管理员列表”），输入自己的QQ号（或其他平台号码）回车添加，然后点击确认修改
@@ -59,12 +68,14 @@ data/
 
 ## 自行修改配置文件
 
-<Callout type="info">
+<Callout type="info" title="">
+
 下面为详细配置，作为初次安装的萌新，只需要注意修改`masters`项为你自己的QQ号（或其他平台号码）即可，其他配置**可以完全不用动**, **别忘了双引号**。
 
 如果不清楚该填什么（其他平台）, 可以发一条消息，然后在GsCore后端查看你的`user_id`，填入那个即可
 
-:::
+</Callout>
+
 ```json
 {
   "HOST": "localhost", // 本机Host, 一般无需修改

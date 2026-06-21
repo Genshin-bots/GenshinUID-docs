@@ -3,14 +3,19 @@ title: "MD模板和按钮模板"
 description: "::: warning"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # MD模板和按钮模板<Badge type="tip" text="简单" />
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 该篇文章仅适用于`QQ群/频道官方机器人`平台，即`bot_id`为`qqgroup`和`qqguild`。
 
 其他平台发送按钮和MD相关消息，无需模板，仅需要配置`data/core_config.json`中的`SendButtonsPlatform`和`SendMDPlatform`为对应平台的bot_id即可。
 
-:::
+</Callout>
+
 ## 简单流程概述
 
 1. 用户主动填写自己拥有的**MD模板和按钮模板**
@@ -27,7 +32,7 @@ icon: FileText
 
 ## 主动填写模板
 
-<Callout type="info">
+<Callout type="info" title="">
 为了方便Core插件的**多平台适配**
 
 GsCore可以通过用户**主动填写**拥有的MD模板和按钮模板
@@ -37,7 +42,8 @@ GsCore可以通过用户**主动填写**拥有的MD模板和按钮模板
 如果Core即将发送的信息**可以匹配**某个MD模板
 
 则会**自动调用**该模板!
-:::
+</Callout>
+
 1. 申请MD模板和按钮模板
 2. 进入该路径`gsuid_core/data/template`，下文简称`模板路径`
 3. 进入`模板路径/markdown`中
@@ -61,8 +67,8 @@ GsCore可以通过用户**主动填写**拥有的MD模板和按钮模板
 
 ## 参考图片
 1. MD模板
-![image-20231217045602155](./../public/MarkdownTemplate/image-20231217045602155.png)
+![image-20231217045602155](/MarkdownTemplate/image-20231217045602155.png)
 2. 按钮模板（路线1）
-![image-20231217045705481](./../public/MarkdownTemplate/image-20231217045705481.png)
+![image-20231217045705481](/MarkdownTemplate/image-20231217045705481.png)
 3. 按钮模板（路线2）
-![image-20231217045637291](./../public/MarkdownTemplate/image-20231217045637291.png)
+![image-20231217045637291](/MarkdownTemplate/image-20231217045637291.png)

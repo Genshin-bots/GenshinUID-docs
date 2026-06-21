@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react'
 import { notFound } from 'next/navigation'
 import { RootProvider } from 'fumadocs-ui/provider/next'
-import { I18nProvider, type Translations } from 'fumadocs-ui/i18n'
 import { i18n, type Language } from '@/lib/i18n'
-import { translations } from '@/lib/layout.shared'
+import { i18nUI } from '@/lib/layout.shared'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@/components/Analytics'
 import '@/app/global.css'
@@ -55,19 +54,10 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
   return (
     <html lang={lang} suppressHydrationWarning className={inter.className}>
       <body className="flex min-h-screen flex-col">
-        <I18nProvider
-          locale={lang}
-          locales={i18n.languages.map(l => ({
-            locale: l,
-            name: l === 'zh-CN' ? '简体中文' : l === 'en' ? 'English' : '日本語',
-          }))}
-          translations={translations[lang as keyof typeof translations] as Partial<Translations>}
-        >
-          <RootProvider>
-            {children}
-            <Analytics />
-          </RootProvider>
-        </I18nProvider>
+        <RootProvider i18n={i18nUI.provider(lang as Language)}>
+          {children}
+          <Analytics />
+        </RootProvider>
       </body>
     </html>
   )

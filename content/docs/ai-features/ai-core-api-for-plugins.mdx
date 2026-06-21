@@ -691,7 +691,7 @@ def ai_entity(entity: Union[KnowledgePoint, KnowledgeBase]) -> None
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | `str` | 是 | 全局唯一标识符，建议格式：`{plugin}_{类型}_{编号}` |
+| `id` | `str` | 是 | 全局唯一标识符，建议格式：```plugin``_``类型``_``编号``` |
 | `plugin` | `str` | 是 | 插件名称（在 `plugins/` 下会自动推断） |
 | `title` | `str` | 是 | 知识点标题，用于 RAG 检索 |
 | `content` | `str` | 是 | 知识点内容，支持 Markdown，内容越详细越好 |

@@ -3,9 +3,13 @@ title: "插件开发指南"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 插件开发指南 <Badge type="tip" text="普通" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 - 🎉 该文档将从最基础的创建项目结构开始，直至创建一个**能正常使用功能**的GsCore插件。
   - 包含基础的命令调用、配置文件持久化、数据库存读、网页控制台...等等！
 
@@ -15,15 +19,18 @@ icon: FileText
   - 但是你需要拥有基本的**耐心**，一颗善于**学习的心**、以及最基本的**互联网查找技能**
 
 
-:::
+</Callout>
+
 ## 0、在开始前
 
-<Callout type="info">
+<Callout type="info" title="">
+
 在编写代码开始前，请先确保你安装了**最基本的环境**。
 
 注意：以下说的是你的本地开发环境，而非Bot部署环境（服务器）
 
-:::
+</Callout>
+
 - 🛠 你已经通过[该文档](/Started/EnvCheck)安装并检查了如下工具：
 
   - **Python** 3.8及以上（建议3.11）
@@ -65,16 +72,20 @@ icon: FileText
 
 ## 2、创建项目结构
 
-<Callout type="info">
+<Callout type="info" title="">
+
 尽管我们这次的任务目标**很简单**，但在编写代码开始前，
 
 **做好项目结构规划**是必不可少的，养成良好习惯很**重要**。
 
-:::
-<Callout type="info">
+</Callout>
+
+<Callout type="info" title="">
+
 在GsCore中，插件将会被放置在`/gsuid_core/plugins`**目录**下
 
-:::
+</Callout>
+
 0. 打开命令行工具，检查路径是否在插件目录下
 
 1. 如果不在，键入命令`cd gsuid_core/plugins`可能有用（命令`cd`后跟路径可移动当前命令行工作目录）
@@ -126,7 +137,8 @@ icon: FileText
 
 ## 3、开始编写代码
 
-<Callout type="info">
+<Callout type="info" title="">
+
 首先打开**VSC**，注意一定要选择**打开文件夹**，然后选择顶层的**gs_weather**文件夹。
 
 此时的项目结构（注意观察文件夹树），应该如下图所示，
@@ -135,8 +147,9 @@ icon: FileText
 
 **注意**：以下的代码如果实在无法理解是什么意思，你可以先抄入VSC中，后续再一行一行的理解
 
-:::
-![image-20240601033727344](./../public/CookBook/image-20240601033727344.png)
+</Callout>
+
+![image-20240601033727344](/CookBook/image-20240601033727344.png)
 
 1. 导入`gsuid_core`的基本库，这里我们需要在`__init__.py`下写入以下代码，代表引用下面的库
 
@@ -206,25 +219,27 @@ async def send_weather_msg(bot: Bot, ev: Event):
 
 6. 代码范例截图
 
-![image-20240601194410390](./../public/CookBook/image-20240601194410390.png)
+![image-20240601194410390](/CookBook/image-20240601194410390.png)
 
 7. 实际运行一下**GsCore**，向Bot发送`天气`，观察Bot是否正常回复消息。
 
-<ChatPanel title="聊天界面">
-<ChatMessage nickname="Wuyi无疑">天气</ChatMessage>
-<ChatMessage nickname="GsCore">[漳州天气] 今日的天气是66度，烫死人了！</ChatMessage>
-</ChatPanel>
+
+
+
+
 
 ## 4、完善业务代码
 
-<Callout type="info">
+<Callout type="info" title="">
+
 在上一节中，我们基本已经完成了一个插件的基本结构，
 
 剩下的就是实际的业务代码部分了，
 
 也就是如何把Bot的*固定回复*，转为**真正的**，根据用户**传入天气**，进行**动态的回复**。
 
-:::
+</Callout>
+
 1. 首先，需要获得一个天气的**API接口**，这里我们选择[和风天气](https://id.qweather.com/#/login)，按照页面介绍注册并登陆。
    - 什么是API接口？：在网页中，API**一般**代表某个**URL**地址，通过**网络请求**，可以通过API得到一定返回。
    - 例如在本次例子中，访问和风天气API，将会得到城市的天气信息**返回**。
@@ -239,7 +254,7 @@ async def send_weather_msg(bot: Bot, ev: Event):
    - 返回项目管理，可以看到自己的Key列表，点击查看即可
    - 复制好Key内容，留作备用。
 
-![image-20240601220233918](./../public/CookBook/image-20240601220233918.png)
+![image-20240601220233918](/CookBook/image-20240601220233918.png)
 
 3. 阅读和风天气的[开发者文档](https://dev.qweather.com/docs/start/)（这里你可以先不用读，我会列出本次项目需要用的API）
    - 测试一下API接口
@@ -247,7 +262,7 @@ async def send_weather_msg(bot: Bot, ev: Event):
    - 将上面获得的**key**输入上一行**URL**的后面，然后在浏览器中直接回车请求
    - 不出意外的话，你可以看到正常打开了网页，其中`code`值为200，代表**成功请求**
 
-![image-20240601220452874](./../public/CookBook/image-20240601220452874.png)
+![image-20240601220452874](/CookBook/image-20240601220452874.png)
 
 4. 理解业务代码请求逻辑，捋一遍如下：
    - 用户对机器人发送**天气漳州**
@@ -341,7 +356,8 @@ async def send_weather_msg(bot: Bot, ev: Event):
 
 ## 5、增强用户体验
 
-<Callout type="info">
+<Callout type="info" title="">
+
 做到这里，现在我们已经基本实现**目标一**了！
 
 但是现在每次用户想要查询天气，都需要输入自己所在地城市，
@@ -350,7 +366,8 @@ async def send_weather_msg(bot: Bot, ev: Event):
 
 为每个用户绑定他专属的城市，下次他只需要再输入`天气`即可查询自己城市的天气。
 
-:::
+</Callout>
+
 0. 这就需要**持久化存储**用户输入的数据，一般我们使用**数据库**或者**Json**文件，甚至是TXT文件。
    - **持久化存储**相当于一个游戏存档，下次面对**相同用户**我们可以读取上次他使用过的数据
    - 本次我们使用**数据库**，数据库相比json、txt文件一般来说性能**更好**，但代码要求也会**更高**
@@ -374,7 +391,7 @@ class WeatherBind(Bind, table=True):
     uid: Optional[str] = Field(default=None, title='城市')
 ```
 
-![image-20240609005228562](./../public/CookBook/image-20240609005228562.png)
+![image-20240609005228562](/CookBook/image-20240609005228562.png)
 
 
 1. 返回`__init__.py`，在开头导入部分导入我们新建`database`模块中的`WeatherBind`类
@@ -438,21 +455,24 @@ async def bind_city(bot: Bot, ev: Event):
         return await bot.send(f'绑定城市 {pos_name} 成功！')
 ```
 
-<Callout type="info">
+<Callout type="info" title="">
+
 在这里，由于继承了**GsCore**中的**基类数据库**，这里有很多**已经写好的方法**，方便你调取
 
 善于利用VSC的**提示**功能，根据**函数名**意思，应该能猜出来大部分函数的对应用法，
 
 每个函数，更提供了**非常详尽的注释**，方便你**专心于业务功能**。
 
-![image-20240609010120469](./../public/CookBook/image-20240609010120469.png)
+![image-20240609010120469](/CookBook/image-20240609010120469.png)
 
 上图为**代码提示**，下图为**函数注释**
 
-![image-20240609010309426](./../public/CookBook/image-20240609010309426.png)
+![image-20240609010309426](/CookBook/image-20240609010309426.png)
 
-:::
-<Callout type="warn">
+</Callout>
+
+<Callout type="warn" title="">
+
 💡由于默认的`Bind`, `User`等基类表带有强烈的游戏风格命名。
 
 例如`uid`, `get_data_by_uid`等等...
@@ -461,7 +481,8 @@ async def bind_city(bot: Bot, ev: Event):
 
 示例在[这里](./PluginsDataBase)，往下拉的【额外、继承Base_Model】章节中！
 
-:::
+</Callout>
+
 5. 我们紧接着完成`tq删除绑定城市`，代码如下
 
 ```python
@@ -572,22 +593,24 @@ async def send_weather_msg(bot: Bot, ev: Event):
 
 7. 主要功能已经全部完成，可以运行机器人体验一下。
 
-<ChatPanel title="聊天界面">
-<ChatMessage nickname="Wuyi无疑">天气</ChatMessage>
-<ChatMessage nickname="GsCore">请输入城市名称，或使用 tq城市绑定 命令！</ChatMessage>
-<ChatMessage nickname="Wuyi无疑">tq城市绑定漳州</ChatMessage>
-<ChatMessage nickname="GsCore">绑定城市 漳州 成功！</ChatMessage>
-<ChatMessage nickname="Wuyi无疑">天气</ChatMessage>
-<ChatMessage nickname="GsCore">漳州的天气是：41度, 体感温度为: 37度！</ChatMessage></ChatPanel>
+
+
+
+
+
+
+
 
 ## 6、增强部署者体验
 
-<Callout type="info">
+<Callout type="info" title="">
+
 如果这个插件只是给自己用的，那么在上一步已经结束了。
 
 但是如果你想发到Git上，为了方便自己和其他部署者，你还需要额外再做一些操作！
 
-:::
+</Callout>
+
 ### 将数据库映射至网页控制台
 
 1. 将数据库映射至网页控制台, 在`database.py`中新增代码如下：
@@ -608,11 +631,11 @@ class WeatherBindadmin(GsAdminModel):
     model = WeatherBind
 ```
 
-![image-20240609020855870](./../public/CookBook/image-20240609020855870.png)
+![image-20240609020855870](/CookBook/image-20240609020855870.png)
 
 2. 重启Gscore，打开网页控制台，输入账密登录之后，发现已经映射成功！
 
-![image-20240609021121756](./../public/CookBook/image-20240609021121756.png)
+![image-20240609021121756](/CookBook/image-20240609021121756.png)
 
 ### 将Key配置持久化并映射至网页控制台
 
@@ -674,7 +697,7 @@ KEY = tq_config.get_config('tq_key').data
    - 直接修改`gsuid_core/data/Gs_Weather/config.json`文件
    - 或者打开网页控制台，你会发现已经有了对应的配置项
 
-![image-20240609022134459](./../public/CookBook/image-20240609022134459.png)
+![image-20240609022134459](/CookBook/image-20240609022134459.png)
 
 ## 7、其他问题
 
@@ -690,12 +713,14 @@ KEY = tq_config.get_config('tq_key').data
 
 ## 8、添加 AI 功能
 
-<Callout type="info">
+<Callout type="info" title="">
+
 GsCore 内置了强大的 AI Core 系统，可以让你的插件命令被 AI 自动调用。
 
 用户可以直接对 AI 说"帮我查一下漳州天气"，AI 会自动识别意图并调用你的天气查询命令，**无需修改任何原有业务逻辑**。
 
-:::
+</Callout>
+
 ### 8.1 使用 `to_ai` 参数 — 零成本接入 AI
 
 只需在已有的 `on_command` 装饰器上添加 `to_ai` 参数，即可将触发器自动注册为 AI 工具：

@@ -3,14 +3,19 @@ title: "使用 Docker 运行 Core"
 description: "::: warning"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 使用 Docker 运行 Core<Badge type="danger" text="稍难" />
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 下面提供了*两种方式*进行 Docker 部署, **二选一**即可！
 
 如果你对两种方式的区别不了解，请使用**选择 1**
 
-:::
+</Callout>
+
 ## 镜像特性
 
 1. 轻量高效：原始镜像使用 `astral/uv:python3.12-bookworm-slim`，该镜像支持 `linux/amd64`, `linux/arm64`。

@@ -3,6 +3,9 @@ title: "安装Core"
 description: "- 在`Bot目录`的上级（例如你的bot目录为`./Wuyi/nb2`,则cd至`./Wuyi`处）"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 安装Core<Badge type="danger" text="普通" />
 
 
@@ -23,27 +26,34 @@ cd gsuid_core
 ```
 
 ## 安装依赖
-<Callout type="info">
+<Callout type="info" title="">
+
 可以根据你的喜好，自行选择`uv`, `pdm`, `poetry`等环境工具安装Core
 
 或使用裸环境`python`&`pip`安装
 
-:::
-<details><summary>【🥳 推荐】uv</summary>
+</Callout>
+
+<details>
+<summary>【🥳 推荐】uv</summary>
 ```sh
 # uv安装依赖方式
 uv python install 3.13
 uv sync --python 3.13
 uv run python -m ensurepip
 ```
-:::
-<details><summary>poetry</summary>
+</details>
+
+<details>
+<summary>poetry</summary>
 ```sh
 # poetry安装依赖方式
 poetry install
 ```
-:::
-<details><summary>pdm</summary>
+</details>
+
+<details>
+<summary>pdm</summary>
 
 ```sh
 # pdm安装依赖方式
@@ -51,15 +61,18 @@ pdm install
 pdm run python -m ensurepip
 ```
 
-:::
-<details><summary>【😡 不推荐】直接使用python</summary>
+</details>
+
+<details>
+<summary>【😡 不推荐】直接使用python</summary>
 
 ```sh
 # 不推荐该方式
 python -m pip install -r requirements.txt
 ```
 
-:::
+</details>
+
 ## 安装所需插件<Badge type="tip" text="可选" />
 
 ```sh

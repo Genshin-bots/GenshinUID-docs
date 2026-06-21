@@ -16,8 +16,7 @@ export default async function HomePage({ params }: HomeProps) {
     notFound()
   }
 
-  const content = getHomeContent(lang)
-  const baseUrl = `/${lang}/docs`
+  const content = getHomeContent(lang as Language)
 
   return (
     <main className="fd-default-layout">

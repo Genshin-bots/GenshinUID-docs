@@ -3,14 +3,19 @@ title: "简单介绍"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 简单介绍<Badge type="tip" text="简单" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 借助适配器、`gsuid_core`的插件将同时适配全平台
 
 但是`gsuid_core`本身并不支持高级的`Bot`功能，例如缺失元事件等消息类型，以及点赞，表情表态等平台强相关Action
 
-:::
+</Callout>
+
 ### GsCore插件的优势
 
 - 适配**大部分平台**（QQ、QQ频道、微信、TG、KOOK、飞书、QQ群官方机器人、Red协议），未来还会加入更多支持
@@ -113,12 +118,14 @@ async def my_hook():
 | 初始化耗时较长的后台服务 | `on_core_start` |
 | 不影响消息处理的核心功能 | `on_core_start` |
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 `plugins` 文件夹中的插件不受影响，现有的 `@on_core_start` 装饰器继续正常工作。
 
 插件开发者可以根据需要自行迁移到 `@on_core_start_before`，但这不是必须的。
 
-:::
+</Callout>
+
 ## Plugins 类 — 插件级配置
 
 `Plugins` 类用于声明插件的全局配置（前缀、权限、别名等），是 `SV` 的上层配置。

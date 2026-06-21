@@ -3,6 +3,9 @@ title: "多步回话"
 description: "> 有时候我们希望某用户在触发机器人命令之后"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 多步回话 <Badge type="warning" text="普通" />
 
 > 有时候我们希望某用户在触发机器人命令之后
@@ -15,14 +18,14 @@ icon: FileText
 
 ## 单用户
 
-<ChatPanel title="聊天界面">
-<ChatMessage nickname="Wuyi无疑">开始测试</ChatMessage>
-<ChatMessage nickname="GsCore">开始多步会话测试</ChatMessage>
-<ChatMessage nickname="GsCore">接下来你说的话我都会提取出来噢？</ChatMessage>
-<ChatMessage nickname="干扰用户" type="danger" tag="用户">你们在说什么呢？</ChatMessage>
-<ChatMessage nickname="Wuyi无疑">我爱你</ChatMessage>
-<ChatMessage nickname="GsCore">你说的是 我爱你 吧？</ChatMessage>
-</ChatPanel>
+
+
+
+
+
+
+
+
 
 ### 代码示例
 ```python
@@ -43,15 +46,15 @@ async def get_resp_msg(bot: Bot, ev: Event):
 ```
 
 ## 多用户
-<ChatPanel title="聊天界面">
-<ChatMessage nickname="Wuyi无疑">开始多用户测试</ChatMessage>
-<ChatMessage nickname="GsCore">开始多步会话测试</ChatMessage>
-<ChatMessage nickname="GsCore">接下来开始游戏！？所有人的会话我都会收集起来的哦！</ChatMessage>
-<ChatMessage nickname="群友A" type="danger" tag="用户">你们在说什么呢？</ChatMessage>
-<ChatMessage nickname="GsCore">你说的是 你们在说什么呢？ 吧？</ChatMessage>
-<ChatMessage nickname="Wuyi无疑">我爱你</ChatMessage>
-<ChatMessage nickname="GsCore">你说的是 我爱你 吧？</ChatMessage>
-</ChatPanel>
+
+
+
+
+
+
+
+
+
 
 ### 代码示例
 ```python
@@ -88,12 +91,14 @@ async def get_time_limit_resp_msg(bot: Bot, ev: Event):
 
 ## 总结
 
-<Callout type="info">
+<Callout type="info" title="">
+
 可以看到`Bot.receive_resp()`后续**只会接受触发该命令的用户**的消息
 
 但是`Bot.receive_mutiply_resp()`会接受后续**全部用户的信息**
 
-:::
+</Callout>
+
 注意到`Bot.send_option()`和`Bot.receive_mutiply_resp()`均会调用`Bot.receive_resp()`
 
 他们三个的参数都差不多，实际使用，功能区别如下：

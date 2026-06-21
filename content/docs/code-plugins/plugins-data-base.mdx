@@ -3,6 +3,9 @@ title: "插件获取/调用/建立数据库(GsData.db)"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 ---
 author: "Wuyi无疑"
 contributors: ["Wuyi无疑"]
@@ -11,14 +14,16 @@ contributors: ["Wuyi无疑"]
 # 插件获取/调用/建立数据库(GsData.db)<Badge type="tip" text="简单" />
 
 
-<Callout type="info">
+<Callout type="info" title="">
+
 💡**强烈推荐**使用该方法去写数据库，基类提供了大部分较为常用的数据库方法（增删改查）
 
 继承已经写好的基类，可以在较少代码量的前提下，生成专属插件的表并共享所有基类方法
 
 有非常多额外的扩展方法（实现bot_id管理、多uid绑定、随机调用CK等等）
 
-:::
+</Callout>
+
 #### 第一步、继承基类，建立自己的表
 
 [参考](https://github.com/KimigaiiWuyi/WzryUID/blob/main/WzryUID/utils/database/models.py)
@@ -85,7 +90,8 @@ class WzryUseradmin(GsAdminModel):
 
 #### 额外、继承BaseModel（推荐）
 
-<Callout type="info">
+<Callout type="info" title="">
+
 💡在上面从`gsuid_core.utils.database.base_models` 继承基础的 `Bind`,  `User`，`Push`，`Cache`表时，你可能会注意到一丝命名风格不舒服， 比如：
 
 - 默认会有几列预设的列名，例如`uid`, `cookie`等等。
@@ -95,8 +101,9 @@ class WzryUseradmin(GsAdminModel):
 
 GsCore当然也提供了更上游的基类以供继承，下面是具体代码。
 
-:::
-![image-20240818182411857](./../public/PluginsDataBase/image-20240818182411857.png)
+</Callout>
+
+![image-20240818182411857](/PluginsDataBase/image-20240818182411857.png)
 
 ##### 三级基类
 
@@ -272,10 +279,12 @@ class MajsPaipu(BaseIDModel, table=True):
 
 所以我们需要一个方法，通过该方法可以无痕的在部署者启动Bot的时候，自动添加列。
 
-<Callout type="info">
+<Callout type="info" title="">
+
 `exec_list` 中的 SQL 语句会在 `on_core_start_before` 阶段（WS 服务启动之前）执行，确保数据库 Schema 变更在消息处理前完成。
 
-:::
+</Callout>
+
 方法如下：
 
 1. 修改模型
@@ -377,7 +386,8 @@ async def batch_cleanup():
         await session.commit()
 ```
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 使用 `async_maker` 时需要**手动调用** `await session.commit()`，这与 `@with_session` 装饰器自动 commit 不同。
 
-:::
+</Callout>

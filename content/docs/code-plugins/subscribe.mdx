@@ -3,9 +3,13 @@ title: "订阅消息"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 订阅消息<Badge type="tip" text="简单" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 想象一下以下场景，为了制作一个公告推送（或者是签到）功能，你需要制作一个命令，触发时用于先持久化保存该群/用户的信息（group_id/user_id）等，定时轮询信息源，有消息的时候就按照该群/用户的信息进行推送。
 
 在这个场景下，因为GsCore的自带多平台/多账号适配，为了解决消息发送的问题，需要持久化的内容很多
@@ -16,7 +20,8 @@ icon: FileText
 
 此时则需要一个封装好的方法，可以高效的处理该类场景，下面为你介绍。
 
-:::
+</Callout>
+
 ## 订阅类型
 
 | `subscribe_type` | 行为 |

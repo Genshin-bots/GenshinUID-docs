@@ -1,89 +1,44 @@
 {
+  "name": "gsuid-docs",
   "type": "module",
   "version": "0.2.1",
+  "private": true,
   "scripts": {
-    "dev": "vitepress dev docs --port 8080 --max-old-space-size=50000",
-    "build": "vitepress build docs",
-    "serve": "vitepress serve docs",
-    "dev:next": "next dev --port 3000",
-    "build:next": "next build",
-    "start:next": "next start",
-    "serve:next": "npx serve out",
-    "lint:next": "next lint",
-    "postbuild:next": "node scripts/postbuild.mjs",
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "serve": "npx serve out",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "postbuild": "node scripts/postbuild.mjs",
     "migrate:content": "node scripts/migrate-content.mjs"
   },
   "dependencies": {
-    "fumadocs-core": "^15.0.0",
-    "fumadocs-mdx": "^11.0.0",
-    "fumadocs-ui": "^15.0.0",
-    "globals": "^15.9.0",
+    "fumadocs-core": "^16.0.0",
+    "fumadocs-mdx": "^15.0.0",
+    "fumadocs-ui": "^16.0.0",
     "lucide-react": "^0.460.0",
     "next": "^16.0.0",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^2.5.5",
-    "vue-custom-scrollbar": "^1.4.4"
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.42.0",
-    "@antfu/ni": "^0.21.8",
-    "@iconify/json": "^2.2.115",
     "@orama/orama": "^3.1.18",
     "@orama/tokenizers": "^3.1.18",
     "@tailwindcss/postcss": "^4.0.0",
-    "@types/fs-extra": "^11.0.1",
-    "@types/md5": "^2.3.2",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vite-pwa/vitepress": "^0.2.1",
-    "bumpp": "^9.2.0",
-    "busuanzi.pure.js": "^1.0.3",
-    "cloudinary-build-url": "^0.2.4",
-    "dayjs": "^1.11.9",
-    "eslint": "^8.57.0",
+    "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-vue": "^9.27.0",
-    "esno": "^0.17.0",
-    "fast-glob": "^3.3.1",
-    "feed": "^4.2.2",
-    "font-slice": "^1.0.2",
-    "fs-extra": "^11.1.1",
-    "gray-matter": "^4.0.3",
-    "less": "^4.2.0",
-    "lint-staged": "^14.0.0",
-    "md5": "^2.3.0",
-    "medium-zoom": "^1.0.8",
-    "moment": "^2.29.4",
-    "ohmyfetch": "^0.4.21",
-    "pathe": "^2.0.3",
     "postcss": "^8.4.29",
-    "postcss-nested": "^6.0.1",
-    "sass": "^1.69.3",
-    "simple-git": "^3.19.1",
-    "simple-git-hooks": "^2.9.0",
-    "sitemap-ts": "^1.4.0",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.2.2",
-    "unocss": "^0.62.2",
-    "unplugin-icons": "^0.17.0",
-    "unplugin-vue-components": "^0.25.2",
-    "vite": "^4.4.9",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vite-plugin-pwa": "^0.16.5",
-    "vitepress": "^1.6.4",
-    "vue": "^3.5.20"
+    "typescript": "^5.2.2"
   },
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,vue}": [
-      "eslint --cache --fix"
-    ]
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22"
+  }
 }

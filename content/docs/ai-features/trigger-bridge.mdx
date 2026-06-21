@@ -3,14 +3,19 @@ title: "触发器桥接（to_ai）"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 触发器桥接（to_ai）<Badge type="tip" text="简单" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 触发器桥接是 GsCore 中将现有插件命令**零成本**开放给 AI 调用的核心机制。
 
 只需在 `on_xxx` 装饰器上添加 `to_ai` 参数，AI 就能自动识别并调用你的插件功能，**无需修改任何原有业务逻辑**。
 
-:::
+</Callout>
+
 ## 概述
 
 `to_ai` 参数允许插件开发者将现有的触发器函数自动注册为 AI 工具，无需编写重复的 `@ai_tools` 函数。AI 调用时使用 `MockBot` 拦截 `bot.send()`，将图片/消息内容收集而非真正发送，由 AI 决定是否真正发给用户。

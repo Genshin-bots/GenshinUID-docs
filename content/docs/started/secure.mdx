@@ -3,9 +3,13 @@ title: "配置WsToken"
 description: "::: warning"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 配置WsToken<Badge type="warning" text="普通" />
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 `config.json`文件位于`gsuid_core/data/config.json`
 
 如GsCore和连接端Bot(如NoneBot2)都位于本机, 则无需配置WsToken
@@ -14,11 +18,14 @@ icon: FileText
 
 否则, 请配置WsToken或者TrustIP以确保安全, [配置说明](../Started/CoreConfig)
 
-:::
-<Callout type="info">
+</Callout>
+
+<Callout type="info" title="">
+
 连接端处Token和GsCore处的WsToken需要**保持一致**！
 
-:::
+</Callout>
+
 ## 1. 配置GsCore处的WsToken
 
 - 通过网页控制台修改`WS_TOKEN`或`TRUSTED_IPS`
@@ -42,5 +49,5 @@ icon: FileText
 ### 4. 其他Bot
 
 - 如有提供其他Bot的适配器, 请参考适配器的配置说明, 填写GsCore处的WsToken
-- GsCore侧的连接URL为: `ws://{HOST}:{PORT}/{BOT_ID}?token={WS_TOKEN}`
+- GsCore侧的连接URL为: `ws://``HOST``:``PORT``/``BOT_ID``?token=``WS_TOKEN```
 - 该接口有限流处理, 如有其他适配器编写, 还需要注意

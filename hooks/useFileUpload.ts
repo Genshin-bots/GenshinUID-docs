@@ -45,7 +45,7 @@ export function useFileUpload() {
     }
   }, [])
 
-  const handleFileSelect = useCallback(async (event: Event, callback: (file: File) => Promise<void>) => {
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>, callback: (file: File) => Promise<void>) => {
     const target = event.target as HTMLInputElement
     const files = target.files
     if (!files) return

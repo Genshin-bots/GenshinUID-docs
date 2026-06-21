@@ -3,6 +3,9 @@ title: "插件前缀"
 description: "在编写插件时，你可能需要为你的插件设置一个前缀，这有很多好处！"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # 插件前缀<Badge type="tip" text="简单" />
 
 ## 请为你的插件添加前缀
@@ -21,18 +24,18 @@ icon: FileText
 
 但是坏处也有：
 
-- 每个服务的命令行均需要设置`f"{PREFIX}{你的命令}"`，较为繁琐
+- 每个服务的命令行均需要设置`f"``PREFIX````你的命令``"`，较为繁琐
 - 需要大量额外代码，以适配多前缀、空前缀、无前缀
 
-![image-20241006061613075](./../public/PluginPrefix/image-20241006061613075.png)
+![image-20241006061613075](/PluginPrefix/image-20241006061613075.png)
 
-![image-20241006061429382](./../public/PluginPrefix/image-20241006061429382.png)
+![image-20241006061429382](/PluginPrefix/image-20241006061429382.png)
 
 ## 新的方法
 
 在`2024/10/1`之后，你可以在你插件的起始位置`__init__.py`添加代码，让GsCore为你处理这些事情！
 
-![image-20241006061728583](./../public/PluginPrefix/image-20241006061728583.png)
+![image-20241006061728583](/PluginPrefix/image-20241006061728583.png)
 
 这里给出[参考](https://github.com/KimigaiiWuyi/MajsoulUID/blob/main/MajsoulUID/__init__.py), 该插件实现了**插件内任意命令**均需要携带前缀`雀魂`或者`qh`
 
@@ -48,7 +51,8 @@ Plugins(
 
 ⬇ 注意，在`Plugins`类中有多项参数，但是大多数无需关心，下面将一一介绍：
 
-<Callout type="warn">
+<Callout type="warn" title="">
+
 `Plugins`类中的大多数参数将会在首次启动后写入`data/plugins_configs/<plugin_name>.json`，以方便用户修改和调控
 
 也就是说，之后如果你再次修改该值，则：
@@ -60,7 +64,8 @@ Plugins(
 
 那么请谨慎决定该值的初始值！！
 
-:::
+</Callout>
+
 ```python
 class Plugins(
     # name决定了插件的名称, 也是唯一标识符, 请【永远】使用你插件包的文件夹名称作为插件注册名
@@ -92,4 +97,4 @@ class Plugins(
 )
 ```
 
-![image-20241006063137053](./../public/PluginPrefix/image-20241006063137053.png)
+![image-20241006063137053](/PluginPrefix/image-20241006063137053.png)

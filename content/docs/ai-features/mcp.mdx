@@ -3,14 +3,19 @@ title: "MCP 工具集成"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # MCP 工具集成 <Badge type="tip" text="新功能" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 MCP (Model Context Protocol) 工具集成允许你通过 WebConsole 前端自由添加、管理 MCP 服务器配置。
 
 框架启动时自动连接 MCP 服务器并将工具注册为 AI 工具，使 AI 可以自由调用 MCP 工具并利用返回结果。
 
-:::
+</Callout>
+
 ## 概述
 
 MCP 是一种开放协议，允许 AI 应用与外部数据源和工具进行标准化交互。GsCore 通过 MCP 集成，可以将任何 MCP 服务器提供的工具自动注册为 AI 工具，无需编写任何插件代码。
@@ -38,7 +43,7 @@ MCP 是一种开放协议，允许 AI 应用与外部数据源和工具进行标
 
 ### 2. 配置文件格式
 
-配置文件存储在 `data/ai_core/mcp_configs/{config_id}.json`：
+配置文件存储在 `data/ai_core/mcp_configs/``config_id``.json`：
 
 ```json
 {
@@ -76,11 +81,11 @@ MCP 配置提供完整的 RESTful API，支持通过 WebConsole 前端或 HTTP �
 | 方法 | 端点 | 功能 |
 |------|------|------|
 | `GET` | `/api/ai/mcp/list` | 获取所有 MCP 配置列表 |
-| `GET` | `/api/ai/mcp/{config_id}` | 获取指定配置详情 |
+| `GET` | `/api/ai/mcp/``config_id``` | 获取指定配置详情 |
 | `POST` | `/api/ai/mcp` | 创建新 MCP 配置 |
-| `PUT` | `/api/ai/mcp/{config_id}` | 更新 MCP 配置 |
-| `DELETE` | `/api/ai/mcp/{config_id}` | 删除 MCP 配置 |
-| `POST` | `/api/ai/mcp/{config_id}/toggle` | 切换启用/禁用状态 |
+| `PUT` | `/api/ai/mcp/``config_id``` | 更新 MCP 配置 |
+| `DELETE` | `/api/ai/mcp/``config_id``` | 删除 MCP 配置 |
+| `POST` | `/api/ai/mcp/``config_id``/toggle` | 切换启用/禁用状态 |
 | `POST` | `/api/ai/mcp/reload` | 热重载所有配置并重新注册工具 |
 
 ### 创建配置
@@ -122,7 +127,7 @@ MCP 工具注册到 `_TOOL_REGISTRY["mcp"]` 分类，与其他分类的关系：
 
 ### 命名规则
 
-MCP 工具注册时使用 `mcp_{server_name}_{tool_name}` 格式，避免不同 MCP 服务器之间的工具名冲突。
+MCP 工具注册时使用 `mcp_``server_name``_``tool_name``` 格式，避免不同 MCP 服务器之间的工具名冲突。
 
 例如，名为 `MiniMax` 的服务器提供的 `search` 工具，注册名为 `mcp_MiniMax_search`。
 
@@ -179,7 +184,7 @@ MCP 工具注册时使用 `mcp_{server_name}_{tool_name}` 格式，避免不同 
 | 动态函数生成 | 根据 `input_schema` 生成正确的类型注解和函数签名，确保 PydanticAI 能正确生成 JSON Schema 给 LLM |
 | 无状态 MCP 客户端 | 每次工具调用时建立连接、执行操作、断开连接，避免长连接管理的复杂性 |
 | 热重载支持 | 通过 API 可在运行时重新加载配置，无需重启服务 |
-| 工具名冲突避免 | 使用 `mcp_{server_name}_{tool_name}` 格式命名 |
+| 工具名冲突避免 | 使用 `mcp_``server_name``_``tool_name``` 格式命名 |
 
 ## 常见 MCP 服务器示例
 

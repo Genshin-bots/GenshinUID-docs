@@ -20,7 +20,6 @@ export default async function Layout({ children, params }: DocsLayoutProps) {
   return (
     <DocsLayout
       tree={source.getPageTree(lang)}
-      i18n
       nav={{
         component: <DocsNav lang={lang as Language} />,
       }}
@@ -29,9 +28,6 @@ export default async function Layout({ children, params }: DocsLayoutProps) {
       }}
       searchToggle={{ enabled: true }}
       themeSwitch={{ enabled: true }}
-      i18n={{
-        dateFormat: 'yyyy-MM-dd',
-      }}
     >
       {children}
     </DocsLayout>

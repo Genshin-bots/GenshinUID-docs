@@ -5,7 +5,8 @@ icon: FileText
 ---
 # 完整示例
 
-<Callout type="info">
+<Callout type="info" title="">
+
 本章提供 6 个完整的开发示例，从简单到复杂，手把手教你实现各种 AI 功能。
 
 **适合场景**：
@@ -17,7 +18,8 @@ icon: FileText
 - 💬 想实现多轮对话记忆功能
 
 **生动比喻**：本章就像是 AI 开发的"菜谱大全"。每个示例都是一道完整的"菜"，有食材清单（导入）、烹饪步骤（代码）、成品展示（效果）。跟着做，你也能做出美味的 AI 功能！
-:::
+</Callout>
+
 本文档提供 GsCore AI Core 的完整开发示例，帮助插件开发者快速上手。
 
 ## 示例一：注册工具并使用 check_func
@@ -872,10 +874,12 @@ async def query_weather(bot: Bot, ev: Event):
 3. **`ai_return()`**：在普通用户触发时静默忽略，AI 调用时返回文本给 AI
 4. **图片拦截**：AI 调用时 `bot.send(image)` 被 MockBot 拦截，图片暂存，AI 可后续通过 `send_trigger_images` 发送
 
-<Callout type="info">
+<Callout type="info" title="">
+
 更多关于 `to_ai` 参数的详细说明，请参考 [触发器文档](../CodePlugins/trigger#to_ai-参数--触发器自动注册为-ai-工具)。
 
-:::
+</Callout>
+
 ## 下一步
 
 - [工具注册](./Tools) - 深入了解工具注册

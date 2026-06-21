@@ -3,9 +3,13 @@ title: "CallBot"
 description: "::: tip"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # CallBot<Badge type="tip" text="简单" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 进行发送消息时需要获取**当前准确**的**Bot实例**，用于调用`Bot.send()`
 
 但在某些情况下，可能函数嵌套的层数过多，外层的Bot实例一层一层传入较为麻烦
@@ -14,7 +18,8 @@ icon: FileText
 
 找到当前的、准确的Bot实例
 
-:::
+</Callout>
+
 代码参考如下：
 
 ```python

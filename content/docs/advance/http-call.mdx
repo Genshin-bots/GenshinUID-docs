@@ -3,16 +3,21 @@ title: "HTTP调用"
 description: ":::info"
 icon: FileText
 ---
+
+import { Badge } from '@/components/Badge'
+
 # HTTP调用<Badge type="tip" text="普通" />
 
-<Callout type="info">
+<Callout type="info" title="">
+
 在某些情况下，你的**业务需求**可能并不允许你进行WS连接，
 
 这时候就需要使用HTTP调用方式。
 
 HTTP调用方式**依旧需要提供**完整的MessageReceive结构体。
 
-:::
+</Callout>
+
 1. 打开GsCore的HTTP模式（和WS**并不冲突**，但仍然建议**不使用时关闭**）
    - 打开`gsuid_core/data/config.json`
    - 找到`ENABLE_HTTP`配置项，将其设置为`true`

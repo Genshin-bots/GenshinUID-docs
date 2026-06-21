@@ -56,45 +56,64 @@ function extractDescription(content) {
   return ''
 }
 
-// Convert Vue-style components to MDX/React
+// Convert Vue-style components to MDX/React (栈式 ::: 容器处理)
 function convertVueToReact(content) {
-  let result = content
+  const lines = content.split('\n')
+  const result = []
+  const stack = []
 
-  // <Component :prop="value" /> → <Component prop="value" /> or <Component prop={value} />
-  // Simple :text="literal" → text="literal"
-  result = result.replace(/<(\w+)\s+:([\w-]+)="([^"]+)"\s*\/>/g, '<$1 $2="$3" />')
-  result = result.replace(/<(\w+)\s+:([\w-]+)="([^"]+)"\s*>/g, '<$1 $2="$3">')
+  for (const line of lines) {
+    const trimmed = line.trim()
 
-  // <Contact/> - these are registered in mdx.tsx, should work
-
-  // ::: tip → <Callout type="info">
-  result = result.replace(/^:::\s*tip\s*$/gm, '<Callout type="info">')
-  result = result.replace(/^:::\s*warning\s*$/gm, '<Callout type="warn">')
-  result = result.replace(/^:::\s*danger\s*$/gm, '<Callout type="error">')
-  result = result.replace(/^:::\s*info\s*$/gm, '<Callout type="info">')
-  result = result.replace(/^:::\s*success\s*$/gm, '<Callout type="success">')
-  result = result.replace(/^:::\s*idea\s*$/gm, '<Callout type="idea">')
-
-  // ::: details Title (multi-line block) - convert to details/summary
-  result = result.replace(/^:::\s*details\s+(.+)$/gm, '<details><summary>$1</summary>')
-  // Or ::: details (no title)
-  result = result.replace(/^:::\s*details\s*$/gm, '<details>')
-
-  // :::  → </details> or </Callout>
-  result = result.replace(/^:::\s*$/gm, function (match, offset, str) {
-    // Determine if it's closing a callout or details
-    // Heuristic: check what's the last opened tag
-    const before = str.substring(0, offset)
-    if (before.match(/<details>\s*$/)) {
-      return '</details>'
+    // <Component :prop="value" /> → <Component prop="value" />
+    const vuePropMatch = line.match(/^(\s*)<(\w+)\s+:([\w-]+)="([^"]+)"\s*(\/?>.*)$/)
+    if (vuePropMatch) {
+      const [, indent, tag, prop, value, rest] = vuePropMatch
+      result.push(`${indent}<${tag} ${prop}="${value}"${rest}`)
+      continue
     }
-    if (before.match(/<Callout[^>]*>\s*$/)) {
-      return '</Callout>'
-    }
-    return ':::'
-  })
 
-  return result
+    // ::: tip [title] / warning / danger / info / success / idea
+    const calloutMatch = trimmed.match(/^:::\s*(tip|warning|danger|info|success|idea)(?:\s+(.+))?\s*$/)
+    if (calloutMatch) {
+      const type = calloutMatch[1]
+      const title = calloutMatch[2]
+      const map = { tip: 'info', warning: 'warn', danger: 'error', info: 'info', success: 'success', idea: 'idea' }
+      result.push(`<Callout type="${map[type] || type}" title=${JSON.stringify(title || '')}>`)
+      stack.push('callout')
+      continue
+    }
+
+    // ::: details [title]
+    const detailsMatch = trimmed.match(/^:::\s*details(?:\s+(.+))?\s*$/)
+    if (detailsMatch) {
+      const title = detailsMatch[1]
+      result.push('<details>')
+      if (title) result.push(`<summary>${title}</summary>`)
+      stack.push('details')
+      continue
+    }
+
+    // ::: 关闭
+    const closeMatch = trimmed.match(/^:::\s*$/)
+    if (closeMatch) {
+      const top = stack.pop()
+      if (top === 'callout') result.push('</Callout>')
+      else if (top === 'details') result.push('</details>')
+      else result.push(':::')
+      continue
+    }
+
+    result.push(line)
+  }
+
+  while (stack.length > 0) {
+    const top = stack.pop()
+    if (top === 'callout') result.push('</Callout>')
+    else if (top === 'details') result.push('</details>')
+  }
+
+  return result.join('\n')
 }
 
 // Add frontmatter to a markdown file
