@@ -1,0 +1,275 @@
+---
+title: "触发器"
+description: "触发器是事件触发的核心，触发器的上层是**服务**，下层是**函数**。"
+icon: FileText
+---
+# 触发器<Badge type="tip" text="普通" />
+
+触发器是事件触发的核心，触发器的上层是**服务**，下层是**函数**。
+
+在`GsCore`中一共提供了8种触发器，下面一一为你介绍。
+
+### 创建服务
+
+触发器的上层是服务，所以我们需要先创建一个服务，所有的触发器将被挂在该服务的下面
+
+```python
+from gsuid_core.sv import SV
+
+# 随意命名, 不要和其他插件冲突即可
+sv_switch = SV('测试开关')
+```
+
+---
+
+### 全匹配触发器
+
+`on_fullmatch`是全匹配触发器，将在**发送的消息内容**完全等于**预先设定的触发内容**时触发
+
+在下面的例子中，只有当消息内容为`全匹配测试`时才触发
+
+```python
+@sv_switch.on_fullmatch('全匹配测试')
+async def get_fullmatch_msg(bot: Bot, ev: Event):
+    await bot.send('正在进行[全匹配测试]')
+    await asyncio.sleep(2)
+    await bot.send('[全匹配测试]校验成功！')
+```
+
+---
+
+### 前缀触发器
+
+`on_prefix`是前缀触发器，将在**消息内容的前面部分**等于**预先设定的触发内容**时触发
+
+例如下面的例子，将会响应`关闭ABC`或`开启ABC`或`开启XX`等等....
+
+和 命令触发器`on_command`不同的是，该命令必须存在后面的参数，
+
+下面的例子中，消息`开启`**将不会触发**命令
+
+```python
+@sv_switch.on_prefix(('关闭', '开启'))
+async def get_switch_msg(bot: Bot, ev: Event):
+    name = ev.text
+    if not name:
+        return
+
+    await bot.send('正在进行[关闭/开启开关]')
+
+    if name in SL.lst:
+        if ev.command == '关闭':
+            SL.lst[name].disable()
+            await bot.send('关闭成功！')
+        else:
+            SL.lst[name].enable()
+            await bot.send('开启成功！')
+    else:
+        await bot.send('未找到该服务...')
+```
+
+---
+
+### 命令触发器
+
+`on_command`是命令触发器，将在**消息内容的前面部分**等于**预先设定的触发内容**时触发
+
+和`on_prefix`不同的是, 即使后面没有跟任何信息，它也会成功触发
+
+例如，在下面的例子中`命令测试`，`命令测试 ABC`，`命令测试AAA`都将被成功触发！
+
+简单的理解下，`on_command` = `on_fullmatch` + `on_prefix`
+
+```python
+@sv_switch.on_command('命令测试')
+async def get_command_msg(bot: Bot, ev: Event):
+    await bot.send('正在进行[命令测试]')
+    await asyncio.sleep(2)
+    await bot.send('[命令测试]校验成功！')
+```
+
+---
+
+### 关键词触发器
+
+`on_keyword`是关键词触发器，将在**消息内容包含预设关键词**时触发。
+
+例如，下面的例子中只要消息内容中包含`关键词测试`，即会触发：
+
+```python
+@sv_switch.on_keyword(('关键词测试', '触发关键词'))
+async def get_keyword_msg(bot: Bot, ev: Event):
+    await bot.send('检测到关键词，正在进行处理！')
+    await asyncio.sleep(1)
+    await bot.send('关键词触发成功！')
+```
+
+---
+
+### 文件触发器
+
+`on_file`是文件触发器，专用于检测用户是否上传了符合条件的文件。
+
+例如，下面的代码将会在用户上传`.json`格式的文件时触发：
+
+```python
+@sv_switch.on_file('json')
+async def handle_json_file(bot: Bot, ev: Event):
+    await bot.send('检测到文本文件，正在处理...')
+    # 添加文件处理逻辑
+    await asyncio.sleep(1)
+    await bot.send('文本文件处理完成！')
+```
+
+---
+
+### 正则触发器
+
+`on_regex`是正则表达式触发器，将在**消息内容符合正则表达式模式**时触发。
+
+例如，下面的代码中会检测是否有以`测试`开头，后面跟数字的消息：
+
+```python
+@sv_switch.on_regex(r'^测试\d+$')
+async def regex_trigger(bot: Bot, ev: Event):
+    await bot.send('正则匹配成功，正在进行处理！')
+    await asyncio.sleep(1)
+    await bot.send(f'匹配内容：{ev.text}')
+```
+
+---
+
+### 后缀触发器
+
+`on_suffix`是后缀触发器，将在**消息内容以特定的后缀结尾**时触发。
+
+例如，下面的代码会响应所有以`.jpg`或`.png`结尾的消息：
+
+```python
+@sv_switch.on_suffix(('.jpg', '.png'))
+async def suffix_trigger(bot: Bot, ev: Event):
+    await bot.send('检测到图片后缀，正在处理！')
+    # 添加后续逻辑
+    await asyncio.sleep(1)
+    await bot.send(f'处理完成：{ev.text}')
+```
+
+---
+
+### 消息触发器
+
+`on_message`是消息触发器，将在**接收到任意消息时触发**，适合用作消息日志记录或全局处理。
+
+例如，下面的代码会对所有消息进行简单响应：
+
+```python
+@sv_switch.on_message()
+async def message_trigger(bot: Bot, ev: Event):
+    await bot.send('收到消息，正在处理...')
+    await asyncio.sleep(1)
+    await bot.send(f'处理完成：{ev.text}')
+```
+
+---
+
+### `to_ai` 参数 — 触发器自动注册为 AI 工具
+
+所有 `on_xxx` 装饰器支持 `to_ai: str = ""` 参数，可以将触发器自动注册为 AI 工具，无需额外编写工具注册代码。
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+sv = SV("股票插件")
+
+@sv.on_command(
+    "个股",
+    to_ai="""
+    查询指定股票或ETF的K线图或分时图。
+    当用户询问某只股票/ETF走势时调用。
+
+    Args:
+        text: 股票名称或代码，可加前缀 "日k"/"周k"/"月k"，多个以空格分隔
+              例如 "证券ETF"、"日k 白酒ETF"
+    """,
+)
+async def send_stock_img(bot: Bot, ev: Event):
+    content = ev.text.strip().lower()
+    if not content:
+        ai_return("错误：未提供股票代码")
+        return await bot.send("请后跟股票代码使用")
+    # ... 原有逻辑完全不变 ...
+    await bot.send(im)
+```
+
+**关键点**：
+
+- `to_ai` 默认为 `""`，不注册 AI 工具，行为完全不变
+- `ai_return()` 在普通用户触发时静默忽略，AI 调用时收集文本作为工具返回值
+- AI 调用时使用 `MockBot` 拦截 `bot.send()`，AI 可决定是否真正发送图片
+- 详见 [AI Core API 文档](../AIFeatures/ai_core_api_for_plugins#83-by_trigger-工具categoryby_trigger)
+- 完整示例见 [触发器桥接示例](../AIFeatures/Examples#示例六触发器桥接to_ai让-ai-调用插件命令)
+
+#### `to_ai` 的 docstring 写法规范
+
+`to_ai` 写得好不好，决定 AI 能否正确调用触发器。**必须包含**：
+
+1. **一句话功能描述**
+2. **用户在什么自然语言场景下会需要这个功能**
+3. **Args 部分**：参数格式、可选前缀/后缀、至少两个具体例子
+
+```python
+# ✅ 有参数的命令
+to_ai="""查询指定游戏角色的培养详情和属性数据。
+当用户询问某个角色的命座、圣遗物、天赋、属性面板时调用。
+需要用户已绑定 UID。
+
+Args:
+    text: 角色名称，支持昵称。
+          例如 "雷电将军"、"雷神"（等同于雷电将军）、"胡桃"
+"""
+
+# ✅ 无参数的 fullmatch
+to_ai="""查看当前用户绑定的游戏 UID。
+当用户询问"我绑定了什么"、"我的UID是多少"时调用。
+无需参数。
+
+Args:
+    text: 无需参数，留空即可
+"""
+```
+
+#### `ai_return` — 向 AI 返回文本摘要
+
+在触发器函数中调用 `ai_return(text)`，向 AI 返回结构化文本摘要：
+
+- **普通用户触发时**：完全静默，不影响任何逻辑
+- **AI 调用时**：文本被收集，作为工具的返回值传回给 AI
+
+```python
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+@sv.on_command("查角色", to_ai="查询角色详情...")
+async def get_char_info(bot: Bot, ev: Event) -> None:
+    char_name = ev.text.strip()
+    if not char_name:
+        ai_return("错误：未提供角色名称")
+        return await bot.send("请输入角色名")
+
+    data = await fetch_char_data(char_name)
+    # 在数据拿到后、图片生成前注入 AI 文本摘要
+    ai_return(f"【{char_name}】等级: {data['level']}  命座: {data['constellation']}命")
+    im = await render_image(data)
+    await bot.send(im)
+```
+
+#### 哪些触发器不适合加 `to_ai`
+
+| 情况 | 原因 |
+|------|------|
+| 管理员/超级用户专用命令 | 不应让 AI 绕过权限 |
+| 危险操作（清数据、重载配置） | AI 不应独立执行破坏性操作 |
+| 需要多轮 Response 会话的命令 | 当前不支持 |
+| `on_file` 文件接收命令 | AI 无法构建文件输入 |

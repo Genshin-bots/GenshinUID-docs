@@ -1,0 +1,410 @@
+---
+title: "Skills 系统"
+description: "::: tip"
+icon: FileText
+---
+# Skills 系统
+
+<Callout type="info">
+**适合场景**：
+
+- 📝 想快速定义 AI 的角色和行为规范
+- 🎮 需要为不同场景配置不同的 AI 助手（攻略助手、客服助手等）
+- 👥 非程序员也想配置 AI 行为
+- 🔄 需要动态切换 AI 的工作模式
+
+Skills 就像是 AI 的"职业证书"。
+
+通过 YAML 文件，你可以给 AI 颁发"攻略专家证"、"客服专员证"、"翻译员证"，
+
+每个证书都规定了 AI 能做什么、不能做什么、应该怎么做！
+:::
+本文档介绍 GsCore AI Core 的 Skills 系统，用于为 AI 提供额外的指令和能力。
+
+## 概述
+
+Skills 是 PydanticAI 的技能系统，允许通过 YAML 或 Markdown 文件定义 AI 的额外能力和指令。这些技能文件可以被 AI 动态加载和使用。
+
+## 入口
+
+```python
+from gsuid_core.ai_core.skills import SKILLS_PATH, skills, skills_toolset
+```
+
+## 核心变量
+
+| 变量 | 类型 | 说明 |
+|------|------|------|
+| `SKILLS_PATH` | `Path` | Skills 文件目录路径 |
+| `skills` | `dict[str, Skill]` | 已加载的技能字典 |
+| `skills_toolset` | `SkillsToolset` | 技能工具集实例 |
+
+## Skills 目录结构
+
+Skills 文件存放在 `res/ai_core/skills/` 目录下：
+
+```
+res/ai_core/skills/
+├── my_skill.yaml
+├── custom_instruction.md
+└── another_skill.yaml
+```
+
+## YAML 格式 Skill
+
+### 基础结构
+
+```yaml
+# res/ai_core/skills/game_guide.yaml
+name: game_guide
+description: 游戏攻略查询技能
+
+instructions: |
+  你是一个游戏攻略助手，专门帮助玩家查询游戏信息。
+  
+  ## 能力
+  1. 查询角色培养攻略
+  2. 查询武器推荐
+  3. 查询圣遗物搭配
+  4. 查询队伍搭配建议
+  
+  ## 回复格式
+  1. 先确认玩家的问题
+  2. 提供详细的攻略信息
+  3. 给出具体的数值建议
+  4. 询问是否还有其他问题
+
+tools:
+  - search_knowledge
+  - query_character_info
+  - query_weapon_info
+```
+
+### 完整示例
+
+```yaml
+# res/ai_core/skills/character_assistant.yaml
+name: character_assistant
+description: 原神角色助手
+
+instructions: |
+  你是原神角色助手，专门帮助玩家了解角色信息。
+  
+  ## 角色信息范围
+  - 基础属性（生命值、攻击力、防御力）
+  - 技能介绍（普通攻击、元素战技、元素爆发）
+  - 天赋效果
+  - 命之座效果
+  - 培养材料
+  - 推荐武器
+  - 推荐圣遗物
+  
+  ## 回复风格
+  - 使用中文回复
+  - 数据准确，来源可靠
+  - 适当使用表格展示数据
+  - 重要信息加粗显示
+
+parameters:
+  - name: character_name
+    type: string
+    description: 角色名称
+    required: true
+  - name: info_type
+    type: string
+    description: 信息类型（基础/技能/天赋/命座/材料/武器/圣遗物）
+    required: false
+    default: 基础
+
+tools:
+  - search_knowledge
+  - query_character_build
+```
+
+## Markdown 格式 Skill
+
+### 基础结构
+
+Markdown 格式的 Skill 文件使用特定的格式定义：
+
+```markdown
+<!-- res/ai_core/skills/faq_assistant.md -->
+# FAQ 助手
+
+## 描述
+
+帮助回答常见问题的 AI 助手。
+
+## 指令
+
+你是一个 FAQ 助手，负责回答用户的常见问题。
+
+### 回答原则
+1. 准确回答用户问题
+2. 如果不确定，引导用户查看文档
+3. 保持友好和耐心
+
+### 常见话题
+- 账号绑定
+- 功能使用
+- 故障排查
+- 更新日志
+
+## 工具
+
+- search_knowledge
+- send_message_by_ai
+```
+
+### 完整示例
+
+```markdown
+<!-- res/ai_core/skills/daily_assistant.md -->
+# 每日助手
+
+## 描述
+
+帮助玩家完成每日任务的 AI 助手。
+
+## 指令
+
+你是每日任务助手，帮助玩家高效完成每日内容。
+
+### 每日清单
+1. 每日委托（4个）
+2. 消耗树脂
+3. 完成探索派遣
+4. 领取每日奖励
+
+### 回复模板
+
+**今日任务状态**
+- 每日委托: {status}
+- 树脂消耗: {current}/{max}
+- 探索派遣: {status}
+
+### 建议
+根据玩家当前状态给出合理的游戏建议。
+
+## 工具
+
+- query_daily_status
+- query_resin_status
+- query_exploration_status
+```
+
+## 加载 Skills
+
+### 自动加载
+
+GsCore 启动时会自动加载 `res/ai_core/skills/` 目录下的所有 Skill 文件。
+
+### 手动加载
+
+```python
+from gsuid_core.ai_core.skills import skills_toolset
+
+# 重新加载所有 skills
+skills_toolset.reload()
+
+# 获取特定 skill
+skill = skills.get("game_guide")
+if skill:
+    print(f"Skill: {skill.name}")
+    print(f"Description: {skill.description}")
+```
+
+## 在 Agent 中使用 Skills
+
+### 创建带 Skills 的 Agent
+
+```python
+from gsuid_core.ai_core.gs_agent import create_agent
+from gsuid_core.ai_core.skills import skills_toolset
+
+# 创建 Agent 时指定使用特定 skills
+agent = create_agent(
+    system_prompt="""
+你是一个游戏助手，可以使用以下技能：
+- game_guide: 查询游戏攻略
+- character_assistant: 查询角色信息
+""",
+)
+
+# 使用 skill 工具集
+async def use_skill(skill_name: str, query: str) -> str:
+    skill = skills.get(skill_name)
+    if not skill:
+        return f"Skill {skill_name} 不存在"
+    
+    # 使用 skill 的 instructions
+    agent = create_agent(system_prompt=skill.instructions)
+    result = await agent.run(query)
+    return result
+```
+
+## 动态 Skills 管理
+
+### 添加 Skill
+
+```python
+from gsuid_core.ai_core.skills import skills_toolset
+from pydantic_ai import Skill
+
+# 创建新 skill
+new_skill = Skill(
+    name="custom_skill",
+    description="自定义技能",
+    instructions="你是自定义助手...",
+    tools=["search_knowledge"],
+)
+
+# 添加到 skill 集合
+skills["custom_skill"] = new_skill
+```
+
+### 移除 Skill
+
+```python
+from gsuid_core.ai_core.skills import skills
+
+# 移除 skill
+if "custom_skill" in skills:
+    del skills["custom_skill"]
+```
+
+## 最佳实践
+
+### 1. Skill 命名规范
+
+```yaml
+# 使用小写字母和下划线
+name: character_build_guide  # 好的命名
+name: CharacterBuildGuide      # 避免使用驼峰
+name: character-build-guide    # 避免使用连字符
+```
+
+### 2. 指令编写
+
+```yaml
+instructions: |
+  # 清晰的标题结构
+  
+  ## 角色定位
+  明确说明 Skill 的角色和能力范围。
+  
+  ## 能力范围
+  1. 具体能力1
+  2. 具体能力2
+  
+  ## 限制条件
+  - 不能做某事
+  - 需要满足某条件
+  
+  ## 回复格式
+  规定统一的回复格式。
+```
+
+### 3. 工具选择
+
+```yaml
+tools:
+  # 只列出必要的工具
+  - search_knowledge      # 知识库检索
+  - query_user_info       # 查询用户信息
+  # 避免添加无关工具
+```
+
+## 完整示例
+
+### 游戏攻略 Skill
+
+```yaml
+# res/ai_core/skills/genshin_guide.yaml
+name: genshin_guide
+description: 原神游戏攻略助手
+
+instructions: |
+  你是原神游戏攻略助手，专门帮助玩家解决游戏中的问题。
+  
+  ## 专业领域
+  - 角色培养（等级、天赋、命座）
+  - 武器选择（主C、副C、辅助）
+  - 圣遗物搭配（主词条、副词条、套装）
+  - 队伍搭配（反应、共鸣、循环）
+  - 游戏机制（元素反应、伤害计算）
+  
+  ## 数据标准
+  - 使用最新的游戏数据
+  - 提供具体的数值建议
+  - 说明数据来源和版本
+  
+  ## 回复结构
+  1. **问题确认**: 确认理解玩家的问题
+  2. **核心答案**: 直接回答核心问题
+  3. **详细说明**: 提供详细的解释和数据
+  4. **相关建议**: 给出相关的额外建议
+  5. **确认帮助**: 询问是否解决了问题
+
+tools:
+  - search_knowledge
+  - query_character_build
+  - query_weapon_list
+  - query_artifact_recommendation
+```
+
+### 客服 Skill
+
+```yaml
+# res/ai_core/skills/customer_service.yaml
+name: customer_service
+description: 客服助手
+
+instructions: |
+  你是客服助手，帮助用户解决使用问题。
+  
+  ## 服务范围
+  - 功能使用指导
+  - 常见问题解答
+  - 故障排查协助
+  - 反馈收集记录
+  
+  ## 服务原则
+  1. 耐心倾听用户问题
+  2. 准确理解问题本质
+  3. 提供清晰的解决方案
+  4. 确认问题已解决
+  
+  ## 处理流程
+  1. 问候并确认问题
+  2. 分析问题原因
+  3. 提供解决方案
+  4. 引导用户操作
+  5. 确认问题解决
+  
+  ## 升级处理
+  当遇到以下情况时，建议联系人工客服：
+  - 涉及账号安全
+  - 需要退款处理
+  - 技术问题无法解决
+  - 用户要求人工服务
+
+tools:
+  - search_knowledge
+  - query_user_info
+  - send_message_by_ai
+```
+
+## 注意事项
+
+1. **文件位置**：确保 Skill 文件放在正确的目录下
+2. **格式正确**：YAML 文件需要符合 YAML 语法规范
+3. **命名唯一**：Skill 名称需要全局唯一
+4. **工具存在**：引用的工具需要已注册
+5. **及时更新**：随着功能更新，及时更新 Skill 内容
+
+## 下一步
+
+- [工具注册](./Tools) - 学习如何注册自定义工具
+- [Agent创建](./Agent) - 了解临时 Agent 的用法
+- [完整示例](./Examples) - 查看更多开发示例

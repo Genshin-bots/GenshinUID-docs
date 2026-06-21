@@ -3,7 +3,8 @@
     "target": "es2020",
     "module": "esnext",
     "types": [
-      "bun-types"
+      "bun-types",
+      "node"
     ],
     "lib": [
       "ESNext",
@@ -20,11 +21,34 @@
     "rootDir": ".",
     "baseUrl": ".",
     "jsx": "preserve",
+    "allowJs": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "incremental": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/content/*": ["./content/*"],
+      "@/package.json": ["./package.json"],
+      "collections/*": [".source/*"]
+    }
   },
   "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".source/**/*.ts",
     "docs",
     "docs/src/*.json",
     "docs/.vitepress/components/*.vue",
@@ -32,6 +56,8 @@
   ],
   "exclude": [
     "**/node_modules/**",
-    "**/dist/**"
+    "**/dist/**",
+    "**/out/**",
+    "**/.next/**"
   ]
 }

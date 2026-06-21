@@ -1,0 +1,56 @@
+name: Fumadocs (Next.js) Deployment
+
+on:
+  push:
+    branches:
+      - fumadocs
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: fumadocs
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: 🚧 Install dependencies
+        run: |
+          npm install -g yarn
+          yarn install --frozen-lockfile
+
+      - name: 🔨 Type check
+        run: yarn tsc --noEmit
+        continue-on-error: true
+
+      - name: 🚀 Build Next.js application
+        env:
+          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
+          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
+        run: |
+          yarn build:next
+
+      - name: 📦 Post-build (CNAME)
+        run: yarn postbuild:next
+
+      - name: 🎉 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          cname: docs.sayu-bot.com
+          force_orphan: true
+          keep_files: false
+          commit_message: ${{ github.event.head_commit.message }}
+          enable_jekyll: false
+          disable_nojekyll: false

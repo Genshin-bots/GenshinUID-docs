@@ -1,0 +1,145 @@
+---
+title: "简单介绍"
+description: "::: tip"
+icon: FileText
+---
+# 简单介绍<Badge type="tip" text="简单" />
+
+<Callout type="info">
+借助适配器、`gsuid_core`的插件将同时适配全平台
+
+但是`gsuid_core`本身并不支持高级的`Bot`功能，例如缺失元事件等消息类型，以及点赞，表情表态等平台强相关Action
+
+:::
+### GsCore插件的优势
+
+- 适配**大部分平台**（QQ、QQ频道、微信、TG、KOOK、飞书、QQ群官方机器人、Red协议），未来还会加入更多支持
+- 适配**大部分Bot**（NoneBot2，HoshinoBot、yunzai-bot、Koishi、ZeroBot）
+- **一次编写**，便可在以上平台 & Bot中畅快运行，**转换平台时无需修改代码**
+- 支持插件用**简单的方式**，向**网页控制台**添加配置、映射数据表，便于Bot管理数据
+- **统一数据库、统一配置代码、统一图片转换**
+- 内置 **AI Core 系统**，插件命令可通过 `to_ai` 参数零成本接入 AI，用户可直接用自然语言触发插件功能
+  - 支持 AI 工具注册（`@ai_tools`）、知识库注册（`ai_entity`）、别名注册（`ai_alias`）、临时 Agent 创建（`create_agent`）
+  - 详见 [AI 功能概述](/AIFeatures/) 和 [AI 插件编写简介](/AIFeatures/ai_core_api_for_plugins)
+- 也就是说，如果你的插件类型为**工具类Bot**，使用GsCore开发将获得极大的便利性！
+  - 因为已经为你内置好了**多平台支持**（包括按钮消息和MD）、配置持久化、网页控制台、数据库、和众多图片操作、为常见的命令也提供了相应接口
+
+
+### GsCore插件不支持的
+
+- 平台特性相关：戳一戳、点赞、撤回、表情、踢人、红包等动作（仅支持**收发信息**）
+- 如果你的Bot强烈用到上面功能，例如**群管Bot**等，**强烈不建议**使用GsCore完成业务需求！
+
+
+
+###  🔥完全没写过插件？完全不会Python？没关系！
+
+我们为你准备了从零开始的案例教程！
+
+仅需6000字，跟着教程一起做，就带你掌握：
+
+- **插件命令编写**
+- **实际业务功能**
+- **API对接**
+- **配置持久化**
+- **数据库存读用户数据**
+- **网页控制台对接**
+
+ 👉[快速入门案例教程](./CookBook.md)
+
+---
+
+## 启动流程说明
+
+GsCore 的启动流程分为以下阶段：
+
+```
+main()
+  ├── init_database()                    # 初始化数据库
+  ├── load_gss()                         # 插件加载（注册钩子，不执行）
+  ├── uvicorn.Server.serve()             # WS 服务启动
+  └── lifespan:
+        ├── await core_start_before_execute()       # 阻塞执行启动前钩子
+        ├── asyncio.create_task(core_start_execute()) # 后台异步执行启动后钩子
+        ├── _setup_frontend()             # 前端初始化
+        ├── start_scheduler()             # 启动定时任务调度器
+        └── yield
+```
+
+## 启动钩子
+
+GsCore 提供了启动钩子系统，允许插件在 Core 启动时执行初始化逻辑。
+
+### `on_core_start_before` — 启动前钩子
+
+在 WS 服务启动**之前**阻塞执行，适合数据库迁移、全局变量加载等必须在连接建立前完成的操作。
+
+```python
+from gsuid_core.server import on_core_start_before
+
+@on_core_start_before
+async def my_before_hook():
+    # 必须在 WS 连接前完成的操作
+    ...
+
+@on_core_start_before(priority=5)
+async def my_before_hook_with_priority():
+    # 带优先级的启动前钩子
+    ...
+```
+
+### `on_core_start` — 启动后钩子
+
+在 WS 服务启动**之后**作为后台任务异步执行，适合网络请求、模型下载等耗时操作。
+
+```python
+from gsuid_core.server import on_core_start
+
+@on_core_start
+async def my_hook():
+    # 耗时的初始化操作，不影响 WS 连接
+    ...
+```
+
+### 选择指南
+
+| 场景 | 推荐钩子 |
+|------|----------|
+| 数据库 Schema 变更（ALTER TABLE、CREATE INDEX） | `on_core_start_before` |
+| 迁移文件或数据 | `on_core_start_before` |
+| 加载全局配置/变量，后续消息处理依赖 | `on_core_start_before` |
+| 注册 AI 知识库内容 | `on_core_start`（priority=0，等 RAG 初始化后） |
+| 网络请求（下载模型、同步数据） | `on_core_start` |
+| 初始化耗时较长的后台服务 | `on_core_start` |
+| 不影响消息处理的核心功能 | `on_core_start` |
+
+<Callout type="warn">
+`plugins` 文件夹中的插件不受影响，现有的 `@on_core_start` 装饰器继续正常工作。
+
+插件开发者可以根据需要自行迁移到 `@on_core_start_before`，但这不是必须的。
+
+:::
+## Plugins 类 — 插件级配置
+
+`Plugins` 类用于声明插件的全局配置（前缀、权限、别名等），是 `SV` 的上层配置。
+
+```python
+from gsuid_core.sv import Plugins
+
+Plugins(
+    name="MyPlugin",              # 插件名称，必须与目录名一致
+    force_prefix=["my", "插件"],   # 强制前缀列表
+    allow_empty_prefix=False,      # 是否允许无前缀触发
+    alias=["mp"],                  # 插件别名
+)
+```
+
+**`Plugins` vs `SV` 的关系**：
+- `Plugins` 是**插件级**配置，定义整个插件的前缀、权限等共享设置
+- `SV` 是**服务模块级**配置，定义单个功能模块的触发器和权限
+- 一个 `Plugins` 下可以有多个 `SV` 实例
+- `SV` 创建时会自动查找同名 `Plugins` 实例，继承其前缀配置
+
+详见 [插件前缀](./PluginsPrefix) 文档。
+
+ 

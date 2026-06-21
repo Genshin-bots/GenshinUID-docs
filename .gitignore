@@ -25,5 +25,8 @@ pnpm-lock.yaml
 meta.json
 
 dist
+out
+.next
+.source
 
 /.idea
