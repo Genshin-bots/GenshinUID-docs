@@ -2,6 +2,13 @@
 @import 'fumadocs-ui/css/vitepress.css';
 @import 'fumadocs-ui/css/preset.css';
 
+/* 告诉 Tailwind v4 扫描这些路径以生成工具类 */
+@source "../app/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../content/**/*.{md,mdx}";
+@source "../hooks/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+
 /* 自定义品牌色 - 早柚红 */
 @theme {
   --color-fd-primary: oklch(0.55 0.2 25);
@@ -9,41 +16,11 @@
   --color-fd-ring: oklch(0.55 0.2 25);
 }
 
-/* MiSans 字体 */
-@font-face {
-  font-family: 'MiSans';
-  font-weight: 400;
-  font-display: swap;
-  src: url('/font/MiSans-Medium/MiSans-Medium.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'MiSans';
-  font-weight: 500;
-  font-display: swap;
-  src: url('/font/MiSans-Medium/MiSans-Medium.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'MiSans';
-  font-weight: 600;
-  font-display: swap;
-  src: url('/font/MiSans-Demibold/MiSans-Demibold.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'MiSans';
-  font-weight: 700;
-  font-display: swap;
-  src: url('/font/MiSans-Bold/MiSans-Bold.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'MiSans';
-  font-weight: 900;
-  font-display: swap;
-  src: url('/font/MiSans-Heavy/MiSans-Heavy.woff2') format('woff2');
-}
+/* MiSans 字体 - 引入原始 font-slice 生成的 unicode-range 子字体 */
+@import url('/font/MiSans-Bold/font.css') layer(fonts);
+@import url('/font/MiSans-Demibold/font.css') layer(fonts);
+@import url('/font/MiSans-Heavy/font.css') layer(fonts);
+@import url('/font/MiSans-Medium/font.css') layer(fonts);
 
 :root {
   --font-sans: 'MiSans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
