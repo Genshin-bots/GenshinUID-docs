@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { HomeContributors } from '@/components/HomeContributors'
 import { Members } from '@/components/Members'
 import { i18n, type Language } from '@/lib/i18n'
@@ -22,13 +23,18 @@ export default async function HomePage({ params }: HomeProps) {
     <main className="fd-default-layout">
       {/* Hero Section */}
       <section className="home-hero">
-        <div className="mx-auto max-w-4xl px-4">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="home-hero-eyebrow">
+            <Sparkles className="size-3.5" />
+            <span>{content.hero.eyebrow ?? 'GsCore · 一个 Python Bot 框架'}</span>
+          </div>
           <h1>{content.hero.name}</h1>
-          <p className="text-2xl font-semibold text-fd-foreground/80 mb-2">{content.hero.text}</p>
+          <p className="text-2xl">{content.hero.text}</p>
           <p className="tagline">{content.hero.tagline}</p>
           <div className="actions">
             {content.hero.actions.map((action) => {
               const isExternal = action.link.startsWith('http')
+              const className = action.primary ? 'btn-primary' : 'btn-ghost'
               if (isExternal) {
                 return (
                   <a
@@ -36,19 +42,17 @@ export default async function HomePage({ params }: HomeProps) {
                     href={action.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-md bg-fd-primary px-5 py-2.5 text-sm font-medium text-fd-primary-foreground hover:opacity-90 transition-opacity"
+                    className={className}
                   >
                     {action.text}
+                    <ArrowRight className="size-4" />
                   </a>
                 )
               }
               return (
-                <Link
-                  key={action.text}
-                  href={`/${lang}${action.link}`}
-                  className="inline-flex items-center justify-center rounded-md border border-fd-border bg-fd-background px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent transition-colors"
-                >
+                <Link key={action.text} href={`/${lang}${action.link}`} className={className}>
                   {action.text}
+                  <ArrowRight className="size-4" />
                 </Link>
               )
             })}
@@ -57,11 +61,16 @@ export default async function HomePage({ params }: HomeProps) {
       </section>
 
       {/* Features Section */}
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-7xl px-6 features-section">
+        <h2 className="features-section-title">
+          {content.featuresTitle ?? '为什么选择 GsCore'}
+        </h2>
         <div className="features-grid">
-          {content.features.map(feature => (
+          {content.features.map((feature) => (
             <div key={feature.title} className="feature-card">
-              <div className="icon">{feature.icon}</div>
+              <div className="icon" aria-hidden>
+                {feature.icon}
+              </div>
               <h3>{feature.title}</h3>
               <p>{feature.details}</p>
               {feature.link && (
@@ -69,8 +78,10 @@ export default async function HomePage({ params }: HomeProps) {
                   href={feature.link.startsWith('http') ? feature.link : `/${lang}${feature.link}`}
                   target={feature.link.startsWith('http') ? '_blank' : undefined}
                   rel={feature.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="feature-link"
                 >
-                  {feature.linkText || '了解更多 →'}
+                  {feature.linkText || '了解更多'}
+                  <ArrowRight className="size-3.5" />
                 </Link>
               )}
             </div>
@@ -79,43 +90,32 @@ export default async function HomePage({ params }: HomeProps) {
       </section>
 
       {/* Team Section */}
-      <section className="team-section">
-        <div className="mx-auto max-w-6xl px-4">
-          <Members members={content.teamMembers} />
+      <section className="mx-auto max-w-6xl px-6 section-block">
+        <h2 className="section-title">{content.teamTitle ?? '核心团队'}</h2>
+        <Members members={content.teamMembers} />
 
-          <h2 style={{ fontSize: '1.5em', fontWeight: 'bold', margin: '2em 0 0.5em 0' }}>
-            {content.contributorsTitle}
-          </h2>
-          <HomeContributors />
+        <h2 className="section-title" style={{ marginTop: '3rem' }}>
+          <Star className="size-5 inline-block -mt-1 mr-1.5 text-fd-primary" />
+          {content.contributorsTitle}
+        </h2>
+        <HomeContributors />
 
-          <h2 style={{ fontSize: '1.5em', fontWeight: 'bold', margin: '2em 0 1em 0' }}>
-            {content.supportTitle}
-          </h2>
-
-          <div style={{ marginTop: '2em', display: 'flex', justifyContent: 'center', gap: '1.5em', flexWrap: 'wrap' }}>
-            {content.supportLinks.map(link => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5em',
-                  fontSize: '1.1em',
-                  padding: '0.75em 1.5em',
-                  border: '1px solid var(--color-fd-border)',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: 'var(--color-fd-foreground)',
-                }}
-              >
-                <span style={{ fontSize: '1.5em' }}>{link.icon}</span>
-                {link.label}
-              </a>
-            ))}
-          </div>
+        <h2 className="section-title" style={{ marginTop: '3rem' }}>
+          {content.supportTitle}
+        </h2>
+        <div className="support-links">
+          {content.supportLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="support-link"
+            >
+              <span className="icon">{link.icon}</span>
+              {link.label}
+            </a>
+          ))}
         </div>
       </section>
     </main>

@@ -212,8 +212,8 @@ async def send_stock_img(bot: Bot, ev: Event):
 - `to_ai` 默认为 `""`，不注册 AI 工具，行为完全不变
 - `ai_return()` 在普通用户触发时静默忽略，AI 调用时收集文本作为工具返回值
 - AI 调用时使用 `MockBot` 拦截 `bot.send()`，AI 可决定是否真正发送图片
-- 详见 [AI Core API 文档](../AIFeatures/ai_core_api_for_plugins#83-by_trigger-工具categoryby_trigger)
-- 完整示例见 [触发器桥接示例](../AIFeatures/Examples#示例六触发器桥接to_ai让-ai-调用插件命令)
+- 详见 [AI Core API 文档](../ai-features/ai_core_api_for_plugins#83-by_trigger-工具categoryby_trigger)
+- 完整示例见 [触发器桥接示例](../ai-features/examples#示例六触发器桥接to_ai让-ai-调用插件命令)
 
 #### `to_ai` 的 docstring 写法规范
 

@@ -50,6 +50,26 @@ function getBadgeType(type: string): 'tip' | 'danger' | 'info' | 'warning' | und
   return undefined
 }
 
+// GitHub 的 https://github.com/user.png URL 在某些情况下会重定向到一个透明的 1x1 图。
+// 用 onError 兜住，失败时显示首字母占位。
+function PluginAvatar({ name, src }: { name: string; src: string }) {
+  const [errored, setErrored] = useState(false)
+  const initial = (name || '?').trim().charAt(0).toUpperCase()
+
+  if (errored || !src) {
+    return <div className="fd-plugin-avatar-fallback" aria-hidden>{initial}</div>
+  }
+
+  return (
+    <img
+      loading="lazy"
+      src={src}
+      alt={`${name}'s avatar`}
+      onError={() => setErrored(true)}
+    />
+  )
+}
+
 function PluginCard({ name, data }: { name: string; data: PluginData }) {
   const deprecated = isDeprecated(data)
 
@@ -80,7 +100,7 @@ function PluginCard({ name, data }: { name: string; data: PluginData }) {
         <p className="fd-plugin-description">{data.info}</p>
       </div>
       <div className="fd-plugin-avatar">
-        <img loading="lazy" src={data.avatar} alt={`${name}'s avatar`} />
+        <PluginAvatar name={name} src={data.avatar} />
       </div>
       <div className="fd-plugin-arrow">
         <ArrowRight className="h-4 w-4" />

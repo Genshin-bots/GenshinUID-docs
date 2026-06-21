@@ -1,6 +1,6 @@
 ---
 title: "HTTP调用"
-description: ":::info"
+description: "无法建立 WebSocket 连接时，通过 HTTP 调用 GsCore 的方式。"
 icon: FileText
 ---
 
@@ -22,7 +22,7 @@ HTTP调用方式**依旧需要提供**完整的MessageReceive结构体。
    - 打开`gsuid_core/data/config.json`
    - 找到`ENABLE_HTTP`配置项，将其设置为`true`
 2. 依旧是默认8765端口（如有自行修改，以修改的为准），终结点为`/api/send_msg`
-3. POST方法，数据内容为`MessageReceive`，[数据结构](../CodeAdapter/Pack)，以下为调用示例：
+3. POST方法，数据内容为`MessageReceive`，[数据结构](../code-adapter/pack)，以下为调用示例：
 
 ```python
 async def http_test():

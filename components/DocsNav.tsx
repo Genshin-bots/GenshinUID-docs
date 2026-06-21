@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Languages, Moon, Sun, Search, Github } from 'lucide-react'
+import { Languages, Moon, Sun, Search, Github, ChevronDown, Menu } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchContext } from 'fumadocs-ui/contexts/search'
+import { useSidebar } from 'fumadocs-ui/layouts/docs/slots/sidebar'
 import type { Language } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { getNavItems, getVersionNavItems, getLanguageOptions } from '@/lib/nav-config'
@@ -18,164 +20,214 @@ export function DocsNav({ lang }: DocsNavProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
-  const [showLangMenu, setShowLangMenu] = useState(false)
-  const version = packageJson.version
+  const [mounted, setMounted] = useState(false)
+  const navRef = useRef<HTMLDivElement>(null)
+  const { setOpenSearch } = useSearchContext()
+  const { setOpen: setSidebarOpen } = useSidebar()
 
+  // Hydration safety
+  useEffect(() => setMounted(true), [])
+
+  // Click outside closes menus
+  useEffect(() => {
+    if (!openMenu) return
+    const onDown = (e: MouseEvent) => {
+      if (!navRef.current?.contains(e.target as Node)) setOpenMenu(null)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [openMenu])
+
+  const version = packageJson.version
   const navItems = getNavItems(lang)
   const versionItems = getVersionNavItems(version, lang)
   const languageOptions = getLanguageOptions()
 
+  const toggle = (key: string) => setOpenMenu(openMenu === key ? null : key)
+  const close = () => setOpenMenu(null)
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-fd-border bg-fd-background/80 backdrop-blur-md">
-      <div className="flex h-14 items-center justify-between gap-4 px-4 lg:px-6 max-w-[1400px] mx-auto">
+    <header className="glass-header">
+      <div
+        ref={navRef}
+        className="flex h-14 items-center justify-between gap-4 px-4 lg:px-8 max-w-[96rem] mx-auto"
+      >
+        {/* Mobile sidebar trigger */}
+        <button
+          type="button"
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-lg text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground transition-colors"
+          aria-label="打开侧边栏"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         {/* Logo */}
         <Link
           href={`/${lang}/`}
-          className="flex items-center gap-2 font-semibold text-fd-foreground"
+          className="group flex items-center gap-2.5 font-semibold text-fd-foreground shrink-0"
         >
-          <img src="/favicon.ico" alt="Logo" className="h-7 w-7" />
-          <span className="hidden sm:inline-block">早柚核心Docs</span>
+          <img
+            src="/favicon.ico"
+            alt=""
+            className="h-7 w-7 shrink-0 transition-transform group-hover:scale-105"
+          />
+          <span className="hidden sm:inline-block tracking-tight">早柚核心Docs</span>
         </Link>
 
         {/* Nav Items */}
-        <nav className="flex flex-1 items-center justify-center gap-1">
+        <nav className="hidden md:flex flex-1 items-center justify-center gap-0.5 min-w-0">
           {navItems.map((item) => (
-            <div
-              key={item.label}
-              className="relative"
-              onMouseEnter={() => setOpenMenu(item.label)}
-              onMouseLeave={() => setOpenMenu(null)}
-            >
+            <div key={item.label} className="relative">
               <button
                 type="button"
+                onClick={() => toggle(item.label)}
                 className={cn(
-                  'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium',
+                  'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium transition-colors',
                   'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
-                  'transition-colors',
+                  openMenu === item.label && 'bg-fd-accent text-fd-foreground',
                 )}
               >
-                {item.label}
+                <span className="truncate max-w-[12rem]">{item.label}</span>
+                <ChevronDown
+                  className={cn(
+                    'size-3.5 transition-transform duration-200',
+                    openMenu === item.label && 'rotate-180',
+                  )}
+                />
               </button>
               {openMenu === item.label && item.items && (
-                <div className="absolute left-0 top-full pt-1">
-                  <div className="min-w-[200px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-lg">
-                    {item.items.map(sub => (
-                      <Link
-                        key={sub.label}
-                        href={sub.href}
-                        target={sub.external ? '_blank' : undefined}
-                        rel={sub.external ? 'noopener noreferrer' : undefined}
-                        className={cn(
-                          'block rounded-sm px-3 py-2 text-sm',
-                          'text-fd-foreground hover:bg-fd-accent',
-                          pathname === sub.href && 'bg-fd-accent',
-                        )}
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
+                <div
+                  className="absolute left-0 top-full mt-1.5 min-w-[220px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
+                  style={{ animationDuration: '150ms' }}
+                >
+                  {item.items.map((sub) => (
+                    <Link
+                      key={sub.label}
+                      href={sub.href}
+                      target={sub.external ? '_blank' : undefined}
+                      rel={sub.external ? 'noopener noreferrer' : undefined}
+                      onClick={close}
+                      className={cn(
+                        'block rounded-md px-3 py-2 text-sm transition-colors',
+                        'text-fd-foreground hover:bg-fd-accent',
+                        pathname === sub.href && 'bg-fd-accent font-medium',
+                      )}
+                    >
+                      {sub.label}
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
           ))}
 
           {/* Version dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setOpenMenu('version')}
-            onMouseLeave={() => setOpenMenu(null)}
-          >
+          <div className="relative">
             <button
               type="button"
+              onClick={() => toggle('version')}
               className={cn(
-                'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium',
+                'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium transition-colors',
                 'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
-                'transition-colors',
+                openMenu === 'version' && 'bg-fd-accent text-fd-foreground',
               )}
             >
               v{version}
+              <ChevronDown
+                className={cn(
+                  'size-3.5 transition-transform duration-200',
+                  openMenu === 'version' && 'rotate-180',
+                )}
+              />
             </button>
             {openMenu === 'version' && (
-              <div className="absolute right-0 top-full pt-1">
-                <div className="min-w-[200px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-lg">
-                  {versionItems.map(sub => (
-                    <Link
-                      key={sub.label}
-                      href={sub.href}
-                      target={sub.external ? '_blank' : undefined}
-                      rel={sub.external ? 'noopener noreferrer' : undefined}
-                      className="block rounded-sm px-3 py-2 text-sm text-fd-foreground hover:bg-fd-accent"
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-                </div>
+              <div
+                className="absolute right-0 top-full mt-1.5 min-w-[200px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
+                style={{ animationDuration: '150ms' }}
+              >
+                {versionItems.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    target={sub.external ? '_blank' : undefined}
+                    rel={sub.external ? 'noopener noreferrer' : undefined}
+                    onClick={close}
+                    className="block rounded-md px-3 py-2 text-sm text-fd-foreground hover:bg-fd-accent transition-colors"
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
               </div>
             )}
           </div>
         </nav>
 
-        {/* Right side: Search, Theme, Language, GitHub */}
-        <div className="flex items-center gap-1">
+        {/* Right side */}
+        <div className="flex items-center gap-0.5 shrink-0">
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground md:w-auto md:gap-2 md:px-3"
+            onClick={() => setOpenSearch(true)}
+            className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground transition-colors"
             aria-label="搜索"
-            onClick={() => {
-              // 触发搜索对话框 - Fumadocs SearchDialog 自带
-              const event = new CustomEvent('open-fd-search')
-              window.dispatchEvent(event)
-            }}
           >
             <Search className="h-4 w-4" />
-            <span className="hidden md:inline text-sm">搜索</span>
+            <span className="hidden md:inline">搜索</span>
+            <kbd className="hidden md:inline-flex h-5 items-center rounded border border-fd-border bg-fd-muted/50 px-1.5 text-[10px] font-mono text-fd-muted-foreground">
+              ⌘K
+            </kbd>
           </button>
 
           <button
             type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground transition-colors"
             aria-label="切换主题"
           >
-            <Sun className="h-4 w-4 dark:hidden" />
-            <Moon className="h-4 w-4 hidden dark:block" />
+            {mounted && theme === 'dark' ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </button>
 
           {/* Language Switcher */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setShowLangMenu(!showLangMenu)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground"
+              onClick={() => toggle('lang')}
+              className={cn(
+                'inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors',
+                'text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground',
+                openMenu === 'lang' && 'bg-fd-accent text-fd-foreground',
+              )}
               aria-label="切换语言"
             >
               <Languages className="h-4 w-4" />
             </button>
-            {showLangMenu && (
-              <>
-                <div
-                  className="fixed inset-0 z-30"
-                  onClick={() => setShowLangMenu(false)}
-                />
-                <div className="absolute right-0 top-full z-40 pt-1">
-                  <div className="min-w-[140px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-lg">
-                    {languageOptions.map(opt => (
-                      <Link
-                        key={opt.code}
-                        href={opt.href(pathname)}
-                        className={cn(
-                          'block rounded-sm px-3 py-2 text-sm',
-                          'text-fd-foreground hover:bg-fd-accent',
-                          lang === opt.code && 'bg-fd-accent',
-                        )}
-                      >
-                        {opt.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </>
+            {openMenu === 'lang' && (
+              <div
+                className="absolute right-0 top-full mt-1.5 min-w-[160px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
+                style={{ animationDuration: '150ms' }}
+              >
+                {languageOptions.map((opt) => (
+                  <Link
+                    key={opt.code}
+                    href={opt.href(pathname)}
+                    onClick={close}
+                    className={cn(
+                      'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
+                      'text-fd-foreground hover:bg-fd-accent',
+                      lang === opt.code && 'bg-fd-accent font-medium',
+                    )}
+                  >
+                    {opt.name}
+                    {lang === opt.code && (
+                      <span className="size-1.5 rounded-full bg-fd-primary" />
+                    )}
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
 
@@ -183,7 +235,7 @@ export function DocsNav({ lang }: DocsNavProps) {
             href="https://github.com/Genshin-bots/GenshinUID-docs"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground transition-colors"
             aria-label="GitHub"
           >
             <Github className="h-4 w-4" />

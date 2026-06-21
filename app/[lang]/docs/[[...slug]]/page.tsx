@@ -6,10 +6,17 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page
 import { getMDXComponents } from '@/components/mdx'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
+import { DocsArticleContainer } from '@/components/DocsArticleContainer'
 
 interface PageProps {
   params: Promise<{ lang: string; slug?: string[] }>
 }
+
+// output: export 模式下, [[...slug]] 路由必须在 generateStaticParams 列出所有合法 slug,
+// 遇到未列出的 slug 应该直接 404,而不是尝试动态渲染。
+// 不加这一行,任何指向不存在 MDX 的链接都会让 dev server 报:
+//   "Page ... is missing param ... in generateStaticParams()"
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const params: { lang: string; slug: string[] }[] = []
@@ -64,10 +71,16 @@ export default async function Page({ params }: PageProps) {
         single: false,
       }}
       breadcrumb={{ enabled: true }}
+      footer={{ className: 'mt-12' }}
+      slots={{
+        container: DocsArticleContainer,
+      }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <div className="flex flex-row items-center gap-2 border-b pb-4">
+      <div className="fd-doc-banner">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription>{page.data.description}</DocsDescription>
+      </div>
+      <div className="flex flex-row items-center gap-2 mb-7">
         <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
         <ViewOptions markdownUrl={`${page.url}.mdx`} githubUrl={editUrl} />
       </div>

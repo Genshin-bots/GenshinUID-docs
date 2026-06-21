@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react'
 import { notFound } from 'next/navigation'
-import { RootProvider } from 'fumadocs-ui/provider/next'
 import { i18n, type Language } from '@/lib/i18n'
-import { i18nUI } from '@/lib/layout.shared'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@/components/Analytics'
+import { Providers } from '@/components/Providers'
 import '@/app/global.css'
 
 const inter = Inter({
@@ -60,10 +59,10 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
         <link rel="stylesheet" href="/font/MiSans-Heavy/font.css" />
       </head>
       <body className="flex min-h-screen flex-col">
-        <RootProvider i18n={i18nUI.provider(lang as Language)}>
+        <Providers lang={lang as Language}>
           {children}
           <Analytics />
-        </RootProvider>
+        </Providers>
       </body>
     </html>
   )

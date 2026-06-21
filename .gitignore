@@ -28,4 +28,8 @@ out
 .next
 .source
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
 /.idea

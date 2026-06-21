@@ -3,6 +3,7 @@ import type { Language } from '@/lib/i18n'
 interface HeroAction {
   text: string
   link: string
+  primary?: boolean
 }
 
 interface Feature {
@@ -31,9 +32,12 @@ interface HomeContent {
     name: string
     text: string
     tagline: string
+    eyebrow?: string
     actions: HeroAction[]
   }
+  featuresTitle?: string
   features: Feature[]
+  teamTitle?: string
   teamMembers: TeamMember[]
   contributorsTitle: string
   supportTitle: string
@@ -91,14 +95,17 @@ export function getHomeContent(lang: Language): HomeContent {
       hero: {
         name: 'Sayu Core',
         text: 'GsCore',
-        tagline: '💖 One business logic, multiple platforms!',
+        eyebrow: 'A modern Python Bot framework',
+        tagline: '💖 One business logic, multiple platforms — write once, run everywhere.',
         actions: [
-          { text: 'Quick Start', link: '/docs/started/install-core/' },
+          { text: 'Quick Start', link: '/docs/started/install-core/', primary: true },
           { text: 'Write Plugin', link: '/docs/code-plugins/start/' },
           { text: 'Introduction', link: '/docs/advance/base-info/' },
         ],
       },
+      featuresTitle: 'Why GsCore',
       features: enFeatures,
+      teamTitle: 'Core Team',
       teamMembers,
       contributorsTitle: 'Thanks to contributors',
       supportTitle: 'Get help / support',
@@ -111,14 +118,17 @@ export function getHomeContent(lang: Language): HomeContent {
       hero: {
         name: 'さゆコア',
         text: 'GsCore',
-        tagline: '💖 一つのビジネスロジック、複数のプラットフォーム！',
+        eyebrow: 'モダンな Python Bot フレームワーク',
+        tagline: '💖 一つのビジネスロジック、複数のプラットフォーム — 一度書けば、どこでも動く。',
         actions: [
-          { text: 'クイックスタート', link: '/docs/started/install-core/' },
+          { text: 'クイックスタート', link: '/docs/started/install-core/', primary: true },
           { text: 'プラグイン開発', link: '/docs/code-plugins/start/' },
           { text: 'はじめに', link: '/docs/advance/base-info/' },
         ],
       },
+      featuresTitle: 'GsCore を選ぶ理由',
       features: jaFeatures,
+      teamTitle: 'コアチーム',
       teamMembers,
       contributorsTitle: '貢献者に感謝',
       supportTitle: 'ヘルプ / サポート',
@@ -131,14 +141,17 @@ export function getHomeContent(lang: Language): HomeContent {
     hero: {
       name: '早柚核心',
       text: 'GsCore',
-      tagline: '💖一套业务逻辑，多个平台支持！',
+      eyebrow: '现代化的 Python Bot 框架',
+      tagline: '💖 一套业务逻辑，多个平台支持——一次编写，到处运行。',
       actions: [
-        { text: '快速开始', link: '/docs/started/install-core/' },
+        { text: '快速开始', link: '/docs/started/install-core/', primary: true },
         { text: '编写插件', link: '/docs/code-plugins/start/' },
         { text: '简单介绍', link: '/docs/advance/base-info/' },
       ],
     },
+    featuresTitle: '为什么选择 GsCore',
     features: zhFeatures,
+    teamTitle: '核心团队',
     teamMembers,
     contributorsTitle: '感谢成员贡献',
     supportTitle: '获得帮助/支持',
