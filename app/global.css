@@ -366,36 +366,314 @@ body {
 }
 
 /* ==========================================================================
-   首页 Hero
+   首页 Hero · 视差滚动 / 滚动驱动动画
+   --sy  已滚动像素 | --p 滚动进度(0~1) | --mx/--my 鼠标偏移(-1~1)
+   这些变量由 <HomeHero> 的 rAF 循环写入；无 JS 时取默认值 0，首屏静态可见。
    ========================================================================== */
-.home-hero {
+.hero-px {
+  --sy: 0;
+  --p: 0;
+  --mx: 0;
+  --my: 0;
   position: relative;
-  padding: 6rem 0 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 7rem 1.5rem 6rem;
   text-align: center;
   overflow: hidden;
   isolation: isolate;
 }
 
-.home-hero::before {
-  content: '';
+/* —— 视差背景容器：整体随滚动缓行（比页面慢），制造纵深 —— */
+.hero-px__bg {
+  position: absolute;
+  inset: -12% -12% 0;
+  z-index: -1;
+  pointer-events: none;
+  transform: translate3d(0, calc(var(--sy) * 0.18px), 0);
+  will-change: transform;
+}
+
+/* 网格：随滚动 + 鼠标轻微平移 */
+.hero-px__grid {
   position: absolute;
   inset: 0;
   background-image:
     linear-gradient(
       to right,
-      color-mix(in oklch, var(--color-fd-foreground) 6%, transparent) 1px,
+      color-mix(in oklch, var(--color-fd-foreground) 7%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklch, var(--color-fd-foreground) 6%, transparent) 1px,
+      color-mix(in oklch, var(--color-fd-foreground) 7%, transparent) 1px,
       transparent 1px
     );
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, black 30%, transparent 80%);
-  z-index: -1;
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 58% 55% at 50% 36%, black 22%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 58% 55% at 50% 36%, black 22%, transparent 78%);
+  opacity: 0.6;
+  transform: translate3d(
+    calc(var(--mx) * -10px),
+    calc(var(--sy) * 0.05px + var(--my) * -10px),
+    0
+  );
+}
+
+/* 极光光球：每层不同的鼠标 / 滚动系数 → 视差 */
+.hero-px__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
   opacity: 0.5;
+  will-change: transform;
+}
+.hero-px__orb--1 {
+  width: 40rem;
+  height: 40rem;
+  top: -10rem;
+  left: 50%;
+  margin-left: -20rem;
+  background: radial-gradient(
+    circle at 32% 32%,
+    color-mix(in oklch, var(--color-fd-accent-3) 70%, transparent),
+    transparent 70%
+  );
+  transform: translate3d(
+    calc(var(--mx) * 26px),
+    calc(var(--my) * 22px + var(--sy) * 0.08px),
+    0
+  );
+}
+.hero-px__orb--2 {
+  width: 32rem;
+  height: 32rem;
+  top: 3rem;
+  left: 6%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklch, var(--color-fd-info) 42%, transparent),
+    transparent 70%
+  );
+  transform: translate3d(calc(var(--mx) * -36px), calc(var(--my) * -18px), 0);
+}
+.hero-px__orb--3 {
+  width: 28rem;
+  height: 28rem;
+  bottom: 1rem;
+  right: 4%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklch, var(--color-fd-accent-2) 58%, transparent),
+    transparent 70%
+  );
+  transform: translate3d(calc(var(--mx) * 30px), calc(var(--my) * 24px), 0);
+}
+
+/* 底部地平线辉光 */
+.hero-px__beam {
+  position: absolute;
+  left: 50%;
+  bottom: -7rem;
+  width: 120%;
+  height: 18rem;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse 50% 100% at 50% 100%,
+    color-mix(in oklch, var(--color-fd-primary) 22%, transparent),
+    transparent 70%
+  );
+  opacity: 0.85;
+}
+
+/* —— 前景内容：随滚动上浮、缩小并淡出（比背景快 → 视差） —— */
+.hero-px__content {
+  position: relative;
+  max-width: 52rem;
+  transform: translate3d(0, calc(var(--sy) * -0.12px), 0)
+    scale(calc(1 - var(--p) * 0.06));
+  opacity: clamp(0, calc(1 - var(--p) * 1.15), 1);
+  will-change: transform, opacity;
+}
+
+/* 悬浮 Logo：入场上浮 → 持续漂浮；图片本体随鼠标轻微跟随 */
+.hero-px__logo {
+  width: 7.5rem;
+  height: 7.5rem;
+  margin: 0 auto 1.75rem;
+  animation:
+    heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards,
+    heroFloat 6s ease-in-out 0.8s infinite;
+}
+.hero-px__logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  transform: translate3d(calc(var(--mx) * 14px), calc(var(--my) * 14px), 0);
+  box-shadow:
+    0 18px 50px -18px color-mix(in oklch, var(--color-fd-primary) 65%, transparent),
+    0 0 0 1px var(--fd-border-soft);
+}
+
+.hero-px__title {
+  font-size: clamp(2.75rem, 7vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  margin: 0 0 1rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-foreground) 0%,
+    var(--color-fd-primary) 55%,
+    var(--color-fd-accent-3) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+
+.hero-px__subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-fd-muted-foreground);
+  margin: 0 0 1rem;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+
+.hero-px__tagline {
+  font-size: 1.0625rem;
+  color: var(--color-fd-muted-foreground);
+  max-width: 38rem;
+  margin: 0 auto 2.5rem;
+  line-height: 1.65;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+}
+
+.hero-px__actions {
+  display: flex;
+  gap: 0.875rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
+}
+
+.hero-px__actions .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-fd-primary), var(--color-fd-accent-2));
+  color: var(--color-fd-primary-foreground);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 30%, transparent) inset,
+    0 8px 20px -6px color-mix(in oklch, var(--color-fd-primary) 60%, transparent);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.hero-px__actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 30%, transparent) inset,
+    0 14px 30px -6px color-mix(in oklch, var(--color-fd-primary) 70%, transparent);
+}
+
+.hero-px__actions .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--color-fd-background) 60%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-fd-border);
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+.hero-px__actions .btn-ghost:hover {
+  transform: translateY(-2px);
+  background: color-mix(in oklch, var(--color-fd-accent) 80%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-primary) 30%, var(--color-fd-border));
+}
+
+/* 滚动提示 */
+.hero-px__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 1.75rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+  opacity: clamp(0, calc(1 - var(--p) * 2.5), 1);
+  animation: heroFadeUp 0.7s ease 0.9s backwards;
+}
+.hero-px__mouse {
+  display: flex;
+  justify-content: center;
+  width: 1.45rem;
+  height: 2.4rem;
+  padding-top: 0.4rem;
+  border: 2px solid color-mix(in oklch, var(--color-fd-muted-foreground) 50%, transparent);
+  border-radius: 999px;
+}
+.hero-px__mouse span {
+  width: 0.28rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-fd-primary);
+  animation: heroWheel 1.8s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  .hero-px {
+    min-height: 92vh;
+    min-height: 92svh;
+    padding: 5.5rem 1.25rem 5rem;
+  }
+  .hero-px__logo {
+    width: 6rem;
+    height: 6rem;
+  }
+}
+
+/* 尊重 reduce-motion：去掉一切位移 / 浮动 / 视差，保持完全可见 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-px__bg,
+  .hero-px__grid,
+  .hero-px__orb,
+  .hero-px__content,
+  .hero-px__logo,
+  .hero-px__logo img {
+    transform: none !important;
+    animation: none !important;
+  }
+  .hero-px__content,
+  .hero-px__cue {
+    opacity: 1 !important;
+  }
+  .hero-px__mouse span {
+    animation: none !important;
+  }
 }
 
 .home-hero-eyebrow {
@@ -413,96 +691,6 @@ body {
   animation: heroFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
-.home-hero h1 {
-  font-size: clamp(2.5rem, 6vw, 4.25rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin: 0 0 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-fd-foreground) 0%,
-    var(--color-fd-primary) 50%,
-    var(--color-fd-accent-2) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
-}
-
-.home-hero p.text-2xl {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  font-weight: 600;
-  color: var(--color-fd-foreground);
-  opacity: 0.85;
-  margin: 0 0 0.5rem;
-  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
-}
-
-.home-hero .tagline {
-  font-size: 1.0625rem;
-  color: var(--color-fd-muted-foreground);
-  margin: 0 0 2.5rem;
-  max-width: 38rem;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.65;
-  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
-}
-
-.home-hero .actions {
-  display: flex;
-  gap: 0.875rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
-}
-
-.home-hero .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--color-fd-primary), var(--color-fd-accent-2));
-  color: var(--color-fd-primary-foreground);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  box-shadow:
-    0 1px 0 0 color-mix(in oklch, white 30%, transparent) inset,
-    0 8px 20px -6px color-mix(in oklch, var(--color-fd-primary) 60%, transparent);
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-.home-hero .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 0 color-mix(in oklch, white 30%, transparent) inset,
-    0 12px 28px -6px color-mix(in oklch, var(--color-fd-primary) 70%, transparent);
-}
-
-.home-hero .btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  background: color-mix(in oklch, var(--color-fd-background) 70%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--color-fd-border);
-  color: var(--color-fd-foreground);
-  font-weight: 500;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.home-hero .btn-ghost:hover {
-  background: color-mix(in oklch, var(--color-fd-accent) 80%, transparent);
-  border-color: color-mix(in oklch, var(--color-fd-primary) 30%, var(--color-fd-border));
-}
-
 @keyframes heroFadeUp {
   from {
     opacity: 0;
@@ -514,6 +702,275 @@ body {
   }
 }
 
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes heroWheel {
+  0% {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  35% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   滚动驱动入场（IntersectionObserver 触发 .reveal--in）
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  filter: blur(8px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+.reveal--in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* 让被 .reveal 包裹的 feature 卡片仍然撑满网格单元 */
+.features-grid > .reveal {
+  display: flex;
+}
+.features-grid > .reveal > .feature-card {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   全宽大字滚动条（haoqi 式大胆排版）
+   ========================================================================== */
+.marquee {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 4rem 0;
+  overflow: hidden;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 7%,
+    black 93%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 7%,
+    black 93%,
+    transparent
+  );
+}
+.marquee__row {
+  display: flex;
+  overflow: hidden;
+}
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2.75rem;
+  padding-right: 2.75rem;
+  will-change: transform;
+  animation: marqueeScroll 40s linear infinite;
+}
+.marquee__row--reverse .marquee__track {
+  animation-direction: reverse;
+  animation-duration: 52s;
+}
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.75rem;
+  white-space: nowrap;
+  font-size: clamp(1.875rem, 5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.25px
+    color-mix(in oklch, var(--color-fd-foreground) 26%, transparent);
+  transition: color 0.3s ease, -webkit-text-stroke-color 0.3s ease;
+}
+.marquee__item::after {
+  content: '✦';
+  -webkit-text-stroke: 0;
+  font-size: 0.42em;
+  color: var(--color-fd-primary);
+  opacity: 0.65;
+}
+.marquee__item:hover {
+  color: var(--color-fd-primary);
+  -webkit-text-stroke-color: transparent;
+}
+
+@keyframes marqueeScroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   贡献者 · 堆叠紧凑
+   ========================================================================== */
+.contrib {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+.contrib__stack {
+  display: flex;
+  align-items: center;
+  padding-left: 0.85rem;
+}
+.contrib__item,
+.contrib__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-left: -0.85rem;
+  border-radius: 50%;
+  background: var(--color-fd-card);
+  box-shadow: 0 0 0 3px var(--color-fd-background);
+  transition:
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-left 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease;
+  animation: contribPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+.contrib__item img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+}
+/* 容器 hover：整体轻微散开，呼吸感 */
+.contrib__stack:hover .contrib__item,
+.contrib__stack:hover .contrib__more {
+  margin-left: -0.45rem;
+}
+/* 单个 hover：上浮放大并置顶 */
+.contrib__item:hover {
+  transform: translateY(-10px) scale(1.14);
+  z-index: 60 !important;
+  box-shadow:
+    0 0 0 3px var(--color-fd-background),
+    0 14px 28px -10px color-mix(in oklch, var(--color-fd-primary) 60%, transparent);
+}
+.contrib__more {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-fd-primary-foreground);
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--color-fd-primary), var(--color-fd-accent-2));
+}
+.contrib__more:hover {
+  transform: translateY(-10px) scale(1.14);
+  z-index: 60 !important;
+}
+.contrib__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--color-fd-muted-foreground);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.contrib__meta strong {
+  color: var(--color-fd-foreground);
+  font-weight: 700;
+}
+.contrib__meta:hover {
+  color: var(--color-fd-primary);
+}
+.contrib__dot {
+  opacity: 0.5;
+}
+.contrib__viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-fd-border);
+  background: color-mix(in oklch, var(--color-fd-card) 80%, transparent);
+  color: var(--color-fd-foreground);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.contrib__viewall:hover {
+  transform: translateY(-2px);
+  color: var(--color-fd-primary);
+  border-color: color-mix(in oklch, var(--color-fd-primary) 35%, var(--color-fd-border));
+}
+
+@keyframes contribPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contrib__item,
+  .contrib__more {
+    animation: none;
+  }
+}
+
 /* ==========================================================================
    Feature Grid 玻璃态卡片
    ========================================================================== */
@@ -521,19 +978,30 @@ body {
   padding: 3rem 0 5rem;
 }
 
-.features-section-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.features-section-title,
+.section-title {
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
   text-align: center;
-  margin: 0 0 2.5rem;
-  color: var(--color-fd-foreground);
+  margin: 0 0 2.75rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-foreground) 0%,
+    var(--color-fd-primary) 65%,
+    var(--color-fd-accent-3) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.25rem;
+  counter-reset: feat;
 }
 
 .feature-card {
@@ -551,8 +1019,28 @@ body {
   color: inherit;
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.2s ease, box-shadow 0.25s ease;
+  counter-increment: feat;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* 编辑感大号序号 */
+.feature-card::after {
+  content: counter(feat, decimal-leading-zero);
+  position: absolute;
+  top: 0.85rem;
+  right: 1.2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: color-mix(in oklch, var(--color-fd-foreground) 7%, transparent);
+  z-index: -1;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+.feature-card:hover::after {
+  color: color-mix(in oklch, var(--color-fd-primary) 22%, transparent);
 }
 
 .feature-card::before {
@@ -570,11 +1058,11 @@ body {
 }
 
 .feature-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-7px);
   border-color: color-mix(in oklch, var(--color-fd-primary) 35%, var(--color-fd-border));
   box-shadow:
     0 1px 0 0 color-mix(in oklch, white 50%, transparent) inset,
-    0 12px 32px -8px color-mix(in oklch, var(--color-fd-primary) 25%, transparent);
+    0 18px 40px -10px color-mix(in oklch, var(--color-fd-primary) 30%, transparent);
 }
 .feature-card:hover::before {
   opacity: 1;
@@ -635,14 +1123,7 @@ body {
   padding: 4rem 0;
 }
 
-.section-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-align: center;
-  margin: 0 0 2.5rem;
-  color: var(--color-fd-foreground);
-}
+/* .section-title 样式与 .features-section-title 合并定义于上方（大胆渐变标题） */
 
 .support-links {
   display: flex;
@@ -725,24 +1206,22 @@ body {
 }
 
 .prose :not(pre) > code {
-  /* 行内 code：荧光记号笔风格的半透明淡红磨砂玻璃
-     - 不用 color-mix(red, transparent)：OKLCH 空间下与 transparent 混合的
-       alpha 传播在某些浏览器合成层里会失效，深色下退化成「白雾」。
-     - 直接 oklch(... / alpha%) 显式 alpha，backdrop-filter 正常生效。
-     - alpha 提到 70% + 模糊后呈现"半透淡红磨砂"，不是「发光」感。 */
+  /* 行内 code：10% 极淡灰底 + 无边框；靠 mono 字体 + 字色与正文区分
+     - 显式重置 border，覆盖 fumadocs-ui 内置 prose 规则
+       （其给 :where(code) 加了 border + var(--color-fd-muted) 实色底）。
+     - 用石墨灰（hue 260、近乎无彩 chroma 0.01），与全站中性主题一致。
+     - 直接 oklch(... / alpha) 显式 alpha，避免 color-mix(…, transparent)
+       在某些浏览器合成层里 alpha 传播失效、深色下退化成「白雾」。 */
+  border: 0;
   border-radius: 6px;
   padding: 0.15em 0.4em;
-  background: oklch(0.72 0.16 25 / 70%);
-  backdrop-filter: blur(6px) saturate(150%);
-  -webkit-backdrop-filter: blur(6px) saturate(150%);
-  border: 1px solid oklch(0.72 0.16 25 / 28%);
+  background: oklch(0.45 0.01 260 / 10%);
   font-size: 0.875em;
 }
 
-/* 暗色下换成更鲜亮的红，alpha 略降一点避免在深色背景上太刺眼 */
+/* 暗色下改用浅灰，alpha 同步避免在深色背景上太亮 */
 .dark .prose :not(pre) > code {
-  background: oklch(0.68 0.18 22 / 55%);
-  border-color: oklch(0.68 0.18 22 / 32%);
+  background: oklch(0.85 0.008 260 / 10%);
 }
 
 /* 引用、Callout：去除原 prose 默认的粗左边线，整体走柔和卡片 */
@@ -1506,18 +1985,23 @@ article.fd-docs-article,
 }
 
 /* ==========================================================================
-   代码块：去两层框（去掉 figure 的 border/shadow，让 pre 自带样式）
+   代码块：扁平化（去掉磨砂玻璃 + 任何阴影，仅保留柔和边框 + 浅灰底）
+   同步重置 Tailwind v4 的 --tw-shadow / --tw-inset-shadow / --tw-ring-shadow
+   CSS 变量（不然 .shadow-md 等 utility 会通过这些变量重新合成阴影）。
    ========================================================================== */
 .prose figure.shiki,
 .prose figure[data-rehype-pretty-code-figure] {
-  /* 代码块：带一丝冷色的磨砂玻璃 */
-  background: color-mix(in oklch, var(--color-fd-accent-2) 7%, var(--fd-glass-bg-strong)) !important;
-  backdrop-filter: blur(14px) saturate(170%);
-  -webkit-backdrop-filter: blur(14px) saturate(170%);
-  border: 1px solid
-    color-mix(in oklch, var(--color-fd-accent-2) 16%, var(--fd-border-soft)) !important;
-  box-shadow: var(--fd-glass-shadow);
-  border-radius: 14px;
+  /* 扁平：纯色 + 细边框，无 backdrop-filter，无阴影 */
+  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
+  border: 1px solid var(--fd-border-soft) !important;
+  box-shadow: none !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-inset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -1526,63 +2010,169 @@ article.fd-docs-article,
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-inset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
   border-radius: 0 !important;
   padding: 0.875rem 0 !important;
   margin: 0 !important;
 }
 
 .prose pre:not(:where([data-rehype-pretty-code-figure] pre)) {
-  border: 1px solid
-    color-mix(in oklch, var(--color-fd-accent-2) 16%, var(--fd-border-soft)) !important;
-  background: color-mix(in oklch, var(--color-fd-accent-2) 7%, var(--fd-glass-bg-strong)) !important;
-  backdrop-filter: blur(14px) saturate(170%);
-  -webkit-backdrop-filter: blur(14px) saturate(170%);
-  box-shadow: var(--fd-glass-shadow);
-  border-radius: 14px;
+  border: 1px solid var(--fd-border-soft) !important;
+  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
+  box-shadow: none !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-inset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 12px;
   padding: 0.875rem 1rem !important;
 }
 
 /* ==========================================================================
-   折叠 / 展开 (Details / Collapsible) 暗色磨砂玻璃
+   折叠 / 展开 (Details / Collapsible) 扁平化
    ========================================================================== */
 .prose details,
 .prose [data-radix-collapsible-root] {
   border: 1px solid var(--fd-border-soft);
-  border-radius: 14px;
-  background: var(--fd-glass-bg-strong);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow: var(--fd-glass-shadow);
+  border-radius: 12px;
+  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card));
+  box-shadow: none;
+  --tw-shadow: 0 0 #0000;
+  --tw-inset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding: 0.875rem 1.25rem;
   margin: 1rem 0;
 }
 
 /* ==========================================================================
-   Callout / Admonition（提示·警告卡片）磨砂玻璃化
-   命中 Fumadocs Callout 容器（带内联 --callout-color 变量）
+   Callout / Admonition（提示·警告卡片）—— 主页磨砂玻璃气质
+   命中 Fumadocs Callout 容器（带内联 --callout-color 变量）。
+   设计思路（参照 .home-hero-eyebrow 主页 chip 的「透明磨砂」感）：
+   · 卡片背景以 --callout-color 极淡着色 + 玻璃模糊（几乎透出底色）
+   · 边框用同色 25-30% 描边，柔和
+   · 左上角一抹同色径向辉光（伪元素）
+   · 图标：直接以语义色绘制，1.75rem，无外框徽章（让 lucide 自身轻盈发光）
+   · 隐藏内置的窄色条 + 重置 ps-1 内边距
+   · 用 `.prose.prose > …` 双层 `.prose` 提高选择器特异性，
+     确保压过 fumadocs-ui preset 的同选择器规则。
    ========================================================================== */
-/* 提高选择器特异性（prose > div 双层）确保覆盖 fumadocs-ui 内置的
-   `.prose [style*=--callout-color]{background:var(--callout-color)!important}` */
-.prose > div[style*="--callout-color"] {
-  /* 不透明 card 为底，混入足量语义色 —— 浅色模式下 info / success /
-     warning / error 每种都是清晰可辨的彩色卡片，而非灰白。
-     32% 的混合比例配合 :root 中 L≈0.62 的语义色，可得到 L≈0.87 的可辨色块。
-     简洁起见：无左侧竖线，四周内边距均衡。 */
-  background: color-mix(in oklch, var(--callout-color) 32%, var(--color-fd-card)) !important;
-  border: 1px solid color-mix(in oklch, var(--callout-color) 62%, var(--fd-border-soft)) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 8px 30px -16px
-    color-mix(in oklch, var(--callout-color) 45%, transparent) !important;
-  padding: 0.85rem 1rem !important;
+.prose.prose > div[style*="--callout-color"] {
+  position: relative !important;
+  isolation: isolate !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.95rem !important;
+  margin: 1.5rem 0 !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 16px !important;
+  border: 1px solid
+    color-mix(in oklch, var(--callout-color) 28%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 6%,
+    var(--color-fd-background)
+  ) !important;
+  backdrop-filter: blur(14px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(170%) !important;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 35%, transparent) inset,
+    0 6px 24px -14px color-mix(in oklch, var(--callout-color) 30%, transparent) !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-inset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  overflow: hidden !important;
 }
 
-.dark .prose > div[style*="--callout-color"] {
-  background: color-mix(in oklch, var(--callout-color) 22%, var(--color-fd-card)) !important;
+/* 左上角一抹同色辉光（柔光晕 + 沉浸感） */
+.prose.prose > div[style*="--callout-color"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 80% at 0% 0%,
+    color-mix(in oklch, var(--callout-color) 16%, transparent),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
-/* 简洁为主：移除最左侧的语义色竖线 */
-.prose > div[style*="--callout-color"] > [role='none'] {
-  display: none;
+/* 暗色下：着色更深、边框更亮，确保深色背景上仍能识别语义 */
+.dark .prose.prose > div[style*="--callout-color"] {
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 9%,
+    var(--color-fd-card)
+  ) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--callout-color) 32%,
+    transparent
+  ) !important;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 5%, transparent) inset,
+    0 6px 28px -12px color-mix(in oklch, var(--callout-color) 35%, transparent) !important;
+}
+
+/* 隐藏内置的窄色条（role=none 元素）—— 现在由图标与边框承担语义识别 */
+.prose.prose > div[style*="--callout-color"] > [role='none'] {
+  display: none !important;
+}
+
+/* 图标：直接以语义色绘制，无外框徽章，更轻盈 */
+.prose.prose > div[style*="--callout-color"] > svg {
+  flex-shrink: 0 !important;
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  min-width: 1.75rem !important;
+  margin: 0 !important;
+  margin-top: 0.1rem !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  color: var(--callout-color) !important;
+  fill: var(--callout-color) !important;
+  filter: drop-shadow(
+    0 0 8px color-mix(in oklch, var(--callout-color) 35%, transparent)
+  );
+}
+
+/* 标题（仅当传了 title 时存在）—— CalloutTitle 渲染为 <p class="font-medium my-0!"> */
+.prose.prose > div[style*="--callout-color"] > div > p {
+  margin: 0 0 0.25rem !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em !important;
+  color: var(--callout-color) !important;
+}
+
+/* 内容区：略小、柔和 */
+.prose.prose > div[style*="--callout-color"] > div > div {
+  color: var(--color-fd-muted-foreground) !important;
+  line-height: 1.65 !important;
+  font-size: 0.9rem !important;
+}
+
+/* 内容里的链接在卡片内更显眼 */
+.prose.prose > div[style*="--callout-color"] > div > div a {
+  color: var(--callout-color) !important;
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--callout-color) 35%,
+    transparent
+  ) !important;
+}
+.prose.prose > div[style*="--callout-color"] > div > div a:hover {
+  text-decoration-color: var(--callout-color) !important;
 }
 
 .prose details > summary,

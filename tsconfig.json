@@ -69,8 +69,6 @@
     "**/dist/**",
     "**/out/**",
     "**/.next/**",
-    "docs",
-    "docs/.vitepress",
     "scripts"
   ]
 }

@@ -20,7 +20,6 @@ export default [
       '**/node_modules/',
       '**/types/',
       '**/cache/',
-      '!docs/.vitepress',
       '!.eslintrc.js',
       '!**/.test',
       '**/.temp',
@@ -101,20 +100,6 @@ export default [
           allowedNames: ['self', 'instance'],
         },
       ],
-    },
-  },
-  {
-    files: ['docs/.vitepress/**/*.*'],
-
-    rules: {
-      'no-restricted-imports': 'off',
-    },
-  },
-  {
-    files: ['docs/.vitepress/theme/plugins/**/*.*'],
-
-    rules: {
-      'prefer-rest-params': 'off',
     },
   },
 ];

@@ -35,14 +35,24 @@ interface HomeContent {
     eyebrow?: string
     actions: HeroAction[]
   }
+  scrollHint?: string
   featuresTitle?: string
   features: Feature[]
   teamTitle?: string
   teamMembers: TeamMember[]
   contributorsTitle: string
+  contributorsLabel: string
+  contributorsViewAll: string
   supportTitle: string
   supportLinks: SupportLink[]
+  marquee: string[]
 }
+
+/** 平台 / Bot 名称——跨语言通用，用作 hero 下方的大字滚动条 */
+const marqueeTokens: string[] = [
+  'NoneBot2', 'QQ', 'Telegram', 'Discord', 'KOOK', '微信', 'OneBot', '飞书',
+  'Koishi', 'YunzaiBot', 'DoDo', '米游社', 'HoshinoBot', 'QQ频道', 'ZeroBot',
+]
 
 const zhFeatures: Feature[] = [
   { icon: '💻', title: '支持多种平台', details: '适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...', link: '/docs/link-bots/adapter-list/', linkText: '支持平台' },
@@ -103,13 +113,17 @@ export function getHomeContent(lang: Language): HomeContent {
           { text: 'Introduction', link: '/docs/advance/base-info/' },
         ],
       },
+      scrollHint: 'Scroll to explore',
       featuresTitle: 'Why GsCore',
       features: enFeatures,
       teamTitle: 'Core Team',
       teamMembers,
       contributorsTitle: 'Thanks to contributors',
+      contributorsLabel: 'contributors',
+      contributorsViewAll: 'View all on GitHub',
       supportTitle: 'Get help / support',
       supportLinks,
+      marquee: marqueeTokens,
     }
   }
 
@@ -126,13 +140,17 @@ export function getHomeContent(lang: Language): HomeContent {
           { text: 'はじめに', link: '/docs/advance/base-info/' },
         ],
       },
+      scrollHint: 'スクロールして探索',
       featuresTitle: 'GsCore を選ぶ理由',
       features: jaFeatures,
       teamTitle: 'コアチーム',
       teamMembers,
       contributorsTitle: '貢献者に感謝',
+      contributorsLabel: '人の貢献者',
+      contributorsViewAll: 'GitHub で全員を見る',
       supportTitle: 'ヘルプ / サポート',
       supportLinks,
+      marquee: marqueeTokens,
     }
   }
 
@@ -149,12 +167,16 @@ export function getHomeContent(lang: Language): HomeContent {
         { text: '简单介绍', link: '/docs/advance/base-info/' },
       ],
     },
+    scrollHint: '向下滚动 · 探索更多',
     featuresTitle: '为什么选择 GsCore',
     features: zhFeatures,
     teamTitle: '核心团队',
     teamMembers,
     contributorsTitle: '感谢成员贡献',
+    contributorsLabel: '位贡献者',
+    contributorsViewAll: '在 GitHub 查看全部',
     supportTitle: '获得帮助/支持',
     supportLinks,
+    marquee: marqueeTokens,
   }
 }

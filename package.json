@@ -10,8 +10,7 @@
     "serve": "npx serve out",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postbuild": "node scripts/postbuild.mjs",
-    "migrate:content": "node scripts/migrate-content.mjs"
+    "postbuild": "node scripts/postbuild.mjs"
   },
   "dependencies": {
     "@orama/orama": "^3.1.18",

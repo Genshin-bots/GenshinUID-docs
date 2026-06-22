@@ -33,3 +33,7 @@ out
 tsconfig.tsbuildinfo
 
 /.idea
+
+# Git Bash 误把 `> nul` 重定向当成字面文件名时产生的 Windows 保留名文件，
+# Turbopack 会尝试把它当资源读然后 panic。
+/nul
