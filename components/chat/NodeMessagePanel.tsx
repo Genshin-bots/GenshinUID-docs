@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { X, MessageSquareText } from 'lucide-react'
 import type { NodeContent, NodeMessage } from './types'
+import { resolveMediaUrl } from '@/lib/media'
 
 interface NodeMessagePanelProps {
   visible: boolean
@@ -23,31 +25,33 @@ function renderMessage(msg: NodeMessage): string {
     case 'text':
       return escapeHtml(msg.data).replace(/\n/g, '<br>')
     case 'image': {
+      // 旧实现里还要剥一下 Python bytes 字面量（`b'...'`），
+      // 新的 resolveMediaUrl 不识别这种格式，所以这里显式处理一下。
       let src = msg.data
-      if (src.startsWith('base64://')) src = `data:image/jpeg;base64,${src.substring(9)}`
-      else if (src.startsWith('link://')) src = src.substring(7)
-      return `<img src="${src}" alt="image" class="node-image" />`
+      if (src.startsWith('base64://') && src.includes("b'")) {
+        const match = src.match(/base64:\/\/(.+)$/)
+        if (match) {
+          let inner = match[1]
+          if (inner.startsWith("b'") && inner.endsWith("'")) inner = inner.slice(2, -1)
+          src = `base64://${inner}`
+        }
+      }
+      return `<img src="${resolveMediaUrl(src, 'image')}" alt="image" class="node-image" />`
     }
     case 'audio':
     case 'record': {
-      let audioSrc = msg.data
-      if (audioSrc.startsWith('base64://')) audioSrc = `data:audio/mpeg;base64,${audioSrc.substring(9)}`
-      else if (audioSrc.startsWith('link://')) audioSrc = audioSrc.substring(7)
-      return `<audio controls src="${audioSrc}" class="node-audio" />`
+      return `<audio controls src="${resolveMediaUrl(msg.data, 'audio')}" class="node-audio" />`
     }
     case 'video': {
-      let videoSrc = msg.data
-      if (videoSrc.startsWith('base64://')) {
-        let base64Data = msg.data.substring(9)
-        if (base64Data.startsWith('b\'') && base64Data.endsWith('\'')) {
-          base64Data = base64Data.slice(2, -1)
+      // 旧 video 路径里同样有剥 Python bytes 的细节，沿用
+      let src = msg.data
+      if (src.startsWith('base64://')) {
+        const after = src.substring('base64://'.length)
+        if (after.startsWith("b'") && after.endsWith("'")) {
+          src = `base64://${after.slice(2, -1)}`
         }
-        videoSrc = `data:video/mp4;base64,${base64Data}`
       }
-      else if (videoSrc.startsWith('link://')) {
-        videoSrc = videoSrc.substring(7)
-      }
-      return `<video controls src="${videoSrc}" class="node-video" />`
+      return `<video controls src="${resolveMediaUrl(src, 'video')}" class="node-video" />`
     }
     default:
       return `<span class="node-unknown">${escapeHtml(msg.data)}</span>`
@@ -87,9 +91,18 @@ export function NodeMessagePanel({ visible, nodeData, onClose }: NodeMessagePane
     >
       <div className="fd-node-panel">
         <div className="fd-node-panel-header">
-          <span className="fd-node-panel-title">聊天记录</span>
-          <button type="button" className="fd-node-panel-close" onClick={onClose}>
-            ×
+          <span className="fd-node-panel-title">
+            <MessageSquareText size={16} strokeWidth={2} />
+            聊天记录
+          </span>
+          <button
+            type="button"
+            className="fd-node-panel-close"
+            onClick={onClose}
+            aria-label="关闭"
+            title="关闭"
+          >
+            <X size={16} strokeWidth={2.2} />
           </button>
         </div>
         <div className="fd-node-panel-content">

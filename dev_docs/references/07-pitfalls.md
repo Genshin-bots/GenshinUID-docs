@@ -347,3 +347,235 @@
 >   - **#17 字体链**：`pre / pre code / kbd` 当前走 `MiSans VF` 而非 Fira Code；如果你
 >     想恢复英文连字，把字体链最前面换成 `Fira Code` 即可，但 inline code 必须保持
 >     MiSans VF 在前。
+
+---
+
+## 坑 #22：独立全页路由 `/chat` 套 `HomeLayout` 后被 fixed Header 盖住首行
+
+- **现象**：新建一条独立全页路由 `/[lang]/chat`，沿用首页套路包了
+  `<HomeLayout nav={{ component: <DocsNav /> }}>`，但打开后聊天卡顶部被 `.glass-header`
+  盖住第一行（输入框 / 状态条）。
+- **根因**：
+  - `.glass-header` 是 `position: fixed; top: 0; height: 3.5rem`，文档页靠
+    `#nd-docs-layout { padding-top: 3.5rem }` 把内容下移。
+  - 但 `HomeLayout` 渲染的容器是 `<main id="nd-home-layout" class="flex flex-1 flex-col [--fd-layout-width:1400px]">`，
+    **没有 `padding-top`**——首页的 hero 自己有 `padding: 7rem 1.5rem 6rem` 兜底，但
+    我们的聊天卡是 `100%` 高 + `margin: 0`，没有内部 padding 顶替，所以首行被遮。
+  - 另一个连带问题：`--fd-layout-width` 默认 `1400px` 会让聊天卡在宽屏两侧空出大量留白。
+- **解法**（`app/[lang]/chat/layout.tsx` + `app/global.css`）：
+  - 在 `HomeLayout` 的 `className` 上挂一个标识类（如 `fd-chat-standalone`），让 CSS 精确命中：
+    ```tsx
+    <HomeLayout className="fd-default-layout fd-chat-standalone" ...>
+    ```
+  - 加一条专用规则（**不要**直接改 `#nd-home-layout`，否则会污染首页）：
+    ```css
+    #nd-home-layout.fd-chat-standalone {
+      --fd-banner-height: 3.5rem;
+      --fd-layout-width: 100%;
+      padding-top: 3.5rem;
+    }
+    ```
+  - 同样地，聊天卡本身的外边距要按场景区分：文档内嵌（`/sp/chat`）有 `margin: 0.75rem 0` 即可；
+    独立全页想贴到 main 边缘就单独覆盖（`.fd-chat-page-container--standalone > .fd-chat-container { margin: 0.5~0.75rem }`）。
+- **诊断方法**：开 Chrome DevTools → Elements，看 `<main id="nd-home-layout">` 的 `padding-top` 是不是 `0`；
+  聊天卡顶部的 `.fd-chat-header` 第一行像素是不是被压在 header 阴影下面。
+- **红线**：
+  - **别**给 `.glass-header` 改成非 fixed 来"让位"——它脱离了 docs 网格是全站行为（见坑 #1），
+    改了首页 / 其它页全跟着坏。
+  - **别**给聊天卡加固定 `margin-top: 3.5rem` 来补偿——移动端顶栏会折叠，桌面端又会和真 padding 叠加。
+  - **别**用 `100vh` 算高度。手机浏览器地址栏出现/收起会让视口高度跳变；
+    聊天卡的 `height: calc(100vh - 3.5rem)` 在 vh 收缩时会被裁掉下半段。
+    真要写，要么用 JS 测 `dvh` + 顶栏高度，要么只对桌面端用 `100vh`，移动端让它自然滚动。
+
+## 坑 #23：WebSocket 状态变化连刷两条「已连接到 X」
+
+- **现象**：用户改一次 WebSocket URL 之后，消息列表里出现两次「已连接到 ws://...」
+  （旧连接断开的提示 + 新连接成功的提示连着来），或者从「正在连接」点「取消」后
+  又出现一次「已连接到 ...」（旧 hook 的关闭事件触发了错误状态）。
+- **根因**：
+  旧实现用 `useEffect([connectionStatus, wsUrl])` 直接读 `connectionStatus` 后 push 系统消息。
+  WS URL 改一下会触发「旧 ws.close → 新 ws.connect → connecting → connected」连续两步，
+  任何一步都满足 `status === 'connected'`，于是连刷。
+- **解法**（`components/chat/ChatInterface.tsx`）：
+  - 用一个 `useRef<ConnectionStatus | null>(null)` 记录上一态，只有 `prev !== 'connected' && cur === 'connected'`
+    才 push「已连接到 ...」；同理 disconnect / error 也只刷一次。
+  - **别**直接把依赖数组换成 `[connectionStatus]`——WS URL 变化也会刷一次。
+  - **别**用 `useEffect` + 内部 `if (status !== prev)` 状态机改在 hook 里——hook 应该只负责「把 ws 事件翻译成状态」，**业务层语义（要不要刷系统消息）应该留在组件里**。
+- **关联**：[十、§10.4 WebSocket 状态机](./10-chat-route.md) 给出完整的状态转换表。
+
+## 坑 #24：新消息强制 scrollToBottom 把用户从历史里拽回来
+
+- **现象**：用户向上滚聊天记录看历史消息，对方这时发来一条新消息，
+  聊天卡自动跳到最底部，用户被打断、要重新滚回去找位置。
+- **根因**：原 `ChatMessageList` 监听 `messages.length`，每来一条新消息就
+  `containerRef.scrollTop = containerRef.scrollHeight`，没判断用户当前是否在底部。
+- **解法**（`components/chat/ChatMessageList.tsx`）：
+  - 维护一个 `stuckToBottomRef`（默认 `true`），
+    监听 `scroll` 事件，距底 < 16px 视为「贴底」置 `true`，否则 `false`。
+  - 渲染后只在 `stuckToBottomRef.current === true` 时才自动滚到底。
+- **红线**：**别**改成「距离底部超过 N px 才不滚」这种**绝对阈值**——
+  消息条目高度不固定，N 选大了会过早抓回，N 选小了用户小幅翻动就会触发。
+  16px 是个经验值，相当于「用户的视觉容差」，再小就挑剔了。
+- **关联**：[十、§10.5 智能滚动](./10-chat-route.md)。
+
+---
+
+## 坑 #25：`output: 'export'` 下访问 `/chat/`（无 lang 前缀）直接 500
+
+- **现象**：用户（或外部链接）直接访问 `/chat/`（不带 `/zh-CN/` `/en/` `/ja/`），
+  dev server 报：
+  ```
+  Error: Page "/[lang]/page" is missing param "/[lang]" in "generateStaticParams()",
+         which is required with "output: export" config.
+  GET /chat/ 500
+  ```
+  三语版（`/zh-CN/chat/` `/en/chat/` `/ja/chat/`）都 200，只有裸 `/chat/` 挂。
+- **根因**：
+  - 我们的聊天主路由是 `app/[lang]/chat/page.tsx`，其 `generateStaticParams`
+    只为已知 lang 列表生成（`/zh-CN/chat/` `/en/chat/` `/ja/chat/`）。
+  - 用户敲 `/chat/` 时，Next.js 兜底匹配到 `app/[lang]/page.tsx`（首页），
+    但 `lang = undefined` 不在 `i18n.languages` 里，生成阶段报缺参数，
+    静态导出把这个 URL 当成未配置路由 → 500。
+  - `output: 'export'` 模式下**任何不在 generateStaticParams 列表里的路径都会这样**，
+    不只是聊天页；这是 Next.js 静态导出的硬约束。
+- **解法**（`app/chat/page.tsx`）：
+  - 在 `app/` 下加一条**与 `[lang]` 同级的 `/chat` 路由**，做 0 秒 meta-refresh 跳到 `/zh-CN/chat/`：
+    ```tsx
+    export const dynamic = 'force-static'
+
+    export default function ChatRootRedirect() {
+      return (
+        <html lang="zh-CN">
+          <head>
+            <meta charSet="utf-8" />
+            <meta httpEquiv="refresh" content="0; url=/zh-CN/chat/" />
+            <title>正在跳转到在线聊天室…</title>
+          </head>
+          <body>
+            <p>正在跳转到 <a href="/zh-CN/chat/">在线聊天室</a>…</p>
+          </body>
+        </html>
+      )
+    }
+    ```
+  - 这条路由会被 Next.js 当成纯静态页生成 `out/chat/index.html`，
+    浏览器访问 `/chat/` 收到 200 + meta refresh，零延迟跳到 `/zh-CN/chat/`。
+  - `<a href>` 是兜底——某些浏览器 / 隐私插件会禁用 meta refresh，仍能点链接走。
+- **为什么不用 server redirect**：`output: 'export'` 不支持运行时 server redirect
+  （`redirect()` 必须在请求时由 server 执行，但导出后没有 server），
+  只能用静态 HTML 级别的手段（meta refresh / `<a>` / JS `location.replace`）。
+- **为什么不在 `[lang]/chat` 内部做**：那样会进入「`lang = ''` → notFound → 500」
+  的死循环（同样是 generateStaticParams 问题）。必须有一层在 `[lang]` 之上的独立路由。
+- **关联**：
+  - [十、§10.3 `/chat` 路由实现](./10-chat-route.md) 列了两条入口的边界。
+  - 坑 #13 是 `[[...slug]]` 上的同类问题，解法 `dynamicParams = false` 同样适用
+    任意 catch-all 路由；本坑则是固定路由（`[lang]/chat`）上的同类问题，必须靠
+    **提供同名的实际静态路由**解决。
+- **红线**：
+  - **别**尝试在 `app/[lang]/chat/page.tsx` 里 `if (lang === '') redirect('/zh-CN/chat/')`——
+    `lang` 永远不会是 `''`，Next.js 在路由匹配阶段就已经把空段拒了。
+  - **别**把 `lang` 默认值兜底成 `'zh-CN'`——那会让所有未知前缀都静默跳到中文版，
+    SEO 重复内容 + 隐式行为。
+  - **别**用 JS 跳转（`useEffect(() => location.replace(...))`）替代 meta refresh——
+    静态页 JS 关掉或 404 就会卡在白屏；meta refresh 是 HTML 协议级、关不掉。
+
+---
+
+## 坑 #26：WebSocket 失败时 `console.error` 触发 Next.js dev error overlay 红屏
+
+- **现象**：聊天页里 WebSocket 默认连 `ws://localhost:8765/ws/web`，dev 模式下用户没起本地服务，
+  连不上是「预期」——但浏览器下方弹出 Next.js 红色 error overlay，控制台报：
+  ```
+  WebSocket 错误: Event {}
+  at useWebSocket.useCallback[connect] (hooks/useWebSocket.ts:84:15)
+  ```
+  同时 React 19 在控制台反复刷：
+  ```
+  Warning: Can't perform a React state update on an unmounted component
+  ```
+- **根因（双坑叠加）**：
+  1. **`console.error` 在 React 19 / Next.js 16 dev mode 被 Next 拦截**，触发红屏 overlay。
+     实际上 `console.error('WebSocket 错误:', error)` 不是「程序 bug」而是「网络层错误」，
+     但 Next 不知道这层语义，一律当 fatal error 处理。
+  2. **异步回调里 setState**：组件卸载（`useEffect` cleanup → `disconnect()`）时，旧 ws 的
+     `onerror` / `onclose` 仍可能在微任务里 fire，回调里调 `setConnectionStatus(...)` 就会撞上
+     React 19 的 "state update on unmounted component" 检查。
+  3. **多实例竞态**：用户连点「重新连接」/ 改 URL 触发自动重连时，旧 ws 的事件可能在
+     新 ws 创建后才 fire，把新 ws 的状态搅乱（旧 onerror 把 `connectionStatus` 改成 'error'）。
+- **解法**（`hooks/useWebSocket.ts`，三处配套修改）：
+  1. **挂载守卫 `mountedRef`**：组件卸载时置 `false`，所有 `setState` 之前先看一眼。
+     ```ts
+     const mountedRef = useRef(true)
+     useEffect(() => () => { mountedRef.current = false }, [])
+     // 在所有 setState 前：
+     if (!mountedRef.current) return
+     ```
+  2. **实例版本号 `wsInstanceIdRef`**：每次 `new WebSocket` 自增；所有 handler
+     入口先比对自己捕获的 `instanceId` 与 `wsInstanceIdRef.current`，
+     不一致直接 `return`。这样旧 ws 的事件永远不会污染新 ws 的状态。
+  3. **`console.error` → `console.warn`**：网络层 / 解析层错误是「已知非致命问题」，
+     用 warn 而不是 error，避免被 Next dev overlay 当成红屏 bug 显示。
+- **额外收尾**：
+  - `disconnect` / `cancelConnection` / cleanup 里**主动摘掉所有 handler**（`onopen = null` 等），
+    再 `close()`；这样即便 ws 关闭是个异步过程，回调 fire 也会被上面的 `instanceId` 检查挡掉。
+  - `setTimeout(connect, 100)` 之后 `return () => clearTimeout(timer)` 清理掉，
+    避免 URL 频繁改动时排队的 connect 把已经断开的 ws 复活。
+- **诊断方法**：
+  - DevTools → Console：`grep` `WebSocket 错误`；如果出现红屏 overlay 是 dev-only，
+    production build 不会拦截 `console.error`，但 React 19 的「unmounted setState」仍会刷警告。
+  - 频繁改 URL 时观察 `wsInstanceIdRef.current` 是否每次都 +1（DevTools 里加个 watch 表达式）。
+- **关联**：[十、§10.4 WebSocket 状态机](./10-chat-route.md) 与本坑配合读。
+- **红线**：
+  - **别**直接删掉 `console.error`——连接失败时还要在 dev 控制台给出可见信息，
+    否则真出 bug 时排查不到。改成 `console.warn('[useWebSocket] ...')` 并加 `[useWebSocket]`
+    前缀方便 grep。
+  - **别**只挂 `mountedRef` 不挂 `wsInstanceIdRef`——前者只防「卸载后 setState」，
+    后者还防「同生命周期内多 ws 串扰」。两个都加才完整。
+
+---
+
+## 坑 #27：聊天收到的图片只显示 broken image —— `base64://` 协议没翻译
+
+- **现象**：用户发图片（base64）→ 自己的消息气泡里**图片能正常显示**（因为 `useFileUpload`
+  走 `FileReader.readAsDataURL` 输出的是标准 `data:image/jpeg;base64,...`），但**收到的 /
+  echo 回来的消息里图片是 broken image**。DevTools 打开气泡 div 看 HTML：
+  ```html
+  <img src="base64:///9j/4AAQSkZJRgAB..." class="chat-image" ... />
+  ```
+  浏览器不认 `base64://` 协议，所以渲染失败。
+- **根因**：
+  - 服务端下行的图片数据是 GsCore 自定义协议 `base64://<payload>`（payload 是裸 base64，
+    无 `data:` 前缀）——这是协议层约定，便于统一传输。
+  - 浏览器只认 `data:image/...;base64,xxx` 或 `https://...`。
+  - **`base64://` → `data:<mime>;base64,xxx` 的翻译，原本只在 `NodeMessagePanel`
+    （合并转发面板）里**——`useMessageRenderer` 漏了。主消息气泡里图片就 broken。
+  - 类似的 `link://https://...` 协议也是：原本只在 NodeMessagePanel 翻译。
+- **解法**（`lib/media.ts` + `hooks/useMessageRenderer.ts` + `components/chat/NodeMessagePanel.tsx`）：
+  - 抽出共享工具 `resolveMediaUrl(raw, kind)`，翻译规则按顺序匹配：
+    1. 已经是 `data:` / `http(s):` / `blob:` → 原样返回（自己上传的、已经格式化好的不动）
+    2. `link://xxx` → `xxx`
+    3. `base64://xxx` → `data:<mime>;base64,xxx`，MIME 通过 base64 前 12 字符嗅探
+    4. 纯 base64（无前缀）→ `data:<mime>;base64,xxx`
+    5. 其它 → 原样兜底
+  - `sniffMimeFromBase64` 识别 JPEG (`/9j/`)、PNG (`iVBORw0KGgo`)、GIF (`R0lGOD`)、
+    WebP (`UklGRg`)、BMP、ICO、MP3 (`SUQz`)、WAV、OGG、MP4 (`AAAA` = ftyp box 头部)。
+    识别失败按 kind 兜底（image→jpeg / audio→mpeg / video→mp4），与原 VitePress 时代行为一致。
+  - **两处渲染都改用同一个 `resolveMediaUrl`**：`useMessageRenderer.renderImage / Audio / Video`
+    + `NodeMessagePanel.renderMessage` 都从 `lib/media` import，协议规则一处定义两处生效。
+- **诊断方法**：
+  - DevTools → Elements → 选中消息气泡的 `<img>` → 看 `src` 属性是不是 `base64://` 开头。
+  - 切到 Network → 找 `data:image` 请求；如果 `<img>` 确实在尝试加载但 404 / 不识别 src，
+    才会触发 broken image。
+- **关联**：
+  - [十、§10.7 输入区交互细节](./10-chat-route.md) 提到附件预览与发送。
+  - [十、§10.8 图片 / 合并转发](./10-chat-route.md) 提到 lightbox 与 NodeMessagePanel。
+- **红线**：
+  - **别**在每个调用点重复翻译逻辑——`NodeMessagePanel` 里旧实现就是复制粘贴，半年后
+    一边加了 `link://` 翻译另一边忘了，bug 就藏在分叉里。**只在一处（`lib/media.ts`）维护**。
+  - **别**直接把 `data:` URL 用正则 filter 一次然后让浏览器自己识别——`base64://` /
+    `data:` 是两套不同前缀，正则匹配要按「开头」锚定，不然像 `link://https://...`
+    这种会被误处理。
+  - **别**硬编码 MIME 为 `image/jpeg`——很多插件吐的是 PNG / WebP，硬编码 JPEG
+    会让 Chrome 拒绝解码（`ERR_INVALID_IMAGE_TYPE` 之类）依然 broken image。
+    一定要走嗅探。
+

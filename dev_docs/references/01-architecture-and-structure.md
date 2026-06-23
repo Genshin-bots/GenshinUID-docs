@@ -27,6 +27,9 @@ GenshinUID-docs/
 │   ├── [lang]/
 │   │   ├── layout.tsx        # 语言级布局：<html><body> + <Providers>（client）
 │   │   ├── page.tsx          # 首页（Hero + 特性卡片 + 团队），不走 docs 布局
+│   │   ├── chat/             # ★ 独立全页聊天路由：HomeLayout + DocsNav，无 sidebar / TOC
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
 │   │   └── docs/
 │   │       ├── layout.tsx    # DocsLayout（侧边栏 + 自定义 DocsNav 顶栏）
 │   │       └── [[...slug]]/page.tsx  # ★ 文档页渲染（DocsPage + MDX）
@@ -37,12 +40,13 @@ GenshinUID-docs/
 │   ├── SearchDialog.tsx      # 自定义搜索弹窗（带 CJK 分词）
 │   ├── mdx.tsx               # ★ MDX 组件映射表（注册所有自定义组件）
 │   ├── Badge / Card / NavCard / ChatPanel / DataPanel / ...
-│   └── chat/                 # /sp/chat 的「实时聊天室」组件（与文档内静态 ChatPanel 不同）
+│   └── chat/                 # ★ 实时聊天室核心（ChatInterface）+ 两条入口的外壳
+│                              #   ChatLayout（/sp/chat 用） / ChatStandalone（/chat 用）
 ├── content/docs/**/*.mdx     # ★ 文档内容（按目录组织 URL）
 ├── lib/
 │   ├── i18n.ts               # 语言定义（zh-CN / en / ja）
 │   ├── layout.shared.ts      # i18nUI：UI 文案三语翻译
-│   ├── nav-config.ts         # 顶栏下拉菜单 / 版本 / 语言项
+│   ├── nav-config.ts         # 顶栏下拉菜单 / 版本 / 语言项（聊天入口写在这里）
 │   ├── home-content.ts       # 首页文案（三语）
 │   └── source.ts             # fumadocs loader（把 docs 接入）
 ├── assets/                   # ★ 构建期资源（不会被部署到 out/）

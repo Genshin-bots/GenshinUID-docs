@@ -1,5 +1,17 @@
 'use client'
 
+import {
+  FileText,
+  Image as ImageIcon,
+  Music,
+  Video,
+  Send,
+  Loader2,
+  RefreshCw,
+  ChevronUp,
+  ChevronDown,
+  X,
+} from 'lucide-react'
 import type { ChangeEvent, ClipboardEvent, DragEvent } from 'react'
 import type { ContentItem } from '@/hooks/useFileUpload'
 import type { ConnectionStatus } from '@/hooks/useWebSocket'
@@ -25,6 +37,12 @@ interface ChatInputAreaProps {
   onPaste: (e: ClipboardEvent) => void
 }
 
+function fileTypeIcon(type: ContentItem['type']) {
+  if (type === 'image') return <ImageIcon size={14} strokeWidth={2} />
+  if (type === 'audio') return <Music size={14} strokeWidth={2} />
+  return <Video size={14} strokeWidth={2} />
+}
+
 export function ChatInputArea({
   value,
   onChange,
@@ -45,12 +63,30 @@ export function ChatInputArea({
   onDrop,
   onPaste,
 }: ChatInputAreaProps) {
+  const disabled = connectionStatus !== 'connected'
+  const canSend = !disabled && (value.trim().length > 0 || contentItems.length > 0)
+
   return (
     <footer className="fd-chat-input-area">
       {connectionStatus !== 'connected' && (
         <div className="fd-reconnect-overlay">
-          <button type="button" className="fd-reconnect-button" onClick={onReconnect}>
-            {connectionStatus === 'connecting' ? '连接中...' : '重新连接'}
+          <button
+            type="button"
+            className="fd-reconnect-button"
+            onClick={onReconnect}
+            disabled={connectionStatus === 'connecting'}
+          >
+            {connectionStatus === 'connecting' ? (
+              <>
+                <Loader2 size={16} strokeWidth={2.4} className="fd-status-spin" />
+                <span>连接中…</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw size={16} strokeWidth={2.4} />
+                <span>重新连接</span>
+              </>
+            )}
           </button>
         </div>
       )}
@@ -64,40 +100,37 @@ export function ChatInputArea({
         {contentItems.length > 0 && (
           <div className="fd-content-preview-area">
             {contentItems.map((item, index) => (
-              <div key={index} className="fd-content-preview-item">
-                {index > 0 && (
+              <div key={`${item.fileName}-${index}`} className="fd-content-preview-item">
+                <div className="fd-move-stack">
                   <button
                     type="button"
-                    className="fd-move-button fd-move-up"
+                    className="fd-move-button"
+                    disabled={index === 0}
                     onClick={() => onMoveContentItem(index, -1)}
+                    aria-label="上移"
+                    title="上移"
                   >
-                    ↑
+                    <ChevronUp size={12} strokeWidth={2.4} />
                   </button>
-                )}
-                {index < contentItems.length - 1 && (
                   <button
                     type="button"
-                    className="fd-move-button fd-move-down"
+                    className="fd-move-button"
+                    disabled={index === contentItems.length - 1}
                     onClick={() => onMoveContentItem(index, 1)}
+                    aria-label="下移"
+                    title="下移"
                   >
-                    ↓
+                    <ChevronDown size={12} strokeWidth={2.4} />
                   </button>
-                )}
+                </div>
 
-                {item.type === 'image' && (
+                {item.type === 'image' ? (
                   <div className="fd-preview-image">
                     <img src={item.preview} alt={item.fileName} />
                   </div>
-                )}
-                {item.type === 'audio' && (
-                  <div className="fd-preview-audio">
-                    <span className="fd-file-icon">🎵</span>
-                    <span className="fd-file-name">{item.fileName}</span>
-                  </div>
-                )}
-                {item.type === 'video' && (
-                  <div className="fd-preview-video">
-                    <span className="fd-file-icon">🎬</span>
+                ) : (
+                  <div className="fd-preview-file">
+                    <span className="fd-file-icon">{fileTypeIcon(item.type)}</span>
                     <span className="fd-file-name">{item.fileName}</span>
                   </div>
                 )}
@@ -106,8 +139,10 @@ export function ChatInputArea({
                   type="button"
                   className="fd-remove-button"
                   onClick={() => onRemoveContentItem(index)}
+                  aria-label="移除附件"
+                  title="移除"
                 >
-                  ×
+                  <X size={12} strokeWidth={2.6} />
                 </button>
               </div>
             ))}
@@ -117,17 +152,18 @@ export function ChatInputArea({
         <div className="fd-text-input-wrapper">
           <textarea
             value={value}
-            placeholder="输入消息..."
+            placeholder="输入消息… (Shift+Enter 换行，Enter 发送)"
             className="fd-message-input"
-            disabled={connectionStatus !== 'connected'}
+            disabled={disabled}
             onChange={e => onChange(e.target.value)}
-            onKeyDown={e => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !isMarkdownMode) {
                 e.preventDefault()
                 onSend()
               }
             }}
             onPaste={onPaste}
+            rows={3}
           />
         </div>
 
@@ -136,37 +172,42 @@ export function ChatInputArea({
             <button
               type="button"
               className={`fd-tool-button ${isMarkdownMode ? 'active' : ''}`}
-              title={isMarkdownMode ? '切换为普通文本' : '切换为Markdown'}
+              title={isMarkdownMode ? '切换为普通文本' : '切换为 Markdown'}
+              aria-label={isMarkdownMode ? '切换为普通文本' : '切换为 Markdown'}
+              aria-pressed={isMarkdownMode}
               onClick={onToggleMarkdown}
             >
-              📝
+              <FileText size={16} strokeWidth={2} />
             </button>
             <button
               type="button"
               className="fd-tool-button"
-              disabled={connectionStatus !== 'connected'}
+              disabled={disabled}
               title="添加图片"
+              aria-label="添加图片"
               onClick={() => onTriggerFileUpload('image')}
             >
-              🖼️
+              <ImageIcon size={16} strokeWidth={2} />
             </button>
             <button
               type="button"
               className="fd-tool-button"
-              disabled={connectionStatus !== 'connected'}
+              disabled={disabled}
               title="添加音频"
+              aria-label="添加音频"
               onClick={() => onTriggerFileUpload('audio')}
             >
-              🎵
+              <Music size={16} strokeWidth={2} />
             </button>
             <button
               type="button"
               className="fd-tool-button"
-              disabled={connectionStatus !== 'connected'}
+              disabled={disabled}
               title="添加视频"
+              aria-label="添加视频"
               onClick={() => onTriggerFileUpload('video')}
             >
-              🎬
+              <Video size={16} strokeWidth={2} />
             </button>
           </div>
 
@@ -174,10 +215,12 @@ export function ChatInputArea({
             <button
               type="button"
               className="fd-send-button"
-              disabled={connectionStatus !== 'connected' || (!value.trim() && contentItems.length === 0)}
+              disabled={!canSend}
               onClick={onSend}
+              title="发送消息"
             >
-              发送
+              <span>发送</span>
+              <Send size={16} strokeWidth={2.2} />
             </button>
           </div>
         </div>

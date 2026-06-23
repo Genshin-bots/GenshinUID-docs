@@ -6,7 +6,7 @@ import { ChatInputArea } from './ChatInputArea'
 import { ChatMessageList } from './ChatMessageList'
 import { ImageLightbox } from './ImageLightbox'
 import { NodeMessagePanel } from './NodeMessagePanel'
-import { useWebSocket } from '@/hooks/useWebSocket'
+import { useWebSocket, type ConnectionStatus } from '@/hooks/useWebSocket'
 import { useLightbox } from '@/hooks/useLightbox'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useContentItems } from '@/hooks/useContentItems'
@@ -25,6 +25,15 @@ export function ChatInterface() {
   const lightbox = useLightbox()
   const fileUpload = useFileUpload()
   const { items: contentItems, addItem, removeItem, moveItem, clearItems } = useContentItems()
+
+  /**
+   * 追加一条系统消息（连接状态 / 模式切换 / 错误等）。
+   * 用 setMessages 包装一层，所有 system 消息都从这条路径走，便于后续
+   * 统一插「时间戳 / 国际化」等元数据。
+   */
+  const pushSystemMessage = useCallback((text: string) => {
+    setMessages(prev => [...prev, { type: 'system', text }])
+  }, [])
 
   const onWsMessage = useCallback((data: any) => {
     if (data.content) {
@@ -61,16 +70,39 @@ export function ChatInterface() {
   }, [renderContent])
 
   const onWsError = useCallback((errorText: string) => {
-    setMessages(prev => [...prev, { type: 'system', text: errorText }])
-  }, [])
+    pushSystemMessage(errorText)
+  }, [pushSystemMessage])
 
   const { wsUrl, setWsUrl, connectionStatus, connect: connectWs, disconnect: disconnectWs, sendMessage: sendWsMessage, cancelConnection } = useWebSocket(onWsMessage, onWsError)
 
+  // 连接状态变化：把"已连接 / 断开 / 出错"刷成 system 消息
+  // 用 ref 记录上一态，避免 wsUrl 单独变化时（自动重连）连刷两条
+  const prevStatusRef = useRef<ConnectionStatus | null>(null)
   useEffect(() => {
-    if (connectionStatus === 'connected') {
-      setMessages(prev => [...prev, { type: 'system', text: `已连接到 ${wsUrl}` }])
+    const prev = prevStatusRef.current
+    if (connectionStatus === 'connected' && prev !== 'connected') {
+      pushSystemMessage(`已连接到 ${wsUrl}`)
     }
-  }, [connectionStatus, wsUrl])
+    else if (connectionStatus === 'disconnected' && prev === 'connected') {
+      pushSystemMessage('与服务器的连接已断开')
+    }
+    else if (connectionStatus === 'error' && prev !== 'error') {
+      pushSystemMessage('连接出现错误')
+    }
+    prevStatusRef.current = connectionStatus
+  }, [connectionStatus, wsUrl, pushSystemMessage])
+
+  // 群聊 / 私聊模式切换：把切换事件刷成 system 消息（沿用 VitePress 时代的反馈）
+  useEffect(() => {
+    if (isGroupMode) {
+      pushSystemMessage(`已切换到群聊模式（群组ID: ${groupId ?? ''}）`)
+    }
+    else {
+      pushSystemMessage('已切换到私聊模式')
+    }
+    // 只在 isGroupMode 变化时触发，避免 groupId 变化重复刷
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGroupMode])
 
   useEffect(() => {
     connectWs()

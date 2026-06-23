@@ -28,32 +28,69 @@ export function useWebSocket(
   defaultUrl = 'ws://localhost:8765/ws/web',
 ) {
   const wsRef = useRef<WebSocket | null>(null)
+  // 标记当前 WebSocket 实例：用于 onerror / onclose / onmessage 等异步回调
+  // 判断"这个事件是不是当前 ws 触发的"，避免旧连接的事件污染新连接 / 卸载后的状态。
+  const wsInstanceIdRef = useRef(0)
+  // 标记 hook 是否还活着：异步回调里 setState 前先看一眼，组件已卸载就跳过，
+  // 避免 React 19 "state update on unmounted component" 警告。
+  const mountedRef = useRef(true)
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected')
   const [wsUrl, setWsUrl] = useState(defaultUrl)
 
+  // 组件卸载时关闭 ws + 标记 mounted = false
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      if (wsRef.current) {
+        // 主动关闭时把所有 handler 摘掉，避免异步回调误触
+        wsRef.current.onopen = null
+        wsRef.current.onmessage = null
+        wsRef.current.onerror = null
+        wsRef.current.onclose = null
+        wsRef.current.close()
+        wsRef.current = null
+      }
+    }
+  }, [])
+
   const connect = useCallback(() => {
+    // 已经有连接就先关掉旧连接；旧 ws 的所有 handler 也要摘，避免脏回调
     if (wsRef.current) {
+      wsRef.current.onopen = null
+      wsRef.current.onmessage = null
+      wsRef.current.onerror = null
+      wsRef.current.onclose = null
       wsRef.current.close()
+      wsRef.current = null
     }
 
     setConnectionStatus('connecting')
 
+    let ws: WebSocket
     try {
-      wsRef.current = new WebSocket(wsUrl)
+      ws = new WebSocket(wsUrl)
     }
     catch (error) {
-      console.error('创建 WebSocket 失败: 无效的URL?', error)
-      setConnectionStatus('error')
-      onError?.(`连接失败：无效的URL "${wsUrl}"`)
-      wsRef.current = null
+      // 仅在组件还活着时刷状态，避免卸载后 setState
+      if (mountedRef.current) {
+        setConnectionStatus('error')
+        onError?.(`连接失败：无效的URL "${wsUrl}"`)
+      }
       return
     }
 
-    wsRef.current.onopen = () => {
+    wsRef.current = ws
+    const instanceId = ++wsInstanceIdRef.current
+
+    ws.onopen = () => {
+      // 旧实例的 onopen 不应该影响当前状态
+      if (instanceId !== wsInstanceIdRef.current || !mountedRef.current) return
       setConnectionStatus('connected')
     }
 
-    wsRef.current.onmessage = async (event) => {
+    ws.onmessage = async (event) => {
+      if (instanceId !== wsInstanceIdRef.current || !mountedRef.current) return
       try {
         let messageText: string
         if (event.data instanceof Blob) {
@@ -69,25 +106,39 @@ export function useWebSocket(
         onMessage(messageData)
       }
       catch (error) {
-        console.error('解析消息失败:', error, '原始数据:', event.data)
-        onError?.('收到一条无法解析的消息')
+        // 用 console.warn：连接层错误不是「程序 bug」，不该触发 dev overlay 红屏
+        console.warn('[useWebSocket] 解析消息失败:', error, '原始数据:', event.data)
+        if (mountedRef.current) {
+          onError?.('收到一条无法解析的消息')
+        }
       }
     }
 
-    wsRef.current.onclose = () => {
+    ws.onclose = () => {
+      // 主动 disconnect 时会先 onclose = null 再 close，所以这里能区分"用户主动断"和"对端掉线"
+      if (instanceId !== wsInstanceIdRef.current || !mountedRef.current) return
       setConnectionStatus('disconnected')
       wsRef.current = null
     }
 
-    wsRef.current.onerror = (error) => {
+    ws.onerror = (event) => {
+      if (instanceId !== wsInstanceIdRef.current || !mountedRef.current) return
       setConnectionStatus('error')
-      console.error('WebSocket 错误:', error)
+      // 用 console.warn 而非 console.error：
+      //   - dev mode 下 console.error 会被 Next.js / React 19 拦截并显示为 error overlay，
+      //     "连接失败（端口未开）"是预期场景，不该用红屏让用户以为代码崩了。
+      //   - console.warn 是「已知非致命问题」的语义。
+      console.warn('[useWebSocket] WebSocket 连接错误:', event)
       wsRef.current = null
     }
   }, [wsUrl, onMessage, onError])
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {
+      // 先摘 handler，让异步回调即使 fire 也会被 instanceId 检查挡掉
+      wsRef.current.onopen = null
+      wsRef.current.onmessage = null
+      wsRef.current.onerror = null
       wsRef.current.onclose = null
       wsRef.current.close()
       wsRef.current = null
@@ -104,7 +155,13 @@ export function useWebSocket(
 
   const cancelConnection = useCallback(() => {
     if (wsRef.current) {
+      // 取消时同样摘 handler
+      wsRef.current.onopen = null
+      wsRef.current.onmessage = null
+      wsRef.current.onerror = null
+      wsRef.current.onclose = null
       wsRef.current.close()
+      wsRef.current = null
     }
   }, [])
 
@@ -112,17 +169,14 @@ export function useWebSocket(
   useEffect(() => {
     if (connectionStatus !== 'disconnected') {
       disconnect()
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         connect()
       }, 100)
+      return () => clearTimeout(timer)
     }
-  }, [wsUrl]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    return () => {
-      disconnect()
-    }
-  }, [disconnect])
+    return undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wsUrl])
 
   return {
     ws: wsRef,

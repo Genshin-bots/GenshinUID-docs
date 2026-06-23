@@ -48,6 +48,7 @@ description: >
 | 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY、sidebar DOM 迁移、inline code / pre 字体链、banner 重排、lucide icons map 陷阱） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
 | 八 | 字体切片（MiSans VF + unicode-range，源文件位置、重新生成、VF 轴校验） | [references/08-font-slice.md](./references/08-font-slice.md) |
 | 九 | 首页 PPT 式硬翻页（`HomePager` rAF 缓动 + `HomeShowcase` 入场动画的设计要点） | [references/09-home-ppt-pager.md](./references/09-home-ppt-pager.md) |
+| 十 | 实时聊天室路由（`/chat` 独立全页路由 vs `/sp/chat` 文档内嵌、HomeLayout 复用、ChatInterface 与 ChatLayout / ChatStandalone 关系、WebSocket 状态机、滚动策略） | [references/10-chat-route.md](./references/10-chat-route.md) |
 
 ## 推荐阅读顺序
 

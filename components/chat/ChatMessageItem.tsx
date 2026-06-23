@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { Copy, RotateCw, MessageSquareText } from 'lucide-react'
 import type { ChatMessage, NodeContent } from './types'
 
 interface ChatMessageItemProps {
@@ -25,9 +26,9 @@ function getNodePreview(nodeData: NodeContent[]): string {
   const firstMsg = first.messages?.[0]
   if (firstMsg) {
     const content = firstMsg.data?.substring(0, 20) || '[消息]'
-    preview += content + (firstMsg.data && firstMsg.data.length > 20 ? '...' : '')
+    preview += content + (firstMsg.data && firstMsg.data.length > 20 ? '…' : '')
   }
-  if (count > 1) preview += ` 等${count}条消息`
+  if (count > 1) preview += ` 等 ${count} 条消息`
   return preview
 }
 
@@ -61,7 +62,7 @@ export function ChatMessageItem({
   if (message.type === 'system') {
     return (
       <div className="fd-system-message">
-        {message.text}
+        <span className="fd-system-pill">{message.text}</span>
       </div>
     )
   }
@@ -72,21 +73,19 @@ export function ChatMessageItem({
         <img src={message.sender?.avatar} alt="avatar" className="fd-msg-avatar" />
         <div className="fd-msg-content">
           <div className="fd-sender-name">{message.sender?.nickname}</div>
-          <div
+          <button
+            type="button"
             className="fd-msg-bubble fd-node-message-bubble"
             onClick={() => message.nodeData && onNodeClick(message.nodeData)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && message.nodeData) onNodeClick(message.nodeData)
-            }}
           >
             <div className="fd-node-preview">
-              <span className="fd-node-icon">📋</span>
+              <span className="fd-node-icon">
+                <MessageSquareText size={16} strokeWidth={2} />
+              </span>
               <span className="fd-node-text">{getNodePreview(message.nodeData || [])}</span>
             </div>
             <div className="fd-node-hint">点击查看详情</div>
-          </div>
+          </button>
         </div>
       </div>
     )
@@ -127,24 +126,26 @@ export function ChatMessageItem({
         )}
       </div>
       {message.type === 'sent' && (
-        <>
+        <div className="fd-msg-actions">
           <button
             type="button"
-            className="fd-copy-button"
+            className="fd-icon-button"
             onClick={() => onCopy({ text: message.text, html: message.html })}
             title="复制到输入框"
+            aria-label="复制到输入框"
           >
-            📋
+            <Copy size={14} strokeWidth={2} />
           </button>
           <button
             type="button"
-            className="fd-resend-button"
+            className="fd-icon-button"
             onClick={() => onResend(message.text || message.html || '')}
             title="重新发送"
+            aria-label="重新发送"
           >
-            +1
+            <RotateCw size={14} strokeWidth={2} />
           </button>
-        </>
+        </div>
       )}
     </div>
   )

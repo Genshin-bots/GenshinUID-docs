@@ -25,7 +25,7 @@ export function getNavItems(lang: Language): NavItem[] {
           { label: '💫 FAQ', href: '/en/docs/faq/' },
           { label: '💻 Write Plugin', href: '/en/docs/code-plugins/start/' },
           { label: '🧐 Write Adapter', href: '/en/docs/code-adapter/pack/' },
-          { label: '🔰 Online Chat', href: '/en/docs/sp/chat/' },
+          { label: '🔰 Online Chat', href: '/en/chat/' },
         ],
       },
       {
@@ -61,7 +61,7 @@ export function getNavItems(lang: Language): NavItem[] {
           { label: '💫 よくある質問', href: '/ja/docs/faq/' },
           { label: '💻 プラグイン開発', href: '/ja/docs/code-plugins/start/' },
           { label: '🧐 アダプタ開発', href: '/ja/docs/code-adapter/pack/' },
-          { label: '🔰 オンラインチャット', href: '/ja/docs/sp/chat/' },
+          { label: '🔰 オンラインチャット', href: '/ja/chat/' },
         ],
       },
       {
@@ -97,7 +97,7 @@ export function getNavItems(lang: Language): NavItem[] {
         { label: '💫 常见问题', href: '/zh-CN/docs/faq/' },
         { label: '💻 编写插件', href: '/zh-CN/docs/code-plugins/start/' },
         { label: '🧐 编写适配器', href: '/zh-CN/docs/code-adapter/pack/' },
-        { label: '🔰 在线聊天室', href: '/zh-CN/docs/sp/chat/' },
+        { label: '🔰 在线聊天室', href: '/zh-CN/chat/' },
       ],
     },
     {

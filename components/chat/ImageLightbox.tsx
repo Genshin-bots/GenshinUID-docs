@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageLightboxProps {
   imageSrc: string | null
@@ -61,8 +62,10 @@ export function ImageLightbox({
         className="fd-lightbox-nav-button prev"
         disabled={isPrevDisabled}
         onClick={onPrev}
+        aria-label="上一张"
+        title="上一张"
       >
-        ❮
+        <ChevronLeft size={22} strokeWidth={2.2} />
       </button>
       <img
         key={imageRenderKey}
@@ -79,8 +82,10 @@ export function ImageLightbox({
         className="fd-lightbox-nav-button next"
         disabled={isNextDisabled}
         onClick={onNext}
+        aria-label="下一张"
+        title="下一张"
       >
-        ❯
+        <ChevronRight size={22} strokeWidth={2.2} />
       </button>
     </div>
   )

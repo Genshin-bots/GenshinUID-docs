@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { resolveMediaUrl } from '@/lib/media'
 
 type ContentType = 'text' | 'markdown' | 'image' | 'audio' | 'video'
 
@@ -14,15 +15,18 @@ function escapeHtml(unsafe: string): string {
 }
 
 function renderImage(src: string): string {
-  return `<img src="${escapeHtml(src)}" alt="image" class="chat-image" style="max-width: 200px; border-radius: 8px; display: block; cursor: pointer; margin: 0.2rem 0;" />`
+  const url = resolveMediaUrl(src, 'image')
+  return `<img src="${escapeHtml(url)}" alt="image" class="chat-image" style="max-width: 200px; border-radius: 8px; display: block; cursor: pointer; margin: 0.2rem 0;" />`
 }
 
 function renderAudio(src: string): string {
-  return `<audio controls src="${escapeHtml(src)}" style="max-width: 100%; margin: 0.2rem 0;"></audio>`
+  const url = resolveMediaUrl(src, 'audio')
+  return `<audio controls src="${escapeHtml(url)}" style="max-width: 100%; margin: 0.2rem 0;"></audio>`
 }
 
 function renderVideo(src: string): string {
-  return `<video controls src="${escapeHtml(src)}" style="max-width: 100%; max-height: 200px; margin: 0.2rem 0;"></video>`
+  const url = resolveMediaUrl(src, 'video')
+  return `<video controls src="${escapeHtml(url)}" style="max-width: 100%; max-height: 200px; margin: 0.2rem 0;"></video>`
 }
 
 function renderText(text: string): string {

@@ -37,7 +37,9 @@ return {
 | `PageInfo` | `components/PageInfo.tsx` | 字数 / 阅读时长 | 内联 Tailwind |
 | `VideoLink` | `components/VideoLink.tsx` | B 站视频链接卡片 | 内联 Tailwind |
 | `Contact` / `CopyRight` | 同名文件 | 联系方式 / 版权 | 内联 Tailwind |
-| `ChatLayout` | `components/chat/` | `/sp/chat` 的 **WebSocket 实时聊天室**（与 ChatPanel 无关） | `.fd-chat-*` |
+| `ChatLayout` | `components/chat/ChatLayout.tsx` | `/sp/chat` 的 **WebSocket 实时聊天室**外壳（与 ChatPanel 无关） | `.fd-chat-*` |
+| `ChatStandalone` | `components/chat/ChatStandalone.tsx` | `/chat` 独立全页路由外壳（脱离 docs 网格，聊天卡铺满整屏） | `.fd-chat-page-container--standalone` |
+| `ChatInterface` | `components/chat/ChatInterface.tsx` | 实时聊天室核心（WebSocket / 消息 / 输入 / Lightbox / 节点面板） | `.fd-chat-*` |
 
 ### 首页专用组件（不在 MDX 注册表里）
 
