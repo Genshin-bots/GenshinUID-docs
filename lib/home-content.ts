@@ -27,6 +27,22 @@ interface SupportLink {
   href: string
 }
 
+interface ShowcaseItem {
+  /** public 下的图片路径，如 /home/dashboard.png */
+  img: string
+  alt: string
+  eyebrow: string
+  title: string
+  desc: string
+  points: string[]
+}
+
+interface Showcase {
+  title: string
+  subtitle: string
+  items: ShowcaseItem[]
+}
+
 interface HomeContent {
   hero: {
     name: string
@@ -36,6 +52,7 @@ interface HomeContent {
     actions: HeroAction[]
   }
   scrollHint?: string
+  showcase: Showcase
   featuresTitle?: string
   features: Feature[]
   teamTitle?: string
@@ -87,6 +104,172 @@ const jaFeatures: Feature[] = [
   { icon: '🚩', title: 'オープンソース', details: 'GsCoreおよび対応プラグインはオープンソース', link: 'https://github.com/Genshin-bots/gsuid_core', linkText: 'Star ⭐' },
 ]
 
+/** 主页「框架运行效果」视差展示——图片放在 public/home/ 下 */
+const zhShowcase: Showcase = {
+  title: '强大，且易于上手',
+  subtitle: '几分钟即可部署上手——统一的接口与可视化控制台，让复杂的功能变得简单。',
+  items: [
+    {
+      img: '/home/dashboard.png',
+      alt: '数据看板',
+      eyebrow: '数据统计',
+      title: '完善的统计模块',
+      desc: '内置数据看板，DAU / WAU / MAU、命令调用趋势、活跃用户一目了然，运营状况尽在掌握。',
+      points: ['实时关键指标', '月度命令统计', '多维度用户分析'],
+    },
+    {
+      img: '/home/plugins.png',
+      alt: '插件数据库',
+      eyebrow: '插件数据库',
+      title: '统一的插件数据库接口',
+      desc: '所有插件共享同一套数据库接口与管理后台，增删改查直接在网页控制台完成，无需各自造轮子。',
+      points: ['统一数据访问层', '网页端增删改查', '多账号开箱即用'],
+    },
+    {
+      img: '/home/plugins_config.png',
+      alt: '插件配置',
+      eyebrow: '插件配置',
+      title: '统一的插件配置管理',
+      desc: '任意插件只需简单继承，配置项即可在控制台集中管理、即改即生效，告别翻找配置文件。',
+      points: ['集中式配置面板', '改动即时生效', '类型化配置项'],
+    },
+    {
+      img: '/home/theme.png',
+      alt: '主题设置',
+      eyebrow: '个性主题',
+      title: '丰富的主题功能',
+      desc: '内置多套精美主题，支持自定义背景与界面风格，一键切换，让你的控制台与众不同。',
+      points: ['多套内置主题', '自定义背景', '一键切换'],
+    },
+    {
+      img: '/home/ai-memory.png',
+      alt: 'AI 记忆图谱',
+      eyebrow: 'AI 能力',
+      title: 'AI 记忆图谱',
+      desc: '可视化的 AI 记忆系统，将对话、关系与知识沉淀为图谱，让你的 Bot 越用越懂你。',
+      points: ['可视化记忆图谱', '长期上下文沉淀', '关系网络洞察'],
+    },
+    {
+      img: '/home/ai-meme.png',
+      alt: '表情管理',
+      eyebrow: 'AI 能力',
+      title: '智能表情包',
+      desc: '内置表情包管理与 AI 表情能力，让对话更有温度，玩梗整活信手拈来。',
+      points: ['海量表情管理', 'AI 智能配图', '分类检索'],
+    },
+  ],
+}
+
+const enShowcase: Showcase = {
+  title: 'Powerful, yet easy to start',
+  subtitle: 'Up and running in minutes — unified interfaces and a visual console make complex features simple.',
+  items: [
+    {
+      img: '/home/dashboard.png',
+      alt: 'Dashboard',
+      eyebrow: 'Analytics',
+      title: 'A complete stats module',
+      desc: 'A built-in dashboard surfaces DAU / WAU / MAU, command trends and active users at a glance.',
+      points: ['Live key metrics', 'Monthly command stats', 'Multi-dimensional analysis'],
+    },
+    {
+      img: '/home/plugins.png',
+      alt: 'Plugin database',
+      eyebrow: 'Plugin Database',
+      title: 'A unified plugin database API',
+      desc: 'Every plugin shares one database interface and admin panel — full CRUD right from the web console.',
+      points: ['Unified data layer', 'CRUD from the web', 'Multi-account out of the box'],
+    },
+    {
+      img: '/home/plugins_config.png',
+      alt: 'Plugin config',
+      eyebrow: 'Plugin Config',
+      title: 'Unified plugin configuration',
+      desc: 'Inherit once and a plugin\'s settings are managed centrally in the console — edits take effect instantly.',
+      points: ['Central config panel', 'Instant apply', 'Typed config items'],
+    },
+    {
+      img: '/home/theme.png',
+      alt: 'Theme settings',
+      eyebrow: 'Theming',
+      title: 'Rich theming',
+      desc: 'Multiple polished themes with custom backgrounds and styles — switch in one click to make the console yours.',
+      points: ['Built-in themes', 'Custom backgrounds', 'One-click switch'],
+    },
+    {
+      img: '/home/ai-memory.png',
+      alt: 'AI memory graph',
+      eyebrow: 'AI',
+      title: 'AI memory graph',
+      desc: 'A visual AI memory system distills conversations, relations and knowledge into a graph that grows with use.',
+      points: ['Visual memory graph', 'Long-term context', 'Relationship insights'],
+    },
+    {
+      img: '/home/ai-meme.png',
+      alt: 'Sticker management',
+      eyebrow: 'AI',
+      title: 'Smart stickers',
+      desc: 'Built-in sticker management and AI imagery make conversations warmer and the memes effortless.',
+      points: ['Bulk sticker management', 'AI image picks', 'Tag & search'],
+    },
+  ],
+}
+
+const jaShowcase: Showcase = {
+  title: 'パワフル、それでいて簡単',
+  subtitle: '数分でデプロイ完了——統一されたインターフェースと可視化コンソールで、複雑な機能もシンプルに。',
+  items: [
+    {
+      img: '/home/dashboard.png',
+      alt: 'ダッシュボード',
+      eyebrow: '統計',
+      title: '充実した統計モジュール',
+      desc: 'ダッシュボードに DAU / WAU / MAU、コマンド推移、アクティブユーザーを一目で表示。',
+      points: ['リアルタイム指標', '月次コマンド統計', '多次元ユーザー分析'],
+    },
+    {
+      img: '/home/plugins.png',
+      alt: 'プラグインデータベース',
+      eyebrow: 'プラグインDB',
+      title: '統一プラグインDB API',
+      desc: '全プラグインが同一のDBインターフェースと管理画面を共有。Webコンソールから直接CRUD。',
+      points: ['統一データ層', 'WebからCRUD', 'マルチアカウント対応'],
+    },
+    {
+      img: '/home/plugins_config.png',
+      alt: 'プラグイン設定',
+      eyebrow: 'プラグイン設定',
+      title: '統一プラグイン設定管理',
+      desc: '簡単な継承で設定をコンソールに集約。変更は即時反映、設定ファイル探しから解放。',
+      points: ['集中設定パネル', '即時反映', '型付き設定項目'],
+    },
+    {
+      img: '/home/theme.png',
+      alt: 'テーマ設定',
+      eyebrow: 'テーマ',
+      title: '豊富なテーマ機能',
+      desc: '美しいテーマを多数内蔵。背景やスタイルをカスタマイズし、ワンクリックで切替。',
+      points: ['内蔵テーマ多数', 'カスタム背景', 'ワンクリック切替'],
+    },
+    {
+      img: '/home/ai-memory.png',
+      alt: 'AI 記憶グラフ',
+      eyebrow: 'AI',
+      title: 'AI 記憶グラフ',
+      desc: '会話・関係・知識をグラフ化する可視化AI記憶。使うほどBotがあなたを理解。',
+      points: ['可視化記憶グラフ', '長期コンテキスト', '関係性の洞察'],
+    },
+    {
+      img: '/home/ai-meme.png',
+      alt: 'スタンプ管理',
+      eyebrow: 'AI',
+      title: 'スマートスタンプ',
+      desc: 'スタンプ管理とAI画像機能を内蔵。会話に温かみを、ネタ作りも思いのまま。',
+      points: ['大量スタンプ管理', 'AI画像提案', 'タグ検索'],
+    },
+  ],
+}
+
 const teamMembers: TeamMember[] = [
   { name: 'Wuyi', title: 'Author', avatar: 'https://avatars.githubusercontent.com/u/55526518?v=4', link: 'https://github.com/KimigaiiWuyi' },
   { name: 'baiqwerdvd', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/158065462?v=4', link: 'https://github.com/baiqwerdvd' },
@@ -113,6 +296,7 @@ export function getHomeContent(lang: Language): HomeContent {
         ],
       },
       scrollHint: 'Scroll to explore',
+      showcase: enShowcase,
       featuresTitle: 'Why GsCore',
       features: enFeatures,
       teamTitle: 'Core Team',
@@ -140,6 +324,7 @@ export function getHomeContent(lang: Language): HomeContent {
         ],
       },
       scrollHint: 'スクロールして探索',
+      showcase: jaShowcase,
       featuresTitle: 'GsCore を選ぶ理由',
       features: jaFeatures,
       teamTitle: 'コアチーム',
@@ -167,7 +352,8 @@ export function getHomeContent(lang: Language): HomeContent {
       ],
     },
     scrollHint: '向下滚动 · 探索更多',
-    featuresTitle: '为什么选择 GsCore',
+    showcase: zhShowcase,
+    featuresTitle: '早柚核心开发优势',
     features: zhFeatures,
     teamTitle: '核心团队',
     teamMembers,

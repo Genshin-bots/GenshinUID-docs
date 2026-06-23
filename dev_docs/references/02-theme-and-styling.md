@@ -132,3 +132,77 @@ border-color: color-mix(in oklch, var(--callout-color) 34%, transparent);
 
 > **红线**：不要在组件 `.tsx` 里硬编码颜色（如 `bg-blue-500`、`#xxxxxx`、`oklch(...)`）。
 > 一律用 `--color-fd-*` / `--fd-glass-*` 变量或 `text-fd-*` / `bg-fd-*` 工具类，才能跟随主题与深浅色。
+
+---
+
+## 2.7 排版微调：prose 行高 / 背景网格 / 侧边栏 folder icon 多彩
+
+这一节列三个「不算换配色，但改了就要心里有数」的小调整。
+
+### 2.7.1 prose 行高 1.75 → 1.4
+
+Tailwind Typography 默认正文 `line-height: 1.75` 配合 MiSans VF 中等 x-height 看起来偏松。
+项目里把 `.prose` 与 `.prose :where(p, ul, ol, li, dd, dt, blockquote, table, figure)` 都压到 1.4。
+heading 不动（它们各自有更紧的 1.1–1.3）。
+
+调整位置：`app/global.css` `.prose { ... line-height: 1.4 }`。
+
+### 2.7.2 文档页背景网格 alpha 5% → 3%
+
+`#nd-docs-layout::before` 画 56×56px 网格 + 椭圆遮罩淡出。原色是
+`color-mix(in oklch, var(--color-fd-foreground) 5%, transparent)`——5% 在浅色磨砂玻璃背景上
+**仍显扎眼**，调成 3% 后是淡淡的"若有似无"。
+
+调整位置：`app/global.css` 的 `#nd-docs-layout::before / #nd-notebook-layout::before` + `.dark` 同位。
+**记得亮暗两处一起改**——只改亮色会被暗色覆盖。
+
+### 2.7.3 侧边栏 folder icon 多彩（青/靛/紫/蔚蓝/青绿/蓝紫轮转）
+
+实现思路与坑 #16 强耦合（**先读坑 #16 再动这里**）。三个要点：
+
+1. **hook**：用 `[data-radix-scroll-area-viewport]` 作为页树根（不要用 ul/li，v16 已经废弃）。
+2. **轮转变量**：
+   ```css
+   #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+k) {
+     --folder-accent: oklch(...);
+   }
+   ```
+   子级 leaf 自动通过 CSS 变量继承拿到父 folder 的色相。暗色版用 `oklch(... 0.78 ...)` 提亮。
+3. **上色**：`#nd-sidebar button > svg:first-child, #nd-sidebar a > svg:first-child { color: var(--folder-accent); }`。
+   folder trigger button 内 element children 只有 2 个 svg（folder-icon + chevron），`:first-child`
+   精确指向 folder-icon；chevron 是第二个、不受影响。leaf `<a>` 内只有 1 个 svg，命中即着色。
+
+色板与 `HomeShowcase` 面板的 `nth-child(6n+k)` accent 完全一致，整体视觉有连续性：
+
+| nth | hue | 色相 |
+|-----|-----|------|
+| 6n+1 | 200 | 青 |
+| 6n+2 | 250 | 靛 |
+| 6n+3 | 300 | 紫 |
+| 6n+4 | 220 | 蔚蓝 |
+| 6n+5 | 165 | 青绿 |
+| 6n+6 | 275 | 蓝紫 |
+
+调整位置：`app/global.css`「侧边栏 folder / leaf icon 多彩着色」段。
+**红线**：写新 selector 之前**先用 Chrome DevTools Protocol 抓真实 DOM**，确认 `[data-radix-scroll-area-viewport]` 仍是 sidebar 唯一 hook；别凭印象沿用旧 `ul[role="list"]`（坑 #16）。
+
+---
+
+## 2.8 文档页 banner 网格重排（关面包屑 + 按钮移到右下）
+
+文档页大标题区（`.fd-doc-banner`）是 grid：
+
+```
+[左列: title + description][右列: LLMCopyButton + ViewOptions]
+```
+
+左列 `align-items: end` 让按钮组贴右列底部，与 description 行底视觉对齐。`@media (max-width: 40rem)` 切回单列堆叠。
+
+- **`breadcrumb={{ enabled: false }}`**：完全关掉 fumadocs 默认面包屑（用户决定不在文档页显示章节小字）。
+- 原来 banner 下方的 `LLMCopyButton + ViewOptions` 一整行 `<div className="flex flex-row items-center gap-2 mb-7">` 已删除，按钮搬进 `.fd-doc-banner__actions`。
+- 边框 `border-bottom: 1px solid var(--fd-border-soft)` 与 `.fd-doc-banner` 自身的 `margin-bottom: 0.75rem` 给正文留出**收敛**的呼吸（旧值 1.25rem 偏长）。
+- 配合 `.prose > :first-child { margin-top: 1.25rem !important }` + `.prose.prose > div[style*="--callout-color"]:first-child` 高特异覆盖，
+  banner 与正文首元素（H2 / Callout / p 等）之间的可见距离统一收敛到约 2rem，
+  避免 h2 / callout 各自不同 margin-top 造成的跳变。详见 [七、坑 #21](./07-pitfalls.md)。
+
+详见 [七、坑 #18](./07-pitfalls.md)。

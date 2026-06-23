@@ -40,13 +40,14 @@ description: >
 | 章节 | 主题 | 链接 |
 |------|------|------|
 | 一 | 架构与目录结构（技术栈、关键文件、路由、布局网格、构建 / 部署） | [references/01-architecture-and-structure.md](./references/01-architecture-and-structure.md) |
-| 二 | 主题与样式系统（Slate 配色令牌、light/dark、玻璃辅助变量、布局宽度、全宽 Header、如何换配色） | [references/02-theme-and-styling.md](./references/02-theme-and-styling.md) |
+| 二 | 主题与样式系统（Slate 配色令牌、light/dark、玻璃辅助变量、布局宽度、全宽 Header、如何换配色、prose 行高 / 网格透明度、侧边栏多彩 icon） | [references/02-theme-and-styling.md](./references/02-theme-and-styling.md) |
 | 三 | 自定义组件（MDX 组件清单、Badge / Card / ChatPanel / Callout…、如何新增一个组件） | [references/03-components.md](./references/03-components.md) |
-| 四 | 怎么写文档（frontmatter、标题 / description、提示框、聊天示例、徽章、CJK 加粗 / 大括号注意） | [references/04-writing-mdx.md](./references/04-writing-mdx.md) |
+| 四 | 怎么写文档（frontmatter、标题 / description、提示框、聊天示例、徽章、CJK 加粗 / 大括号注意、leaf icon 多元化脚本） | [references/04-writing-mdx.md](./references/04-writing-mdx.md) |
 | 五 | i18n 多语言（语言配置、导航栏 nav-config、首页 home-content、UI 文案、如何加一门语言） | [references/05-i18n.md](./references/05-i18n.md) |
 | 六 | 搜索（静态 Orama 索引、中文 / 日文分词、自定义搜索弹窗、为什么默认搜不到中文） | [references/06-search.md](./references/06-search.md) |
-| 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY…） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
+| 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY、sidebar DOM 迁移、inline code / pre 字体链、banner 重排、lucide icons map 陷阱） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
 | 八 | 字体切片（MiSans VF + unicode-range，源文件位置、重新生成、VF 轴校验） | [references/08-font-slice.md](./references/08-font-slice.md) |
+| 九 | 首页 PPT 式硬翻页（`HomePager` rAF 缓动 + `HomeShowcase` 入场动画的设计要点） | [references/09-home-ppt-pager.md](./references/09-home-ppt-pager.md) |
 
 ## 推荐阅读顺序
 
@@ -66,4 +67,12 @@ description: >
 > - **MDX 里中文加粗、`{ }`、HTML 注释都有坑**，写文档前务必读 [四](./references/04-writing-mdx.md)。
 > - **配色全部是 CSS 变量**（`--color-fd-*` / `--fd-glass-*`），改主题改变量即可，别到处硬编码颜色。
 > - **正文字体是 MiSans VF（可变字体，wght 150~700）+ 97 个 unicode-range 切片**，
->   不是 4 套静态字重。CSS 写 `font-weight: 600` 浏览器会沿 wght 轴插值，不需要切换字体文件。见 [八](./references/08-font-slice.md) / 坑 #15。
+>   不是 4 套静态字重。CSS 写 `font-weight: 600` 浏览器会沿 wght 轴插值，不需要切换字体文件。
+>   **inline code / pre 也走 MiSans VF**（inline code 把 MiSans VF 提到 mono 之前；pre 块直接用 MiSans VF 并关闭 `liga/clig/calt`）。
+>   见 [八](./references/08-font-slice.md) / 坑 #15 / 坑 #17。
+> - **首页是 PPT 式硬翻页**（`HomePager` 接管 wheel/keydown/touch，一滚 = 一页）。
+>   CSS 里**不要**再启用 `scroll-snap-*`（会和脚本抢主）。见 [九](./references/09-home-ppt-pager.md)。
+> - **侧边栏在 fumadocs v16 之后已经不用 `<ul>/<li>`**——整个树是 `<div data-radix-scroll-area-viewport>` 内的一组 `<div data-state="open/closed">`。
+>   想给 folder icon 着色或定位"页"位置，先看坑 #16 再写 selector。
+> - **lucide-react 的 `icons` map 不等于 `lucide-react` 命名导出**。`Home` / `Train` 等少数 icon
+>   在 `icons` map 里**不存在**，写进 frontmatter 会被 `lucideIconsPlugin` 报 `Unknown icon detected`，见坑 #19。

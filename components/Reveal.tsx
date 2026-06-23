@@ -11,8 +11,15 @@ interface RevealProps {
 }
 
 /**
- * 滚动驱动的「进入视口淡入上浮」包裹层。
- * 用 IntersectionObserver 实现，全浏览器可用；尊重 prefers-reduced-motion。
+ * 滚动驱动的「进入/离开视口淡入上浮」包裹层。
+ * 用 IntersectionObserver 实现，全浏览器可用。
+ *
+ * 双向触发：
+ *  - 进入视口 → 加 .reveal--in（CSS 过渡把 opacity 0→1、translateY 32→0、blur 8→0）
+ *  - 离开视口 → 移除 .reveal--in（同一组过渡反向播放，元素再次模糊下沉淡出）
+ * 这样滚回页面也能看到一致的「离场」动效，不会出现「来回滚效果消失」。
+ *
+ * 动效始终开启——应需求不因 prefers-reduced-motion / 省电模式而关闭。
  */
 export function Reveal({ children, delay = 0, className }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -22,19 +29,10 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
     if (!el)
       return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      el.classList.add('reveal--in')
-      return
-    }
-
     const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            el.classList.add('reveal--in')
-            io.unobserve(el)
-          }
-        }
+      ([entry]) => {
+        // 双向：进入加类、离开去类。CSS 过渡同一组，进退都丝滑。
+        el.classList.toggle('reveal--in', entry.isIntersecting)
       },
       { threshold: 0.15, rootMargin: '0px 0px -8% 0px' },
     )

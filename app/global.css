@@ -190,10 +190,32 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-code,
+/* 代码块 / 键盘按键：按你的要求改用 MiSans VF（纯可变字体，无英文连字）。
+   · MiSans VF 是单一 variable font，已经按 unicode-range 切片成 97 个 .woff2
+     （见 public/font/MiSans-VF/font.css），浏览器只下载实际命中的切片 → 内存友好。
+   · 同一字体同时支持 wght 150~700（`font-weight: 150 700`），shiki 高亮里
+     `<keyword>` 700 / 注释 400 / 普通 token 500 都靠这一份字体平滑插值出来，
+     无需 Bold/Regular 两套独立 face。
+   · 行内 code 已经走同款 MiSans VF 链（下方 :not(pre) > code 规则），整页代码
+     体验中英文一致、笔触粗细一致。
+   · 副作用：MiSans 是 proportional，等宽属性会消失（这是「中英文统一」与
+     「严格等宽」的权衡，按你的指示选择前者）。 */
 pre,
+pre code,
 kbd {
-  font-family: var(--font-mono);
+  font-family: 'MiSans VF', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* 关闭可能引入英文连字的 ligature features，与「无连字」要求一致 */
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+}
+
+/* 全局行内 code（prose 之外，例如导航 / 卡片 / Callout 标题 / 表格）：
+   与正文同源的 MiSans VF 优先 + Fira Code 英文兜底。修复 fumadocs-ui
+   `:where(code)` 默认走纯英文等宽导致中文跌落到系统字体的问题。 */
+:not(pre) > code {
+  font-family: 'MiSans VF', 'Fira Code', ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* ==========================================================================
@@ -279,12 +301,12 @@ body {
   background-image:
     linear-gradient(
       to right,
-      color-mix(in oklch, var(--color-fd-foreground) 5%, transparent) 1px,
+      color-mix(in oklch, var(--color-fd-foreground) 3%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklch, var(--color-fd-foreground) 5%, transparent) 1px,
+      color-mix(in oklch, var(--color-fd-foreground) 3%, transparent) 1px,
       transparent 1px
     );
   background-size: 56px 56px;
@@ -305,12 +327,12 @@ body {
   background-image:
     linear-gradient(
       to right,
-      color-mix(in oklch, white 5%, transparent) 1px,
+      color-mix(in oklch, white 3%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklch, white 5%, transparent) 1px,
+      color-mix(in oklch, white 3%, transparent) 1px,
       transparent 1px
     );
 }
@@ -500,6 +522,60 @@ body {
   color: var(--color-fd-primary) !important;
 }
 
+/* ==========================================================================
+   侧边栏 folder / leaf icon 多彩着色 —— 让导航树更鲜活
+   --------------------------------------------------------------------------
+   · fumadocs v16 重写了 sidebar 页树渲染：DOM 结构不再是 <ul>/<li>，而是
+     一个 <div style="min-width:100%;display:table"> 容器，其直接子级是：
+       - <a>root leaf（首页/根入口，唯一 svg 在 a 内）
+       - <div data-state="open/closed">folder wrapper（内含 <button>[folder-icon][name][chevron]，
+         展开时还含一个 <div data-radix-collapsible-content> 装载子 leaf <a>）
+     因此旧版 `ul[role="list"] > li:nth-of-type(...)` 完全不命中，必须改用
+     Radix scroll-area viewport 作为页树容器的 hook。
+   · 直接给页树容器的直接子级（root <a> 与各 folder <div>）按位置分配
+     --folder-accent 变量；变量沿 DOM 继承到嵌套 leaf 的 <a>。每个 folder
+     wrapper 内的子 <a> 自动跟随父 folder 着色，无需再递归设置。
+   · 实际给 svg 上色用 sidebar 内 `button > svg:first-child` 与 `a > svg:first-child`：
+     - folder trigger button 内 element children 只有 2 个 svg（folder-icon, chevron），
+       `:first-child` 精确指向 folder-icon，chevron 不受影响（它是 button 内第 2 个 svg）。
+     - root / 嵌套 leaf <a> 内只有 1 个 svg，`:first-child` 就是 leaf icon。
+     - 子级 leaf 跟随父 folder 的 --folder-accent 自动继承。
+   · active / hover 时把饱和度略提升。
+   ========================================================================== */
+
+/* 给页树根容器的直接子级（root <a> + 每个 folder <div>）分配 --folder-accent */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+1) { --folder-accent: oklch(0.62 0.16 200); } /* 青 */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+2) { --folder-accent: oklch(0.58 0.18 250); } /* 靛 */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+3) { --folder-accent: oklch(0.60 0.19 300); } /* 紫 */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+4) { --folder-accent: oklch(0.62 0.14 220); } /* 蔚蓝 */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+5) { --folder-accent: oklch(0.64 0.13 165); } /* 青绿 */
+#nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+6) { --folder-accent: oklch(0.58 0.18 275); } /* 蓝紫 */
+
+/* 暗色：同 hue 提亮，确保在深色玻璃面板上仍清晰 */
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+1) { --folder-accent: oklch(0.78 0.14 200); }
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+2) { --folder-accent: oklch(0.74 0.16 250); }
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+3) { --folder-accent: oklch(0.76 0.16 300); }
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+4) { --folder-accent: oklch(0.78 0.13 220); }
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+5) { --folder-accent: oklch(0.78 0.13 165); }
+.dark #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+6) { --folder-accent: oklch(0.74 0.16 275); }
+
+/* 所有 sidebar 内 folder trigger button / leaf <a> 的第一个 svg 上色 */
+#nd-sidebar button > svg:first-child,
+#nd-sidebar a > svg:first-child {
+  color: var(--folder-accent, var(--color-fd-primary));
+  transition: color 0.18s ease, transform 0.2s ease;
+}
+
+/* hover / active：folder icon 饱和度略提 */
+#nd-sidebar button:hover > svg:first-child,
+#nd-sidebar a:hover > svg:first-child {
+  filter: saturate(1.2);
+}
+#nd-sidebar a[data-active='true'] > svg:first-child,
+#nd-sidebar button[data-active='true'] > svg:first-child {
+  filter: saturate(1.25) brightness(0.92);
+}
+
 /* TOC 项：紧凑可读 */
 #nd-tocnav a {
   border-radius: 6px;
@@ -517,8 +593,6 @@ body {
    这些变量由 <HomeHero> 的 rAF 循环写入；无 JS 时取默认值 0，首屏静态可见。
    ========================================================================== */
 .hero-px {
-  --sy: 0;
-  --p: 0;
   --mx: 0;
   --my: 0;
   position: relative;
@@ -534,17 +608,18 @@ body {
   isolation: isolate;
 }
 
-/* —— 视差背景容器：整体随滚动缓行（比页面慢），制造纵深 —— */
+/* 视差背景容器：与 Hero 一样只做静态定位，不再随滚动 translateY
+   （旧版用 --sy 做缓行视差，会与下方 scroll-snap 抢合成层，导致 PPT
+   翻页时内容轻微抖一下）。 */
 .hero-px__bg {
   position: absolute;
   inset: -12% -12% 0;
   z-index: -1;
   pointer-events: none;
-  transform: translate3d(0, calc(var(--sy) * 0.18px), 0);
   will-change: transform;
 }
 
-/* 网格：随滚动 + 鼠标轻微平移 */
+/* 网格：仅跟随鼠标轻微平移（取消滚动驱动，避免与 snap 抢合成层） */
 .hero-px__grid {
   position: absolute;
   inset: 0;
@@ -565,7 +640,7 @@ body {
   opacity: 0.6;
   transform: translate3d(
     calc(var(--mx) * -10px),
-    calc(var(--sy) * 0.05px + var(--my) * -10px),
+    calc(var(--my) * -10px),
     0
   );
 }
@@ -591,7 +666,7 @@ body {
   );
   transform: translate3d(
     calc(var(--mx) * 26px),
-    calc(var(--my) * 22px + var(--sy) * 0.08px),
+    calc(var(--my) * 22px),
     0
   );
 }
@@ -636,14 +711,11 @@ body {
   opacity: 0.85;
 }
 
-/* —— 前景内容：随滚动上浮、缩小并淡出（比背景快 → 视差） —— */
+/* 前景内容：静态居中，不再随滚动缩放/淡出/位移。
+   「随滚动淡出交给下一页」由 scroll-snap 自然接管。 */
 .hero-px__content {
   position: relative;
   max-width: 52rem;
-  transform: translate3d(0, calc(var(--sy) * -0.12px), 0)
-    scale(calc(1 - var(--p) * 0.06));
-  opacity: clamp(0, calc(1 - var(--p) * 1.15), 1);
-  will-change: transform, opacity;
 }
 
 /* 悬浮 Logo：入场上浮 → 持续漂浮；图片本体随鼠标轻微跟随 */
@@ -756,7 +828,7 @@ body {
   border-color: color-mix(in oklch, var(--color-fd-primary) 30%, var(--color-fd-border));
 }
 
-/* 滚动提示 */
+/* 滚动提示：snap 锁页时静态显示，滚走后由浏览器从视口自然替换 */
 .hero-px__cue {
   position: absolute;
   left: 50%;
@@ -770,7 +842,6 @@ body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-fd-muted-foreground);
-  opacity: clamp(0, calc(1 - var(--p) * 2.5), 1);
   animation: heroFadeUp 0.7s ease 0.9s backwards;
 }
 .hero-px__mouse {
@@ -802,25 +873,8 @@ body {
   }
 }
 
-/* 尊重 reduce-motion：去掉一切位移 / 浮动 / 视差，保持完全可见 */
-@media (prefers-reduced-motion: reduce) {
-  .hero-px__bg,
-  .hero-px__grid,
-  .hero-px__orb,
-  .hero-px__content,
-  .hero-px__logo,
-  .hero-px__logo img {
-    transform: none !important;
-    animation: none !important;
-  }
-  .hero-px__content,
-  .hero-px__cue {
-    opacity: 1 !important;
-  }
-  .hero-px__mouse span {
-    animation: none !important;
-  }
-}
+/* 视差 / 滚动驱动动画始终开启（应需求不因 prefers-reduced-motion 关闭）。
+   首屏内容在 --p=0 时本就完全可见，故无需额外的 reduce-motion 兜底。 */
 
 .home-hero-eyebrow {
   display: inline-flex;
@@ -903,14 +957,8 @@ body {
   width: 100%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition: none;
-  }
-}
+/* 注意：.reveal 的「模糊入场」应需求始终开启，不被 prefers-reduced-motion /
+   省电模式关闭（与 Hero / 标题 / 首页展示区一致）。故此处不再提供 reduce 兜底。 */
 
 /* ==========================================================================
    全宽大字滚动条（haoqi 式大胆排版）
@@ -1110,15 +1158,274 @@ body {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .contrib__item {
-    animation: none;
-  }
-}
+/* 贡献者头像的弹入动画同样始终开启（不被 prefers-reduced-motion 关闭）。 */
 
 /* ==========================================================================
    Feature Grid 玻璃态卡片
    ========================================================================== */
+/* ==========================================================================
+   首页「框架运行效果」展示区（左右交错的超大截图面板，逐屏「一页一页」呈现）
+   · .is-in（IntersectionObserver 进入视口时添加）：一次性「模糊入场」——
+     opacity + blur + 上浮 走一条时间驱动的 CSS 过渡，只播一次、丝滑不卡。
+   · --p（-1~1，rAF 写入）：持续「视差」——辉光 / 截图框 / 文案 / 截图内部各用
+     不同系数做纯 transform 位移，全程 GPU 合成，绝不重算 filter（卡顿根因已根除）。
+   · 每个面板 min-height ≈ 一屏并垂直居中 → 翻页般的节奏感。
+   · 截图统一用固定 16:10 比例框 + object-fit:cover → 所有面板尺寸一致。
+   · 每个面板有自己的 --accent（nth-child 轮转冷色相），用于辉光与小标签配色。
+   ========================================================================== */
+.home-showcase {
+  /* 满宽：让交错的截图可以「冲出视口边缘」做大胆构图 */
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(4rem, 8vw, 7rem) 0 5rem;
+  /* 裁掉横向溢出的截图；overflow-x:clip 不会把纵轴连带改成 auto，页面照常滚动 */
+  overflow-x: clip;
+}
+.home-showcase__head {
+  max-width: 46rem;
+  margin: 0 auto clamp(3.5rem, 7vw, 6rem);
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+  text-align: center;
+}
+.home-showcase__title {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin: 0 0 1.1rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-foreground) 0%,
+    var(--color-fd-primary) 60%,
+    var(--color-fd-accent-3) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.home-showcase__subtitle {
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.7;
+  color: var(--color-fd-muted-foreground);
+  margin: 0;
+}
+
+.home-showcase__list {
+  display: flex;
+  flex-direction: column;
+  /* min-height 已给足翻页节奏，面板间距收敛即可（内容垂直居中本就留白） */
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+/* 单个面板：冲出视口边缘的超大截图 + 文案，左右交错。
+   双向 .is-in 切换：进入视口模糊淡入上浮，离开视口反向 → 来回滚不丢动效。 */
+.showcase-panel {
+  --accent: oklch(0.63 0.19 250);
+  /* 截图向外侧冲出视口的位移量（被 .home-showcase 的 overflow-x:clip 裁掉） */
+  --bleed: clamp(3rem, 11vw, 14rem);
+  display: grid;
+  /* 文案窄列贴页面内侧，截图占据剩余空间并向外侧冲出。默认：文案左、截图右 */
+  grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(2rem, 4vw, 5rem);
+  /* 仅内侧留页面边距；外侧不留，交给截图冲出边缘 */
+  padding-inline: clamp(1.25rem, 5vw, 6rem);
+  /* 「一页一页」：每个面板给足近一屏的高度并垂直居中，滚动时像翻页一样逐屏呈现 */
+  min-height: 88vh;
+  /* 初始态：模糊 + 下沉 + 轻微缩小 + 透明。
+     进入视口由 JS 加 .is-in 触发下方过渡；离开时 .is-in 被移除，过渡反向。 */
+  opacity: 0;
+  transform: translateY(56px) scale(0.985);
+  filter: blur(14px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.showcase-panel.is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  /* 入场完成即卸掉 will-change，避免长期占用合成层 */
+  will-change: auto;
+}
+/* 默认（data-side='left'）：截图在右列，向右冲出视口 */
+.showcase-shot {
+  margin-right: calc(-1 * var(--bleed));
+}
+/* 交错（data-side='right'）：调换列宽 + order，让截图落到左列并向左冲出视口。
+   关键——必须同时「调换列宽模板」+「order 调换顺序」，否则截图会落进窄列被压小。 */
+.showcase-panel[data-side='right'] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 27rem);
+}
+.showcase-panel[data-side='right'] .showcase-copy {
+  order: 2;
+}
+.showcase-panel[data-side='right'] .showcase-shot {
+  margin-right: 0;
+  margin-left: calc(-1 * var(--bleed));
+}
+/* 每个面板的强调色相轮转（冷色系，无红） */
+.showcase-panel:nth-child(6n + 1) { --accent: oklch(0.70 0.16 200); } /* 青 */
+.showcase-panel:nth-child(6n + 2) { --accent: oklch(0.63 0.19 250); } /* 靛 */
+.showcase-panel:nth-child(6n + 3) { --accent: oklch(0.66 0.20 300); } /* 紫 */
+.showcase-panel:nth-child(6n + 4) { --accent: oklch(0.68 0.15 220); } /* 蔚蓝 */
+.showcase-panel:nth-child(6n + 5) { --accent: oklch(0.72 0.14 185); } /* 青绿 */
+.showcase-panel:nth-child(6n + 6) { --accent: oklch(0.64 0.18 275); } /* 蓝紫 */
+
+.showcase-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.showcase-index {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+.showcase-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in oklch, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in oklch, var(--accent) 32%, transparent);
+}
+.showcase-heading {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  margin: 0;
+  color: var(--color-fd-foreground);
+}
+.showcase-desc {
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.72;
+  color: var(--color-fd-muted-foreground);
+  margin: 0;
+}
+.showcase-points {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.showcase-points li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.97rem;
+  color: var(--color-fd-foreground);
+}
+.showcase-points li svg {
+  flex: 0 0 auto;
+  padding: 0.2rem;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in oklch, var(--accent) 16%, transparent);
+}
+
+/* —— 截图（超大图 + 浏览器外框 + 多层视差） —— */
+.showcase-shot {
+  position: relative;
+  isolation: isolate;
+}
+/* 背后大块同色辉光：静态大块色团，仅做纵深感，不再随滚动 translateY */
+.showcase-shot::before {
+  content: '';
+  position: absolute;
+  inset: -22% -16% -26%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    color-mix(in oklch, var(--accent) 52%, transparent),
+    transparent 70%
+  );
+  filter: blur(80px);
+  opacity: 0.9;
+}
+/* 截图框：静态位置，由 .is-in 的 1s transform 过渡整体淡入上浮 */
+.showcase-shot__frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--fd-border-soft);
+  background: color-mix(in oklch, var(--color-fd-card) 92%, transparent);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 25%, transparent) inset,
+    0 70px 130px -50px color-mix(in oklch, var(--accent) 64%, transparent),
+    0 0 0 1px var(--fd-border-soft);
+}
+.showcase-shot__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2rem;
+  padding: 0 0.95rem;
+  background: color-mix(in oklch, var(--color-fd-card) 72%, transparent);
+  border-bottom: 1px solid var(--fd-border-soft);
+}
+.showcase-shot__bar i {
+  width: 0.64rem;
+  height: 0.64rem;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--color-fd-muted-foreground) 40%, transparent);
+}
+.showcase-shot__bar i:first-child {
+  background: color-mix(in oklch, var(--accent) 70%, transparent);
+}
+/* 媒体区：固定 16:9 比例（贴合源图 ≈1.78~1.95）→ 所有面板尺寸统一。 */
+.showcase-shot__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+/* 图片直接铺满媒体框，object-fit:cover + object-position:top center
+   保留顶部对齐。原「上下各多 36px 靠 --p 平移」的视差已移除
+   —— 那是「来回滚图片抽搐」的根源（每帧重排 + 合成层抢占）。 */
+.showcase-shot__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+@media (max-width: 900px) {
+  .showcase-panel,
+  .showcase-panel[data-side='right'] {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    gap: 1.75rem;
+    /* 移动端竖排内容本就高，取消近一屏的强制高度，避免上下出现大片空白 */
+    min-height: auto;
+    padding-inline: clamp(1rem, 5vw, 1.5rem);
+  }
+  /* 移动端取消「冲出视口」：截图回到容器内，并统一放到文案上方 */
+  .showcase-shot,
+  .showcase-panel[data-side='right'] .showcase-shot {
+    margin-inline: 0;
+    order: -1;
+  }
+  .showcase-panel[data-side='right'] .showcase-copy {
+    order: 0;
+  }
+}
+
 .features-section {
   padding: 3rem 0 5rem;
 }
@@ -1144,9 +1451,25 @@ body {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /* 一律 4 列 → 8 张卡片正好「两行四列」整齐排布。
+     移动端窄屏通过下方 media query 退化为 1 / 2 列，避免单卡过窄挤压排版。 */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.25rem;
   counter-reset: feat;
+}
+
+@media (max-width: 1100px) {
+  /* 中等屏：4 列单卡太挤，退回 2 列 → 4 行 */
+  .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  /* 手机：1 列堆叠，避免小屏下卡片被压成竖条 */
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .feature-card {
@@ -1316,6 +1639,14 @@ body {
   --prose-quotes: var(--color-fd-muted-foreground);
   --prose-quote-borders: color-mix(in oklch, var(--color-fd-primary) 30%, transparent);
   --prose-code: var(--color-fd-foreground);
+  /* Tailwind Typography 默认正文 line-height 1.75 显得过于松散 ——
+     按用户要求收紧 20% 到 1.4，配合 MiSans 的中等 x-height 仍有足够呼吸感。
+     headings 不受影响（它们各自有更紧的 1.1–1.3）。 */
+  line-height: 1.4;
+}
+
+.prose :where(p, ul, ol, li, dd, dt, blockquote, table, figure) {
+  line-height: 1.4;
 }
 
 .prose :is(h1, h2, h3, h4) {
@@ -1332,6 +1663,23 @@ body {
   border-bottom: 0;
   padding-bottom: 0;
   margin-top: 2.5rem;
+}
+
+/* 正文（prose）的第一个子元素：把到标题 banner 的距离统一收敛。
+   · 之前依赖 h2 / callout / p 各自默认的 margin-top（2.5rem / 1.5rem / 1.25rem），
+     在 banner 自身的 margin-bottom 之上叠加，导致不同页 / 不同首元素类型的间隙
+     在 1.75rem~3.75rem 之间跳变，且整体偏长。
+   · 这里把 .prose 直接子级的首元素 margin-top 统一压到 1.25rem，
+     与 banner margin-bottom (0.75rem) 合计 ≈ 2rem，对人眼来说「短且稳」。
+   · 后续 h2 / callout 之间的间距仍走各自默认 margin-top，不受影响。 */
+.prose > :first-child {
+  margin-top: 1.25rem !important;
+}
+/* 但 .prose.prose > div[style*="--callout-color"] 的特异性是 (0,3,1)，
+   上面这条 (0,2,0) 会被它压住（callout 默认 margin: 1.5rem 0 !important），
+   因此再补一条更高特异性的 :first-child 覆盖，把首元素是 callout 的情况也压到 1.25rem。 */
+.prose.prose > div[style*="--callout-color"]:first-child {
+  margin-top: 1.25rem !important;
 }
 
 .prose a:not(:where(.not-prose *)) {
@@ -1356,12 +1704,19 @@ body {
        （其给 :where(code) 加了 border + var(--color-fd-muted) 实色底）。
      - 用石墨灰（hue 260、近乎无彩 chroma 0.01），与全站中性主题一致。
      - 直接 oklch(... / alpha) 显式 alpha，避免 color-mix(…, transparent)
-       在某些浏览器合成层里 alpha 传播失效、深色下退化成「白雾」。 */
+       在某些浏览器合成层里 alpha 传播失效、深色下退化成「白雾」。
+     - font-family：MiSans VF 在前 → 中英文均走可变字体，与正文一致；
+       Fira Code 作为英文等宽兜底（MiSans VF 不覆盖部分编程符号 ligature 时使用），
+       再退回系统等宽。之前全局 `code { font-family: var(--font-mono) }` 把 Fira Code
+       置顶，导致行内 code 里的中文掉到系统中文字体（PingFang / 微软雅黑 / Noto），
+       与 MiSans 正文出现高度 / 宽度 / 笔触粗细不一致。 */
   border: 0;
   border-radius: 6px;
   padding: 0.15em 0.4em;
   background: oklch(0.45 0.01 260 / 10%);
   font-size: 0.875em;
+  font-family: 'MiSans VF', 'Fira Code', ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* 暗色下改用浅灰，alpha 同步避免在深色背景上太亮 */
@@ -2077,28 +2432,58 @@ body {
 }
 
 /* ==========================================================================
-   标题上方的章节面包屑（breadcrumb）：缩小，作为标题的轻量眉标
-   （fumadocs 默认 text-sm = 0.875rem，这里降到 0.75rem 并同步缩小分隔箭头）
-   ========================================================================== */
-.fd-doc-breadcrumb {
-  font-size: 0.75rem;
-  margin-bottom: 0.4rem;
-}
-.fd-doc-breadcrumb svg {
-  width: 0.8125rem;
-  height: 0.8125rem;
-}
-
-/* ==========================================================================
    文档页标题 Banner：占满 main 整个列宽（无背景，纯文字 + 留白）
+   布局：
+   · grid 左列：title + description（.fd-doc-banner__main）
+   · grid 右列：两个动作按钮「复制为 Markdown / 在 GitHub 上编辑」
+     （.fd-doc-banner__actions），align-self:end 贴底，与 description 行底对齐
+   · 面包屑（章节小字）不再显示
+   窄屏（≤40rem）切回单列堆叠：按钮回到主列底部一行。
    ========================================================================== */
 .fd-doc-banner {
   position: relative;
-  margin: 0 0 0.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: 1rem;
+  margin: 0 0 0.75rem;
   padding: 0 0 0.5rem;
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--fd-border-soft);
+}
+
+.fd-doc-banner__main {
+  min-width: 0;
+}
+
+/* 按钮组：靠右 + 贴底，与 description 行底对齐。
+   · align-self:end 让整组贴 grid 行底；
+   · padding-bottom 微调（description line-height 1.4 行底 ≈ 文字基线下方 0.05rem），
+     给按钮一点点下边距让两者视觉底平齐；
+   · flex-shrink:0 防止列被压缩。 */
+.fd-doc-banner__actions {
+  align-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-bottom: 0.1rem;
+}
+
+@media (max-width: 40rem) {
+  .fd-doc-banner {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .fd-doc-banner__actions {
+    order: 2;
+    align-self: flex-start;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-bottom: 0;
+  }
 }
 
 /* Banner 内的 H1 / P：干净排版
@@ -2130,14 +2515,32 @@ body {
 }
 
 /* 副标题（description）：缩到约旧字号的 75%（1.0625rem → 0.8rem），
-   并靠 h1 的小 margin-bottom（0.15rem）更贴近标题。 */
-.fd-doc-banner p,
-.fd-doc-banner > p {
+   并靠 h1 的小 margin-bottom（0.15rem）更贴近标题。
+   注意：原先用 `.fd-doc-banner p` 兜底是因为 <DocsDescription> 会渲染 <p>；
+   现在用自定义 <MarkdownDescription> 直接渲染 className=fd-doc-description <p>，
+   这里只对这一种 className 生效，避免误伤正文 prose 里的 <p>。 */
+.fd-doc-description {
   margin: 0 !important;
   font-size: 0.8rem !important;
   color: var(--color-fd-muted-foreground);
   line-height: 1.6;
   max-width: 64ch;
+}
+/* MarkdownDescription 里的内联 <a> 沿用正文链接色 + 下划线偏移，保持视觉一致 */
+.fd-doc-description a {
+  color: var(--color-fd-primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--color-fd-primary) 35%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+.fd-doc-description a:hover {
+  text-decoration-color: var(--color-fd-primary);
+}
+/* MarkdownDescription 里的 <strong> 用主题色提亮 */
+.fd-doc-description strong {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
 }
 
 /* 标题行：思考动画 + 标题左右排布 */
@@ -2154,69 +2557,78 @@ body {
    颜色走主题基调 token，随 --fd-brand-hue 旋转。
    ========================================================================== */
 .fd-title-arcs {
+  position: relative;
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   /* 跟随标题字号（clamp(1.75rem,3vw,2.25rem)）放大并略大一圈，
-     让旋转弧与文字视觉体量匹配，不再显得偏小。 */
+     让光团与文字视觉体量匹配，不再显得偏小。 */
   width: clamp(2rem, 3.4vw, 2.5rem);
   height: clamp(2rem, 3.4vw, 2.5rem);
   margin-top: 0.05em; /* 与文字视觉居中微调 */
 }
-.fd-title-arcs__svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+/* 三团柔光：径向渐变 + blur 形成朦胧光晕；圆心按 120° 分布并交叠 → 三叶草。
+   颜色用「三种不同色相」（围绕品牌色相 ±55°：青 / 靛 / 紫，无红），高饱和
+   → 不再灰蒙蒙；再各自做缓慢的小幅漂移 + 缩放 → 像流动的光团互相交融。
+   关键：所有位移 keyframe 必须带上居中用的 translate(-50%,-50%)，
+   否则后续 transform 会覆盖掉它令光团跳位。 */
+.fd-title-arcs__orb {
+  position: absolute;
+  width: 66%;
+  height: 66%;
+  border-radius: 50%;
+  filter: blur(1.5px) saturate(1.15);
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
 }
-.fd-title-arcs__ring {
-  fill: none;
-  stroke-linecap: round;
-  transform-box: fill-box;
-  transform-origin: center;
-  filter: drop-shadow(
-    0 0 2.5px color-mix(in srgb, var(--fd-accent-vivid) 75%, transparent)
+.fd-title-arcs__orb--1 {
+  left: 50%;
+  top: 30%;
+  background: radial-gradient(
+    circle at center,
+    oklch(0.7 0.17 calc(var(--fd-brand-hue) - 55) / 0.95) 0%,
+    oklch(0.68 0.16 calc(var(--fd-brand-hue) - 55) / 0.4) 48%,
+    transparent 72%
   );
+  animation: orbFlow1 7.5s ease-in-out infinite;
 }
-/* C=2πr → 半圈 dash = πr */
-.fd-title-arcs__ring--1 {
-  stroke: var(--color-fd-primary);
-  stroke-width: 2.6;
-  stroke-dasharray: 50.27 50.27; /* r=16 */
-  animation: arcSpin 2.4s linear infinite, arcGlow 2.8s ease-in-out infinite;
+.fd-title-arcs__orb--2 {
+  left: 68%;
+  top: 62%;
+  background: radial-gradient(
+    circle at center,
+    oklch(0.63 0.19 var(--fd-brand-hue) / 0.95) 0%,
+    oklch(0.61 0.18 var(--fd-brand-hue) / 0.4) 48%,
+    transparent 72%
+  );
+  animation: orbFlow2 9s ease-in-out infinite;
 }
-.fd-title-arcs__ring--2 {
-  stroke: var(--fd-accent-vivid);
-  stroke-width: 2.6;
-  stroke-dasharray: 34.56 34.56; /* r=11 */
-  animation: arcSpin 1.7s linear infinite reverse,
-    arcGlow 3.2s ease-in-out 0.4s infinite;
+.fd-title-arcs__orb--3 {
+  left: 32%;
+  top: 62%;
+  background: radial-gradient(
+    circle at center,
+    oklch(0.66 0.2 calc(var(--fd-brand-hue) + 50) / 0.95) 0%,
+    oklch(0.64 0.18 calc(var(--fd-brand-hue) + 50) / 0.4) 48%,
+    transparent 72%
+  );
+  animation: orbFlow3 8.2s ease-in-out infinite;
 }
-.fd-title-arcs__ring--3 {
-  stroke: var(--color-fd-accent-3);
-  stroke-width: 2.6;
-  stroke-dasharray: 18.85 18.85; /* r=6 */
-  animation: arcSpin 1.25s linear infinite,
-    arcGlow 2.4s ease-in-out 0.2s infinite;
+/* 三条漂移路径方向 / 相位各不相同，幅度收敛（位移 ≤ 9%、缩放 0.82–1.16），
+   保证任何时刻三团仍交叠成三叶草，但整体在缓慢流动、撞色交融。 */
+@keyframes orbFlow1 {
+  0%, 100% { transform: translate(-50%, -50%) translate(0, 0) scale(0.9); opacity: 0.82; }
+  33%      { transform: translate(-50%, -50%) translate(7%, -6%) scale(1.16); opacity: 1; }
+  66%      { transform: translate(-50%, -50%) translate(-5%, 5%) scale(0.95); opacity: 0.88; }
 }
-@keyframes arcSpin {
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes orbFlow2 {
+  0%, 100% { transform: translate(-50%, -50%) translate(0, 0) scale(1.1); opacity: 0.95; }
+  33%      { transform: translate(-50%, -50%) translate(-6%, 4%) scale(0.86); opacity: 0.8; }
+  66%      { transform: translate(-50%, -50%) translate(5%, -7%) scale(1.14); opacity: 1; }
 }
-@keyframes arcGlow {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fd-title-arcs__ring {
-    animation: none !important;
-  }
+@keyframes orbFlow3 {
+  0%, 100% { transform: translate(-50%, -50%) translate(0, 0) scale(0.96); opacity: 0.86; }
+  33%      { transform: translate(-50%, -50%) translate(6%, 6%) scale(1.12); opacity: 1; }
+  66%      { transform: translate(-50%, -50%) translate(-7%, -4%) scale(0.88); opacity: 0.82; }
 }
 
 /* ==========================================================================
@@ -2732,4 +3144,22 @@ article.fd-docs-article,
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--fd-border-soft) !important;
+}
+
+/* ==========================================================================
+   首页 · PPT 式硬翻页（JS 接管 wheel/keydown/touch，见 components/HomePager.tsx）
+   --------------------------------------------------------------------------
+   · 之前用 `scroll-snap-type: y mandatory` 让浏览器原生吸附，但 mandatory
+     只是「手势结束后吸附」，wheel 仍能把页面从 A 滑到 B 的途中位置——观感
+     就是「无极滚动 + 中间出现模糊视差中间态」。
+   · 现在改成：JS 完全接管滚动（preventDefault 原生 wheel，自己 scrollTo
+     到下一/上一个 `.home-snap-point`），CSS 这里只保留布局相关的 anchor
+     语义。原生 `scroll-snap-*` 必须移除，否则会与脚本的 scrollTo 抢主，
+     出现「跳一下被原生吸附拉回」的回弹。
+   · `.home-snap-point` 仅作为「页」选择器使用，无视觉副作用。
+   ========================================================================== */
+html:has(.home-page) {
+  /* 顶部 header（h-14 = 56px）已由脚本里 SCROLL_PADDING_TOP 处理，
+     这里只保留键盘 PageDown 兜底用的 scroll-padding，不再启用 scroll-snap。 */
+  scroll-padding-top: 4.5rem;
 }

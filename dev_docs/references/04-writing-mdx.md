@@ -28,6 +28,34 @@ icon: FileText            # 可选，侧边栏图标（lucide 图标名）
 > 迁移脚本曾把每页正文第一行（常是 `- 列表项`/```` ```代码 ````/`> 引用`）误填进 `description`，
 > 导致标题下出现一坨奇怪副标题。已批量清理。新增页时：要么写一句真正的简介，要么干脆不写。
 > 见 [七、坑 #2](./07-pitfalls.md)。
+>
+> **支持两类内联 Markdown 语法**：`[text](url)` 链接 + `**text**` 加粗。
+> 由 `components/MarkdownDescription.tsx` 在 `page.tsx` 替换 fumadocs 的
+> `DocsDescription`（后者只把 children 当纯文本，不会解析任何 Markdown），
+> 否则写 `[commit f903e3](https://...)` 会原样输出 `[commit f903e3](https://...)`。
+> 只支持这两种语法；图片 / 标题 / 列表等都不要塞进 description，仍按"一句话简介"原则写。
+
+### 4.2.1 `icon` 字段：让侧边栏不再「全是 FileText」
+
+`icon` 字段是可选的字符串，渲染成 sidebar 里该页前面的 svg。解析由 `lib/source.ts` 的
+`lucideIconsPlugin()` 完成——它把字符串映射到 `lucide-react` 的 `icons` map。
+
+**坑**：**`icons` map 与命名导出不完全一致**——`Home`、`Train` 等少数 icon 在命名导出里有，
+但 `icons['Home']` 返回 `undefined`，会被插件报 `Unknown icon detected`（坑 #19）。
+写之前验证：
+
+```bash
+node -e "const {icons} = require('lucide-react'); console.log('<NAME>' in icons)"
+```
+
+输出 `true` 才能用。
+
+**leaf icon 多元化**：项目侧边栏每个文档页面都对应一个 `icon`，**默认写 `FileText` 会让所有
+页面共享同一个灰色文档图标**——视觉同质化严重。批量改用脚本 `scripts/update-doc-icons.mjs`，
+按文件名 / folder 语义映射到 lucide 图标（详见 §4.7）。
+
+folder 入口（`content/docs/<folder>/index.mdx`）通常**不写 `icon`**——folder meta.json 里的
+`icon` 会被自动用作 folder 入口页的图标（见 §4.2.2）。
 
 ## 4.3 标题与正文
 
@@ -80,3 +108,39 @@ MDX 里 `{...}` 是 JS 表达式。正文/组件里出现字面大括号（如 J
 - [ ] 用到的组件都在 `components/mdx.tsx` 注册过。
 - [ ] `pnpm build` 通过（MDX 语法错误只有构建期报）。
 - [ ] 涉及多语言的改动，三语 `content/docs/*` / `*.en.mdx` / `*.ja.mdx` 同步（见 [五](./05-i18n.md)）。
+- [ ] 若新增 leaf `icon`，先在 Node 验证 `'IconName' in require('lucide-react').icons`（坑 #19）。
+
+## 4.7 leaf icon 多元化：批量映射脚本
+
+`scripts/update-doc-icons.mjs` 一次性把 `content/docs/**/*.mdx` 的 frontmatter `icon: FileText`
+按文件名 / folder 语义替换为不同的 lucide icon。运行：
+
+```bash
+node scripts/update-doc-icons.mjs
+```
+
+脚本逻辑：
+
+1. 维护一个 `MAP` 表：`relative/path.mdx -> lucide-icon-name`。
+2. 读每个 mdx → 用 `/^icon:[ \t]+\S+[ \t]*$/m` 精确匹配 frontmatter 里的 `icon:` 行 → 替换为映射目标。
+3. 跳过没有 `icon:` 行的文件（如 `ai-features/index.mdx` / `faq/index.mdx` 这些 folder 入口页）。
+4. 输出 `updated: N` + 每条更新的明细；找不到 `icon:` 行时打 `NO ICON LINE` warning。
+
+**当前映射覆盖 68 个 mdx**，分配约 64 种不同 lucide icon。节选：
+
+| folder | 文件名 | 新 icon |
+|--------|--------|---------|
+| started | env-check / install-core / start-core / docker-core / core-config / secure / web-console | ListChecks / Download / Play / Container / Settings2 / ShieldCheck / Monitor |
+| link-bots | adapter-list / hoshino-bot / none-bot2 | List / Bot / PlugZap |
+| code-plugins | bot-call / buttons / scheduler / plugins-data-base / subscribe / start | Phone / MousePointerClick / Clock / Database / Bell / Rocket |
+| plugins-help | arknights-uid / blue-archive-uid / cs2-uid / genshin-uid / star-rail-uid | Swords / GraduationCap / Crosshair / Mountain / **TrainFront**（不是 Train） |
+| ai-features | agent / builtin-tools / knowledge-base / skills / trigger-bridge | UserCog / Wrench / Library / Lightbulb / GitMerge |
+
+**新增页面时怎么选 icon**：
+
+1. 优先看 [lucide-icons.com](https://lucide-icons.com) 找语义接近的图标。
+2. 验证名是否在 `icons` map：`node -e "const {icons} = require('lucide-react'); console.log('<NAME>' in icons)"`。
+3. 直接在 mdx frontmatter 里写 `icon: <NAME>`；不需要改脚本。
+4. 不想自己挑 → 写 `FileText` 占位也行（视觉同质但功能正常）。等以后需要多元时再批量改。
+
+**关联**：folder 入口（`index.mdx`）由 meta.json 决定图标——见 §4.2.2 与 §5 i18n。

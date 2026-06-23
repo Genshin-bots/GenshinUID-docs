@@ -29,6 +29,7 @@ return {
 | `Badge` | `components/Badge.tsx` | 标题 / 卡片旁的小胶囊（`type=info/tip/warning/danger`） | `.fd-badge`, `.fd-badge-*` |
 | `Card` | `components/Card.tsx` | **插件市场**：拉 `/plugin_list.json` 渲染插件卡片网格 | `.fd-plugin-list`, `.fd-plugin-card*` |
 | `NavCard` | `components/NavCard.tsx` | 两列导航卡片 | 内联 Tailwind |
+| `MarkdownDescription` | `components/MarkdownDescription.tsx` | 文档页 banner 副标题：在 frontmatter `description` 字符串里识别 `[text](url)` 链接 + `**text**` 加粗。**替代** fumadocs `DocsDescription`（后者不解析 Markdown）。 | `.fd-doc-description` |
 | `ChatPanel` / `ChatMessage` | `components/ChatPanel.tsx` | **静态聊天示例**（复刻 VitePress） | `.fd-chatpanel*`, `.fd-chatmsg*` |
 | `Callout` | fumadocs-ui | 提示 / 警告框（`type=info/warn/error/success`） | `.prose [style*="--callout-color"]` |
 | `Contributors` | `components/Contributors.tsx` | 首页「感谢成员贡献」：拉 GitHub `/contributors` 渲染**堆叠圆形头像**（一行 24 个，多行堆叠，展示全部） | `.contrib__rows`, `.contrib__stack`, `.contrib__item` |
@@ -37,6 +38,22 @@ return {
 | `VideoLink` | `components/VideoLink.tsx` | B 站视频链接卡片 | 内联 Tailwind |
 | `Contact` / `CopyRight` | 同名文件 | 联系方式 / 版权 | 内联 Tailwind |
 | `ChatLayout` | `components/chat/` | `/sp/chat` 的 **WebSocket 实时聊天室**（与 ChatPanel 无关） | `.fd-chat-*` |
+
+### 首页专用组件（不在 MDX 注册表里）
+
+| 组件 | 文件 | 用途 | 样式钩子 |
+|------|------|------|---------|
+| `HomeHero` | `components/HomeHero.tsx` | 首页首屏：渐变标题 + 鼠标视差光球 + scrollHint | `.hero-px`, `.hero-px__*` |
+| `Marquee` | `components/Marquee.tsx` | 大字无限滚动条（haoqi 式大胆排版），两行反向滚动 | `.marquee`, `.marquee__*` |
+| `HomeShowcase` | `components/HomeShowcase.tsx` | 「框架运行效果」展示区：左右交错超大截图面板，逐屏「一页一页」 | `.home-showcase`, `.showcase-panel`, `.showcase-shot*` |
+| `HomePager` | `components/HomePager.tsx` | 首页 PPT 式硬翻页控制器（接管 wheel/keydown/touch，一滚一页） | 渲染 `null`，仅 JS 拦截 |
+| `Reveal` | `components/Reveal.tsx` | 通用滚动入场（IntersectionObserver 触发 `.reveal--in`，模糊淡入上浮） | `.reveal`, `.reveal--in` |
+
+这些组件 **只在首页使用**，由 `app/[lang]/page.tsx` 直接 import 渲染，**不进 MDX 注册表**。
+如果以后想给 MDX 文档页用某个首页组件，把它加进 `components/mdx.tsx` 即可。
+
+> **完整 PPT 翻页设计**（为什么不用 scroll-snap、动画时序与入场曲线对齐、键盘 / 触屏交互）见
+> [九、首页 PPT 式硬翻页](./09-home-ppt-pager.md)。
 
 ## 3.3 重点：ChatPanel / ChatMessage（静态聊天示例）
 

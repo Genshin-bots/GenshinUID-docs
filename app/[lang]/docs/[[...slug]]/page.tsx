@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { source } from '@/lib/source'
 import { i18n, type Language } from '@/lib/i18n'
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page'
+import { DocsBody, DocsPage, DocsTitle } from 'fumadocs-ui/page'
 import { getMDXComponents } from '@/components/mdx'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
 import { DocsArticleContainer } from '@/components/DocsArticleContainer'
 import { TitleArcs } from '@/components/TitleArcs'
+import { MarkdownDescription } from '@/components/MarkdownDescription'
 
 interface PageProps {
   params: Promise<{ lang: string; slug?: string[] }>
@@ -71,22 +72,28 @@ export default async function Page({ params }: PageProps) {
         style: 'clerk',
         single: false,
       }}
-      breadcrumb={{ enabled: true, className: 'fd-doc-breadcrumb' }}
+      // 完全关掉面包屑渲染（默认 fumadocs 会把章节小字插在 article 顶部）——
+      // 用户不希望它出现，无论是顶部还是右下角都不显示。
+      breadcrumb={{ enabled: false }}
       footer={{ className: 'mt-12 fd-doc-footer' }}
       slots={{
         container: DocsArticleContainer,
       }}
     >
       <div className="fd-doc-banner">
-        <div className="fd-doc-title-row">
-          <TitleArcs />
-          <DocsTitle>{page.data.title}</DocsTitle>
+        <div className="fd-doc-banner__main">
+          <div className="fd-doc-title-row">
+            <TitleArcs />
+            <DocsTitle>{page.data.title}</DocsTitle>
+          </div>
+          <MarkdownDescription>{page.data.description}</MarkdownDescription>
         </div>
-        <DocsDescription>{page.data.description}</DocsDescription>
-      </div>
-      <div className="flex flex-row items-center gap-2 mb-7">
-        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
-        <ViewOptions markdownUrl={`${page.url}.mdx`} githubUrl={editUrl} />
+        {/* 两个按钮（复制 Markdown / GitHub 编辑）移到 banner 右下角，
+            与 description 行底贴齐——替代之前右下的面包屑位置。 */}
+        <div className="fd-doc-banner__actions">
+          <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+          <ViewOptions markdownUrl={`${page.url}.mdx`} githubUrl={editUrl} />
+        </div>
       </div>
       <DocsBody>
         <MDX

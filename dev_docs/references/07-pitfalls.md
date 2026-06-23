@@ -148,10 +148,202 @@
 
 ---
 
+## 坑 #16：fumadocs v16 sidebar 不再用 `<ul>/<li>`，旧 selector 全失效
+
+- **现象**：给 sidebar folder 图标写按 `ul[role="list"] > li:nth-of-type(6n+k)` 染色，**所有 folder icon 仍是灰色**——CSS 编译产物完全正确，但 selector 命中数 = 0。
+- **根因**（用 headless Chrome 抓实际 DOM 验证）：
+  旧版 fumadocs（v15 及更早）sidebar 是：
+  ```html
+  <ul role="list">
+    <li><a>root leaf</a></li>
+    <li><button>folder</button>
+      <ul role="list"><li><a>leaf</a></li>...</ul>
+    </li>
+  </ul>
+  ```
+  **fumadocs v16 把整个树重写为 div 结构**——`createPageTreeRenderer` 内部不再生成 `<ul>`，渲染产物是：
+  ```html
+  <div data-radix-scroll-area-viewport>
+    <div style="min-width:100%;display:table">           ← tree container
+      <a>root leaf</a>
+      <div data-state="open|closed">                    ← folder wrapper
+        <button><svg folder-icon>name<svg chevron data-icon="true"></button>
+        <div data-radix-collapsible-content>
+          <a><svg leaf-icon>name</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  ```
+  因此所有 `ul[...] > li:nth-of-type(...)` selector **零命中**。`--folder-accent` 永远 undefined → fallback 到 `var(--color-fd-primary)`（紫色），又被 button 的 `text-fd-muted-foreground` 颜色继承盖住 → 视觉上"全是灰色"。
+- **解法**（`app/global.css` 当前实现）：
+  1. **tree container 的稳定 hook**：`[data-radix-scroll-area-viewport]` 是 Radix 内层 attr，sidebar 内只此一处。用它当"页树根"选择器：
+     ```css
+     #nd-sidebar [data-radix-scroll-area-viewport] > div > :nth-child(6n+k) {
+       --folder-accent: oklch(0.62 0.16 200);
+     }
+     ```
+     子级 leaf 自动通过 CSS 变量继承拿到父 folder 的色相。
+  2. **folder icon 选择器**：folder trigger button 内 element children 只有 2 个 svg（folder-icon + chevron），`:first-child` 精确指向 folder-icon；chevron 是第二个、不受影响。leaf `<a>` 内只有 1 个 svg，命中即着色：
+     ```css
+     #nd-sidebar button > svg:first-child,
+     #nd-sidebar a > svg:first-child {
+       color: var(--folder-accent, var(--color-fd-primary));
+     }
+     ```
+- **诊断方法**（避免再被 selector 骗）：
+  ```bash
+  # 1. 抓实际 HTML，看 ul/li 还在不在
+  curl -sL http://localhost:3000/<lang>/docs/<any> | grep -c '<ul\b'
+  # 2. 用 Chrome DevTools Protocol 跑真实浏览器，看 querySelectorAll('你的 selector').length
+  # 3. 看 sidebar 内 #nd-sidebar ul[role="list"] 这种 selector 在 .next/static/chunks/*.css 里
+  #    有没有命中数（用 grep -c '<selector>' .next/static/chunks/*.css 不准，因为编译产物会被
+  #    lightningcss 改写；要以浏览器实测为准）
+  ```
+- **红线**：**别再用 `ul[role="list"] > li` 这种 selector 给 sidebar 染色**，升级 fumadocs 后务必
+  重新检查。`data-radix-scroll-area-viewport` 也属于 Radix 实现细节，将来可能换，但目前是唯一稳定的 hook。
+
+---
+
+## 坑 #17：inline code 与 `pre code` 字体各走各的链；MiSans VF 必须置顶
+
+- **现象**：文档正文里 `` `代码` `` 里的中文看着与正文笔触 / 宽度不一致；切到代码块里中英文字体又不同。
+- **根因**：原始 `app/global.css`：
+  ```css
+  code, pre, kbd { font-family: var(--font-mono); }
+  ```
+  `--font-mono` 是 `Fira Code`，**没有中文字形**。inline code 与 pre code 都被强制走 Fira Code → 中文 fallback 到系统中文字体（PingFang / 微软雅黑），与正文 MiSans VF 不一致。
+- **解法**（`app/global.css` 当前实现，规则分三段）：
+  1. **行内 code（` :not(pre) > code`）**：MiSans VF 在前 → Fira Code 兜底英文等宽 → 系统 mono。
+     ```css
+     pre, pre code, kbd {
+       font-family: 'MiSans VF', ui-monospace, ...;
+       font-variant-ligatures: none;
+       font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+     }
+     :not(pre) > code {
+       font-family: 'MiSans VF', 'Fira Code', ui-monospace, ...;
+     }
+     ```
+     注意 **inline code 不能用 `var(--font-mono)`**——`--font-mono` 把 Fira Code 置顶，中文跌落到系统字体。
+  2. **代码块（`pre, pre code`）**：选择与 inline code 不同的权衡：
+     - **保留英文连字（`=>` / `!=` 等 ligatures 美观）** → 字体链 `Fira Code, MiSans VF, monospace`，但中英文割裂。
+     - **纯 MiSans VF（中英文统一）** → 字体链 `MiSans VF, monospace` + 关闭 `liga/clig/calt`。本项目选这条，理由是中文文档里**保持中英文字体一致**比英文连字更重要。注意 MiSans 是 proportional 字体，所以代码块严格等宽属性会消失——这是权衡。
+  3. **切片生效验证**：`MiSans-VF/font.css` 里 97 个 `@font-face` 已经按 `unicode-range` 切分（详见 §8），浏览器只下载命中字符的 woff2——切到代码块时浏览器自动加载对应 unicode 区间的 slice，内存不会爆炸。
+- **诊断方法**：
+  - DevTools → Network → 找带 `MiSansVF.*\.woff2` 的请求，记录下载了哪些 slice。
+  - 视觉上：英文 `===` 是不是看上去一样粗细（VF 沿 wght 轴插值生效）；中文是不是与正文同款。
+- **关联**：本坑与 §8 / 坑 #15 同根——都依赖「单一 VF + unicode-range 切片」这套字体基础设施。
+
+---
+
+## 坑 #18：文档页 banner 重排（关面包屑 + 把动作按钮移到 banner 右下）
+
+- **现象**：原本 `<DocsPage breadcrumb={...}>` 把章节路径自动塞在 article 顶部一行（占满整列），与 `<h1>` 视觉重复；复制 / GitHub 编辑按钮也在 article 内单独占一行，下面留 1.75rem (`mb-7`) 空白。
+- **新设计**（`app/[lang]/docs/[[...slug]]/page.tsx`）：
+  ```tsx
+  <DocsPage breadcrumb={{ enabled: false }} ...>
+    <div className="fd-doc-banner">
+      <div className="fd-doc-banner__main">
+        <div className="fd-doc-title-row">
+          <TitleArcs />
+          <DocsTitle>{page.data.title}</DocsTitle>
+        </div>
+        <DocsDescription>{page.data.description}</DocsDescription>
+      </div>
+      <div className="fd-doc-banner__actions">
+        <LLMCopyButton ... />
+        <ViewOptions ... />
+      </div>
+    </div>
+    {/* 原来 banner 下方的按钮行已删 */}
+    <DocsBody>...</DocsBody>
+  </DocsPage>
+  ```
+- **CSS**（`app/global.css`）：`.fd-doc-banner` 改成 `display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end;`，左列 `__main`（title + description），右列 `__actions` 贴底与 description 行底对齐。`@media (max-width: 40rem)` 切回单列堆叠，按钮组 `order: 2` 排在主列下方。
+- **历史决策**：曾经试过把面包屑移到 banner 右下（与 description 底对齐），但用户最终决定「**完全不显示面包屑**」——所以源码里没有再 import `PageBreadcrumb`。如果以后想恢复，把 `breadcrumb={{ enabled: true }}` 改回即可，但别再用 :has 自渲染到 grid 里，**与 fumadocs 的 `<PageBreadcrumb>` 组件重复**会让 button 与 breadcrumb 文本撞色。
+- **红线**：改了 banner grid 后**别**把 `.fd-doc-banner__actions` 改成 `flex-end` 与左列基线硬贴——`align-self: end + padding-bottom: 0.1rem` 才能让按钮组与 description 行底视觉对齐（description 的 `line-height: 1.4` 让行底略低于基线）。
+
+---
+
+## 坑 #19：lucide-react 的 `icons` map ≠ 命名导出；少数 icon 名不在 map 里
+
+- **现象**：`pnpm build` 时控制台刷 `[lucide-icons-plugin] Unknown icon detected: Home.` 与 `Unknown icon detected: Train.`，对应页面找不到 sidebar 图标 / 图标 fallback 成默认。
+- **根因**（实测）：
+  ```bash
+  node -e "const {icons} = require('lucide-react'); console.log('Home' in icons, 'Train' in icons, 'House' in icons, 'TrainFront' in icons)"
+  # 输出：false false true true
+  ```
+  `lucide-react` v0.460 里 **`icons` map（keyed export）与 `* as lucide` 命名导出的成员不完全一致**——少数 icon（`Home` / `Train` 等）只通过命名导出提供，`icons['Home']` 返回 `undefined`，`lucideIconsPlugin` 在 `lib/source.ts` 里 `if (!Icon) console.warn('Unknown icon detected: ' + icon)`。
+  - **本项目**：`lucideIconsPlugin()` 在 `lib/source.ts` 里只读取 `meta.json` 与 `frontmatter` 里的 `icon` 字符串 → 它用的是 `icons` map（不是命名导出），所以 `Home` / `Train` 这类字符串**会被拒**。
+- **解法**：
+  - 写 frontmatter 时**避开不在 `icons` map 里的 icon 名**。本项目已踩过的坑对应替换：
+    | 含义 | ❌ 不在 icons map | ✅ 在 icons map |
+    |------|----------------|----------------|
+    | 房子（首页 / 文档首页） | `Home` | `House` |
+    | 火车（崩铁插件页） | `Train` | `TrainFront` |
+    | 其它常见的等价替代 | `RefreshCcw`（不确认） | `RotateCcw` |
+  - 想确认某个 icon 名是否安全：
+    ```bash
+    node -e "const {icons} = require('lucide-react'); console.log('<NAME>' in icons)"
+    ```
+    输出 `true` 才能写进 `meta.json` 或 `frontmatter.icon`。
+- **自动化**：项目里 `scripts/update-doc-icons.mjs` 一次性重映射了 68 个 mdx 的 leaf icon（含 `Home → House`、`Train → TrainFront`）；脚本里有完整映射表，新增 icon 前先查表。
+
+---
+
+## 坑 #20：frontmatter `description` 里的 `[text](url)` / `**text**` 不渲染
+
+- **现象**：在 `description` 里写
+  `在 [commit f903e3](https://github.com/...) 之后，将启用**全新的网页控制台**。`
+  渲染出来是一坨原文：`在 [commit f903e3](https://...) 之后，将启用**全新的网页控制台**。`，
+  链接没变成 `<a>`、加粗没变成 `<strong>`。
+- **根因**：fumadocs 的 `DocsDescription` 组件只把 children 当纯文本塞进 `<p>`，**不解析任何 Markdown**。
+  它接受 `ComponentProps<'p'>`，没有 remark / rehype 流水线。
+- **解法**（`app/[lang]/docs/[[...slug]]/page.tsx` + `components/MarkdownDescription.tsx`）：
+  - 用自写的 `MarkdownDescription` 替换 `DocsDescription`；
+  - 它是个**轻量级 inline parser**，只识别 `[text](url)` 与 `**text**` 两类语法，
+    避免把整个 remark 流水线拉进来（保持 `description` 始终是"一句话简介"，符合 §4.2 红线）。
+  - 链接：外链（`http(s)://`）自动 `target="_blank" rel="noreferrer noopener"`；站内 `/...` 走普通 `<a>`。
+  - 样式：`.fd-doc-description` 用 `--color-fd-muted-foreground` + 0.8rem + 1.6 行高。
+  - **不要把图片 / 标题 / 列表 / 代码块塞进 description**——只支持两种 inline 语法。
+- **新增/调整规则时**：如果以后需要支持更多 inline 语法（如 `*italic*` / `code`），改 `components/MarkdownDescription.tsx`
+  里的 `parseInline` / `pushBold` 即可，**不要在 page.tsx 塞一个 client-side remark**。
+
+## 坑 #21：标题 banner 与正文之间的间隙过长且不一致
+
+- **现象**：
+  - 旧值：`.fd-doc-banner { margin-bottom: 1.25rem }` + `.prose h2 { margin-top: 2.5rem }`
+    + `.prose.prose > div[style*="--callout-color"] { margin: 1.5rem 0 !important }`。
+  - 首元素是 H2 → 间隙 1.25 + 2.5 = 3.75rem（≈ 60px）。
+  - 首元素是 Callout → 间隙 1.25 + 1.5 = 2.75rem，但 callout 自身还有 1rem padding-top，
+    **视觉**实际是 3.75rem + callout box-shadow / border 感知，更大。
+  - 两种首元素之间还会跳变（h2 / callout / p 各有不同 margin-top）。
+- **解法**（`app/global.css`，3 处配套调整）：
+  1. `.fd-doc-banner` 的 `margin-bottom` 从 `1.25rem` 压到 `0.75rem`，**padding-bottom** 保留 `0.5rem`
+     （让 border-bottom 与 description 行底留点呼吸）。
+  2. 给 `.prose > :first-child` 统一覆盖 `margin-top: 1.25rem !important`。
+  3. 另加 `.prose.prose > div[style*="--callout-color"]:first-child`（特异性 0,3,1）压过 callout 自身的
+     `margin: 1.5rem 0 !important`，让 callout 作为首元素时也只占 1.25rem。
+  - 三处叠加后：banner margin-bottom (0.75) + first-child margin-top (1.25) = **2rem**（与 H2 文本基线齐）；
+    callout 内部还有 1rem padding-top，所以 callout 文本基线比 H2 文本基线再低约 0.6rem——两者的视觉起点
+    接近一致，差距明显小于旧值。
+- **红线**：不要把 `padding-bottom: 0.5rem` 也清掉——border-bottom 与 description 行底需要一点距离
+  否则线会贴在文字上。也不要给 `h2:first-child` 单独写规则，**用 `:first-child` 统一管**——
+  否则下次加新首元素类型（H3 / ul / figure）又得维护一长串。
+
+---
+
 ## 通用注意事项
 
 > - **改完必 `pnpm build`**：MDX 语法 / TS 类型 / 搜索索引的问题只有构建期暴露。
 > - **站内链接带结尾 `/`**（`trailingSlash: true`）。
 > - **`@orama/orama` 与 `@orama/tokenizers` 是 dependencies**（运行期 import），不是 devDependencies，别挪回去。
 > - **三语同步**：改 UI 文案（`layout.shared.ts`）/ 导航（`nav-config.ts`）/ 首页（`home-content.ts`）时别只改一种语言。
-> - **源码 / Fumadocs 官方文档是唯一事实源**；升级 fumadocs 大版本后，回归本清单里的 #1/#4/#7/#9/#11/#13（都依赖 fumadocs 内部结构或 Next.js 行为）。
+> - **源码 / Fumadocs 官方文档是唯一事实源**；升级 fumadocs 大版本后，回归本清单里的
+>   #1 / #4 / #7 / #9 / #11 / #13 / #16 / #17（都依赖 fumadocs 内部结构或 Next.js 行为）。
+>   - **#16 sidebar DOM 迁移**：v16 之后基本稳定，但若 fumadocs 再换 Radix 实现细节
+>     （比如 `data-radix-scroll-area-viewport` 改名），folder icon 着色会静默失效。
+>   - **#17 字体链**：`pre / pre code / kbd` 当前走 `MiSans VF` 而非 Fira Code；如果你
+>     想恢复英文连字，把字体链最前面换成 `Fira Code` 即可，但 inline code 必须保持
+>     MiSans VF 在前。

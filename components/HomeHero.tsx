@@ -21,11 +21,16 @@ interface HomeHeroProps {
 }
 
 /**
- * 首屏 Hero —— 视差滚动 + 滚动驱动动画。
+ * 首屏 Hero —— PPT 式首页的「第一页」。
  *
- * 通过一个轻量的 rAF 循环，把「滚动进度」与「鼠标位置」写入 CSS 自定义属性
- * （--sy / --p / --mx / --my），真正的位移、缩放、淡出都交给 CSS 处理，
- * 既流畅又零依赖。无 JS / reduced-motion 时退化为静态首屏，内容始终可见。
+ * 之前实现：onScroll rAF 把 --sy / --p 写入 CSS，content 随滚动上浮缩放淡出。
+ * 问题：和无极滚动 + 滚动驱动 transform 叠加会引发超大截图区域的合成层抖动，
+ *        而且与「逐页 snap」的目标相违背。
+ * 现在：取消滚动驱动的 rAF；只保留鼠标视差的 rAF（缓动跟随光标，纯位移，绝不
+ *        触碰 filter / 大面积重绘），让 Hero 在被 snap 锁住时表现稳定。
+ *        「随滚动淡出」改为由 scroll-snap 自然过渡——离开视口就交给下一页接管。
+ *
+ * 鼠标视差始终开启（不因 prefers-reduced-motion 关闭）。
  */
 export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHint }: HomeHeroProps) {
   const ref = useRef<HTMLElement>(null)
@@ -34,26 +39,10 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
     const el = ref.current
     if (!el)
       return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-      return
-
-    // —— 滚动驱动 ——
-    let scrollRaf = 0
-    const onScroll = () => {
-      if (scrollRaf)
-        return
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = 0
-        const rect = el.getBoundingClientRect()
-        const h = rect.height || 1
-        const scrolled = Math.max(-rect.top, 0)
-        const progress = Math.min(scrolled / h, 1)
-        el.style.setProperty('--sy', scrolled.toFixed(1))
-        el.style.setProperty('--p', progress.toFixed(4))
-      })
-    }
 
     // —— 鼠标视差（带缓动惯性）——
+    // 只写 --mx / --my，纯 transform 走 GPU 合成层，不触发 layout/paint，
+    // 配合 scroll-snap 也只是静止时仍在做 5% lerp 的轻量位移。
     let targetX = 0
     let targetY = 0
     let curX = 0
@@ -71,21 +60,17 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
       mouseRaf = requestAnimationFrame(tick)
     }
 
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('mousemove', onMove, { passive: true })
     mouseRaf = requestAnimationFrame(tick)
+    window.addEventListener('mousemove', onMove, { passive: true })
 
     return () => {
-      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(scrollRaf)
       cancelAnimationFrame(mouseRaf)
     }
   }, [])
 
   return (
-    <section ref={ref} className="hero-px">
+    <section ref={ref} className="hero-px home-snap-point">
       {/* 视差背景层（不响应指针） */}
       <div className="hero-px__bg" aria-hidden>
         <div className="hero-px__grid" />
@@ -95,7 +80,7 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
         <div className="hero-px__beam" />
       </div>
 
-      {/* 前景内容（随滚动上浮、缩放并淡出） */}
+      {/* 前景内容（静态居中，snap 期间不再随滚动变形，避免与对齐动画打架） */}
       <div className="hero-px__content">
         <div className="hero-px__logo">
           <img src="/icon.png" alt={name} width={120} height={120} />
@@ -138,7 +123,7 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
         </div>
       </div>
 
-      {/* 滚动提示（随滚动迅速淡出） */}
+      {/* 滚动提示 */}
       <div className="hero-px__cue" aria-hidden>
         <span>{scrollHint}</span>
         <div className="hero-px__mouse">
