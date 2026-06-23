@@ -92,6 +92,10 @@ border-color: color-mix(in oklch, var(--callout-color) 34%, transparent);
 ```
 
 - callout 命中方式：`.prose [style*="--callout-color"]`（Fumadocs callout 容器带内联 `--callout-color`）。
+- **callout 隐藏最左侧 lucide 图标**（Info / TriangleAlert / CircleX / CircleCheck
+  等三角形 / 圆形 / 正方形）：在 `.prose.prose > div[style*="--callout-color"] > svg`
+  上 `display: none !important`。语义由边框色 + 标题色承担，文本起始位置更整齐。
+  同时把容器的 `gap` 重置为 0，避免图标位置留下空白。
 - 代码块用 `--color-fd-accent-2` 掺一丝冷色（不宜过浓，影响可读性）。
 
 ## 2.5 布局宽度与全宽 Header（重点）

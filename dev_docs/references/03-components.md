@@ -31,6 +31,7 @@ return {
 | `NavCard` | `components/NavCard.tsx` | 两列导航卡片 | 内联 Tailwind |
 | `ChatPanel` / `ChatMessage` | `components/ChatPanel.tsx` | **静态聊天示例**（复刻 VitePress） | `.fd-chatpanel*`, `.fd-chatmsg*` |
 | `Callout` | fumadocs-ui | 提示 / 警告框（`type=info/warn/error/success`） | `.prose [style*="--callout-color"]` |
+| `Contributors` | `components/Contributors.tsx` | 首页「感谢成员贡献」：拉 GitHub `/contributors` 渲染**堆叠圆形头像**（一行 24 个，多行堆叠，展示全部） | `.contrib__rows`, `.contrib__stack`, `.contrib__item` |
 | `DataPanel` | `components/DataPanel.tsx` | 不蒜子访问量统计 | 内联 Tailwind |
 | `PageInfo` | `components/PageInfo.tsx` | 字数 / 阅读时长 | 内联 Tailwind |
 | `VideoLink` | `components/VideoLink.tsx` | B 站视频链接卡片 | 内联 Tailwind |

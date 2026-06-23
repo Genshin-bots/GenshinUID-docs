@@ -25,7 +25,11 @@
    全局基础 + 玻璃辅助变量
    ========================================================================== */
 :root {
-  --font-sans: 'MiSans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+  /* MiSans VF (Variable Font)：单字体支持 wght 150~700，
+     切片的 font.css 见 public/font/MiSans-VF/font.css。
+     见 dev_docs §8 / 坑 #15：VF + unicode-range 切片。
+     字体回退链保持 Inter / system-ui，确保 VF 加载失败时仍有兜底。 */
+  --font-sans: 'MiSans VF', 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
   --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -845,13 +849,14 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee__track {
-    animation: none;
-  }
+  /* 大字滚动条是装饰性「水平位移」，不属于引发前庭不适的剧烈动效，
+     且页面氛围依赖两行交错滚动，因此不被 prefers-reduced-motion 关闭。
+     其余动效（hero 视差 / reveal 模糊入场 / contrib 弹跳）依旧停。 */
 }
 
 /* ==========================================================================
-   贡献者 · 堆叠紧凑
+   贡献者 · 堆叠紧凑 + 多行（一行 24 个，多行堆叠，展示全部）
+   保留 VitePress 时代「重叠圆形」堆叠样式，溢出换到下一行继续堆叠。
    ========================================================================== */
 .contrib {
   display: flex;
@@ -860,13 +865,24 @@ body {
   gap: 1.25rem;
   margin-top: 1rem;
 }
+.contrib__rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+/* 单行堆叠：flex 行，每行起始重置 padding-left 以保证首项对齐 */
 .contrib__stack {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding-left: 0.85rem;
+  flex-wrap: wrap;
+  /* 允许换行后仍然居中：每行宽度自适应内容 */
+  max-width: 100%;
 }
-.contrib__item,
-.contrib__more {
+.contrib__item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -891,8 +907,7 @@ body {
   object-fit: cover;
 }
 /* 容器 hover：整体轻微散开，呼吸感 */
-.contrib__stack:hover .contrib__item,
-.contrib__stack:hover .contrib__more {
+.contrib__stack:hover .contrib__item {
   margin-left: -0.45rem;
 }
 /* 单个 hover：上浮放大并置顶 */
@@ -902,17 +917,6 @@ body {
   box-shadow:
     0 0 0 3px var(--color-fd-background),
     0 14px 28px -10px color-mix(in oklch, var(--color-fd-primary) 60%, transparent);
-}
-.contrib__more {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-fd-primary-foreground);
-  text-decoration: none;
-  background: linear-gradient(135deg, var(--color-fd-primary), var(--color-fd-accent-2));
-}
-.contrib__more:hover {
-  transform: translateY(-10px) scale(1.14);
-  z-index: 60 !important;
 }
 .contrib__meta {
   display: inline-flex;
@@ -965,8 +969,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .contrib__item,
-  .contrib__more {
+  .contrib__item {
     animation: none;
   }
 }
@@ -2059,7 +2062,9 @@ article.fd-docs-article,
    · 卡片背景以 --callout-color 极淡着色 + 玻璃模糊（几乎透出底色）
    · 边框用同色 25-30% 描边，柔和
    · 左上角一抹同色径向辉光（伪元素）
-   · 图标：直接以语义色绘制，1.75rem，无外框徽章（让 lucide 自身轻盈发光）
+   · 不显示最左侧 lucide 图标（Info / TriangleAlert / CircleX / CircleCheck
+     等三角形 / 圆形 / 正方形形状）—— 语义由边框颜色 + 标题色承担，
+     视觉更干净、文本起始位置更整齐
    · 隐藏内置的窄色条 + 重置 ps-1 内边距
    · 用 `.prose.prose > …` 双层 `.prose` 提高选择器特异性，
      确保压过 fumadocs-ui preset 的同选择器规则。
@@ -2069,7 +2074,7 @@ article.fd-docs-article,
   isolation: isolate !important;
   display: flex !important;
   align-items: flex-start !important;
-  gap: 0.95rem !important;
+  gap: 0 !important;
   margin: 1.5rem 0 !important;
   padding: 1rem 1.25rem !important;
   border-radius: 16px !important;
@@ -2123,27 +2128,15 @@ article.fd-docs-article,
     0 6px 28px -12px color-mix(in oklch, var(--callout-color) 35%, transparent) !important;
 }
 
-/* 隐藏内置的窄色条（role=none 元素）—— 现在由图标与边框承担语义识别 */
+/* 隐藏内置的窄色条（role=none 元素）—— 现在由边框承担语义识别 */
 .prose.prose > div[style*="--callout-color"] > [role='none'] {
   display: none !important;
 }
 
-/* 图标：直接以语义色绘制，无外框徽章，更轻盈 */
+/* 隐藏最左侧 lucide 图标（Info / TriangleAlert / CircleX / CircleCheck 等
+   三角形 / 圆形 / 正方形）—— 语义由边框颜色 + 标题色承担，文本起始更整齐 */
 .prose.prose > div[style*="--callout-color"] > svg {
-  flex-shrink: 0 !important;
-  width: 1.75rem !important;
-  height: 1.75rem !important;
-  min-width: 1.75rem !important;
-  margin: 0 !important;
-  margin-top: 0.1rem !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  color: var(--callout-color) !important;
-  fill: var(--callout-color) !important;
-  filter: drop-shadow(
-    0 0 8px color-mix(in oklch, var(--callout-color) 35%, transparent)
-  );
+  display: none !important;
 }
 
 /* 标题（仅当传了 title 时存在）—— CalloutTitle 渲染为 <p class="font-medium my-0!"> */

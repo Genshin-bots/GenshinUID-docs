@@ -88,10 +88,9 @@ const jaFeatures: Feature[] = [
 ]
 
 const teamMembers: TeamMember[] = [
-  { name: 'Wuyi', title: 'Author', avatar: 'https://avatars.githubusercontent.com/u/88185446?v=4', link: 'https://github.com/KimigaiiWuyi' },
-  { name: 'baiqwerdvd', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/69304340?v=4', link: 'https://github.com/baiqwerdvd' },
-  { name: 'Agnes4m', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/47880799?v=4', link: 'https://github.com/Agnes4m' },
-  { name: 'qwerdvd', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/69304340?v=4', link: 'https://github.com/baiqwerdvd' },
+  { name: 'Wuyi', title: 'Author', avatar: 'https://avatars.githubusercontent.com/u/55526518?v=4', link: 'https://github.com/KimigaiiWuyi' },
+  { name: 'baiqwerdvd', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/158065462?v=4', link: 'https://github.com/baiqwerdvd' },
+  { name: 'Agnes4m', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/70925546?v=4', link: 'https://github.com/Agnes4m' },
 ]
 
 const supportLinks: SupportLink[] = [

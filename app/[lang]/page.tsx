@@ -19,7 +19,7 @@ const REPO_URL = 'https://github.com/Genshin-bots/gsuid_core'
 async function fetchContributors(): Promise<Contributor[]> {
   try {
     const res = await fetch(
-      'https://api.github.com/repos/Genshin-bots/gsuid_core/contributors?per_page=40',
+      'https://api.github.com/repos/Genshin-bots/gsuid_core/contributors?per_page=100',
       { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'gsuid-docs' } },
     )
     if (!res.ok)

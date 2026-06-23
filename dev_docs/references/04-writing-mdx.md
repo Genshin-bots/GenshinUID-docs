@@ -43,6 +43,9 @@ icon: FileText            # 可选，侧边栏图标（lucide 图标名）
 ```
 
 - `type`：`info` / `warn`(=warning) / `error` / `success`。会渲染成对应语义色的**彩色磨砂玻璃**。
+- **最左侧 lucide 图标已隐藏**（三角形 / 圆形 / 正方形等），只保留边框色 + 标题色作为
+  语义识别。文本起始位置与正文对齐，更干净。若需恢复图标显示，去掉
+  `app/global.css` 里 `.prose.prose > div[style*="--callout-color"] > svg` 的 `display: none` 即可。
 - 代码块用普通 ```` ```python ```` 围栏，自动 shiki 高亮 + 冷色玻璃外框。
 - 聊天示例用 `<ChatPanel>/<ChatMessage>`，用法见 [三、组件 §3.3](./03-components.md)。
 

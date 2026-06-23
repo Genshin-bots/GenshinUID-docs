@@ -45,6 +45,14 @@ GenshinUID-docs/
 │   ├── nav-config.ts         # 顶栏下拉菜单 / 版本 / 语言项
 │   ├── home-content.ts       # 首页文案（三语）
 │   └── source.ts             # fumadocs loader（把 docs 接入）
+├── assets/                   # ★ 构建期资源（不会被部署到 out/）
+│   └── fonts/MiSansVF.ttf    #   正文字体源文件（20MB，可变字体 wght 150~700）
+│                              #   喂给 scripts/font-slice.mjs 切到 public/font/MiSans-VF/
+├── public/font/              # → out/font/ 的静态字体（含 VF woff2 切片 + FiraCode）
+│   └── MiSans-VF/            #   font.css（97 @font-face）+ MiSansVF.{1..97}.woff2
+├── scripts/
+│   ├── font-slice.mjs        # 重新生成 VF 切片的脚本（详见 dev_docs §8）
+│   └── postbuild.mjs         # 构建后复制 CNAME 等
 ├── source.config.ts          # ★ fumadocs-mdx 配置（remark 插件等）
 ├── next.config.mjs           # output:export / trailingSlash / images.unoptimized
 └── dev_docs/                 # ← 你正在读的开发文档
@@ -52,6 +60,10 @@ GenshinUID-docs/
 
 > **`★` 是最常改的文件**。绝大多数维护任务集中在：`app/global.css`（样式）、
 > `content/docs/**`（内容）、`components/mdx.tsx` + 具体组件（功能）、`lib/*`（配置）。
+>
+> **字体资源分两个地方**：源 `.ttf` 在 `assets/fonts/`（**不进 out/**），
+> 切片 `.woff2` + `font.css` 在 `public/font/MiSans-VF/`（**进 out/**）。
+> 别把源 ttf 误放到 public/，会无意义地膨胀部署体积。详见 [§8](./08-font-slice.md) / 坑 #15。
 
 ## 1.3 一个文档页面是怎么来的
 

@@ -46,6 +46,7 @@ description: >
 | 五 | i18n 多语言（语言配置、导航栏 nav-config、首页 home-content、UI 文案、如何加一门语言） | [references/05-i18n.md](./references/05-i18n.md) |
 | 六 | 搜索（静态 Orama 索引、中文 / 日文分词、自定义搜索弹窗、为什么默认搜不到中文） | [references/06-search.md](./references/06-search.md) |
 | 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY…） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
+| 八 | 字体切片（MiSans VF + unicode-range，源文件位置、重新生成、VF 轴校验） | [references/08-font-slice.md](./references/08-font-slice.md) |
 
 ## 推荐阅读顺序
 
@@ -55,6 +56,7 @@ description: >
 4. **加语言 / 改导航**：看 [五、i18n](./references/05-i18n.md)。
 5. **搜索相关**：看 [六、搜索](./references/06-search.md)。
 6. **任何"奇怪现象"先翻** [七、已知坑](./references/07-pitfalls.md)，大概率已经记录。
+7. **调整字体 / 重新切片**：看 [八、字体切片](./references/08-font-slice.md)；关键注意项见坑 #15。
 
 ## 最关键的几条（先记住）
 
@@ -63,3 +65,5 @@ description: >
 > - **中文搜索依赖 Mandarin 分词器**，服务端建索引与客户端查询必须用同一套，见 [六](./references/06-search.md)。
 > - **MDX 里中文加粗、`{ }`、HTML 注释都有坑**，写文档前务必读 [四](./references/04-writing-mdx.md)。
 > - **配色全部是 CSS 变量**（`--color-fd-*` / `--fd-glass-*`），改主题改变量即可，别到处硬编码颜色。
+> - **正文字体是 MiSans VF（可变字体，wght 150~700）+ 97 个 unicode-range 切片**，
+>   不是 4 套静态字重。CSS 写 `font-weight: 600` 浏览器会沿 wght 轴插值，不需要切换字体文件。见 [八](./references/08-font-slice.md) / 坑 #15。

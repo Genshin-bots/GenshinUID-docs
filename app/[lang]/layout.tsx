@@ -53,10 +53,9 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
   return (
     <html lang={lang} suppressHydrationWarning className={inter.className}>
       <head>
-        <link rel="stylesheet" href="/font/MiSans-Medium/font.css" />
-        <link rel="stylesheet" href="/font/MiSans-Bold/font.css" />
-        <link rel="stylesheet" href="/font/MiSans-Demibold/font.css" />
-        <link rel="stylesheet" href="/font/MiSans-Heavy/font.css" />
+        {/* MiSans 可变字体：97 个 unicode-range 切片，单个 woff2 同时支持 wght 150~700。
+            浏览器只下载页面实际用到 unicode 区间的 woff2（详见 dev_docs §8 字体切片）。 */}
+        <link rel="stylesheet" href="/font/MiSans-VF/font.css" />
       </head>
       <body className="flex min-h-screen flex-col">
         <Providers lang={lang as Language}>

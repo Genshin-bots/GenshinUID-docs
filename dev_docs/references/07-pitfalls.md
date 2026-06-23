@@ -116,6 +116,36 @@
   - 已写好的迁移脚本 `scripts/fix-links.mjs` 可一键批量修正 22 个文件的全部路径（含 light/dark 双方向）；**但它会误改图片**，使用前看坑 #12。
 - **检查命令**（CI 里可加）：`grep -rE '\]\([^)]*[A-Z]' content/docs/ --include='*.mdx' | grep -v 'http' | grep -v '!\\['`，命中即坏链接。
 
+## 坑 #15：字体切片·可变字体（VF） + unicode-range
+
+> 完整设计见 [八、字体切片](./08-font-slice.md)。本条只列**踩过的具体雷**。
+
+- **不要用 `font-slice`（voderl 那个 npm 包）做 VF**。它底层用 `fontmin` + `fonteditor-core`，
+  只能处理静态字体，传 VF 进去会被削平（fvar / gvar 丢失），CSS 里的 `font-weight: 600`
+  会回退到默认 weight 而不是沿 wght 轴插值。本项目改用 `pyftsubset`（fonttools），
+  它原生支持 VF 切片。
+- **`pyftsubset` 处理 VF 时千万别 `--no-subset-tables+=gvar`**。
+  gvar 表里逐字形引用了字体里所有字形；如果你只 `--unicodes=U+4e00-4fff` 切一个 CJK 段
+  又强制保留完整 gvar，序列化时会 `KeyError: 'A'` 之类的字形找不到崩溃。
+  正确做法：让 gvar 跟着 glyf 一起被裁（默认行为），只把 `STAT / HVAR / VVAR / MVAR / cvar`
+  这些**轴元数据**加进 `--no-subset-tables+=`。
+- **CSS 里的 `font-weight` 必须写范围**，不是离散值：
+  `font-weight: 150 700;` 而不是 `font-weight: 400;` 或 `font-weight: bold;`。
+  离散值当然也能工作（浏览器会 snap），但范围写法才是 W3C VF 推荐 + 最不易出错。
+- **`font-family` 用 VF 在 `name` 表里的真实 family**，不要沿用旧静态字体的名字。
+  MiSans 静态字体里 family 是 `MiSans`，VF 里 family 是 `MiSans VF`。
+  写错名字不会报错，但 wght 轴不会被激活——表现就是 font-weight: 600 看起来跟 400 一样。
+- **源 .ttf 一定要放 `assets/fonts/`，不要放 `public/`**。
+  `public/` 下任何文件都会被 Next.js 静态导出原样塞进 `out/`，20MB 的 VF 源文件
+  会无意义地膨胀部署体积，并被浏览器访问到（虽然没人会去访问 `/font/MiSans-VF/MiSansVF.ttf`，
+  但还是会出现在站点地图里）。
+- **不要在 `app/global.css` 里给 `--font-sans` 写 `font-feature-settings` 里的 `wght` opt-in**。
+  MiSans VF 不需要 `font-optical-sizing`/`font-variation-settings` 来启用 wght，
+  现代浏览器读到 `font-weight: 150 700;` 就会自动沿轴插值。多此一举反而会绑定 weight。
+- **删旧文件**：迁移到 VF 后要立刻删 `public/font/MiSans-{Medium,Bold,Demibold,Heavy}/`
+  四个目录 + `public/font/MiSans-*.ttf` 四个静态 ttf（合计 ~30MB），否则 `pnpm build` 会
+  全部复制进 `out/`——坑 #6 EBUSY 时还会在末尾报资源未释放。
+
 ---
 
 ## 通用注意事项
