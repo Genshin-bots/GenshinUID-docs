@@ -7,6 +7,7 @@ import { getMDXComponents } from '@/components/mdx'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
 import { DocsArticleContainer } from '@/components/DocsArticleContainer'
+import { TitleArcs } from '@/components/TitleArcs'
 
 interface PageProps {
   params: Promise<{ lang: string; slug?: string[] }>
@@ -70,14 +71,17 @@ export default async function Page({ params }: PageProps) {
         style: 'clerk',
         single: false,
       }}
-      breadcrumb={{ enabled: true }}
-      footer={{ className: 'mt-12' }}
+      breadcrumb={{ enabled: true, className: 'fd-doc-breadcrumb' }}
+      footer={{ className: 'mt-12 fd-doc-footer' }}
       slots={{
         container: DocsArticleContainer,
       }}
     >
       <div className="fd-doc-banner">
-        <DocsTitle>{page.data.title}</DocsTitle>
+        <div className="fd-doc-title-row">
+          <TitleArcs />
+          <DocsTitle>{page.data.title}</DocsTitle>
+        </div>
         <DocsDescription>{page.data.description}</DocsDescription>
       </div>
       <div className="flex flex-row items-center gap-2 mb-7">

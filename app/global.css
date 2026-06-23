@@ -55,15 +55,25 @@
 
   --color-fd-border: oklch(0.915 0.005 260);
 
-  /* 点缀色：石墨灰蓝（近乎无彩） */
-  --color-fd-primary: oklch(0.45 0.03 255);
-  --color-fd-primary-foreground: oklch(0.99 0 0);
-  --color-fd-ring: oklch(0.45 0.03 255);
+  /* ==========================================================================
+     主题基调（品牌强调色）—— 想整体换色，改这一处即可
+     · --fd-brand-hue：统一色相。改这一个数字，全站强调色（按钮 / 链接 / 焦点环 /
+       大标题渐变 / 背景流动光晕 / 首页 Hero / 章节标题…）一起旋转。
+     · accent-1/2/3：由深到浅的装饰阶，首页与文档的所有装饰渐变 / 光晕共用。
+     · --fd-accent-vivid：高饱和强调色，大标题渐变末端 + 背景流动光晕主色都引用它。
+     语义色 info/success/warning/error 表达红黄绿语义，不随基调旋转，单独定义于下方。
+     亮 / 暗两套的 L、C 值分别在 :root 与 .dark 里，色相统一由 --fd-brand-hue 提供。
+     ========================================================================== */
+  --fd-brand-hue: 250;
 
-  /* 渐变/装饰用石墨阶 */
-  --color-fd-accent-1: oklch(0.45 0.03 255);
-  --color-fd-accent-2: oklch(0.55 0.035 250);
-  --color-fd-accent-3: oklch(0.66 0.045 245);
+  --color-fd-primary: oklch(0.45 0.03 var(--fd-brand-hue));
+  --color-fd-primary-foreground: oklch(0.99 0 0);
+  --color-fd-ring: oklch(0.45 0.03 var(--fd-brand-hue));
+
+  --color-fd-accent-1: oklch(0.45 0.03 var(--fd-brand-hue));
+  --color-fd-accent-2: oklch(0.55 0.035 var(--fd-brand-hue));
+  --color-fd-accent-3: oklch(0.66 0.045 var(--fd-brand-hue));
+  --fd-accent-vivid: oklch(0.6 0.15 var(--fd-brand-hue));
 
   /* 语义色（callout / badge）—— L≈0.6 + 32% mix 后落在「明显有色」区间，
      而不是默认 L=0.77 那种混出来近乎白纸的惨白。 */
@@ -103,13 +113,17 @@
 
   --color-fd-border: oklch(0.32 0.012 262);
 
-  --color-fd-primary: oklch(0.82 0.028 255);
+  /* 暗色：仅 L/C 不同，色相依旧由 :root 的 --fd-brand-hue 提供（继承自 :root） */
+  --color-fd-primary: oklch(0.82 0.028 var(--fd-brand-hue));
   --color-fd-primary-foreground: oklch(0.21 0.014 262);
-  --color-fd-ring: oklch(0.82 0.028 255);
+  --color-fd-ring: oklch(0.82 0.028 var(--fd-brand-hue));
 
-  --color-fd-accent-1: oklch(0.82 0.028 255);
-  --color-fd-accent-2: oklch(0.74 0.04 250);
-  --color-fd-accent-3: oklch(0.66 0.05 245);
+  --color-fd-accent-1: oklch(0.82 0.028 var(--fd-brand-hue));
+  --color-fd-accent-2: oklch(0.74 0.04 var(--fd-brand-hue));
+  --color-fd-accent-3: oklch(0.66 0.05 var(--fd-brand-hue));
+  /* L 必须压在 sRGB 色域内：oklch(0.8 0.13 250) 的蓝已越界，
+     Chrome 会把越界色映射成肉粉色（标题/光晕泛红的真凶）。0.72 0.13 250 在域内。 */
+  --fd-accent-vivid: oklch(0.72 0.13 var(--fd-brand-hue));
 
   /* 暗色下语义色与亮色同色相，更亮一些，方便在深色卡片上识别 */
   --color-fd-info: oklch(0.7 0.14 245);
@@ -117,10 +131,12 @@
   --color-fd-warning: oklch(0.74 0.16 60);
   --color-fd-error: oklch(0.7 0.16 25);
 
-  /* 玻璃 / 边框辅助（暗色） */
+  /* 玻璃 / 边框辅助（暗色）
+     glass-bg 用 in srgb 调透明：背景/卡片是 hue 262 的冷灰，若用 in oklch 与
+     transparent 混色，色相会绕道经红，导致侧栏 / Header / TOC 玻璃面板泛红。 */
   --fd-border-soft: color-mix(in oklch, white 9%, transparent);
-  --fd-glass-bg: color-mix(in oklch, var(--color-fd-background) 55%, transparent);
-  --fd-glass-bg-strong: color-mix(in oklch, var(--color-fd-card) 72%, transparent);
+  --fd-glass-bg: color-mix(in srgb, var(--color-fd-background) 55%, transparent);
+  --fd-glass-bg-strong: color-mix(in srgb, var(--color-fd-card) 72%, transparent);
   --fd-glass-shadow: 0 10px 34px -16px rgba(0, 0, 0, 0.6);
 }
 
@@ -224,22 +240,148 @@ body {
 
 .dark body {
   background-color: var(--color-fd-background);
+  /* 暗色用 in srgb 调透明，避免 in oklch 与 transparent 混色时色相绕道
+     经品红/红（让蓝色光晕在深色背景上泛红）。深色背景下这个 bug 尤其刺眼。 */
   background-image:
     radial-gradient(
       60rem 50rem at 16% -10%,
-      color-mix(in oklch, var(--color-fd-accent-2) 14%, transparent),
+      color-mix(in srgb, var(--color-fd-accent-2) 14%, transparent),
       transparent 60%
     ),
     radial-gradient(
       52rem 44rem at 100% 6%,
-      color-mix(in oklch, var(--color-fd-accent-3) 10%, transparent),
+      color-mix(in srgb, var(--color-fd-accent-3) 10%, transparent),
       transparent 58%
     ),
     radial-gradient(
       40rem 30rem at 50% 120%,
-      color-mix(in oklch, var(--color-fd-accent-1) 8%, transparent),
+      color-mix(in srgb, var(--color-fd-accent-1) 8%, transparent),
       transparent 65%
     );
+}
+
+/* ==========================================================================
+   文档区域：网格玻璃 + 缓慢流动的毛玻璃光晕
+   两层固定背景（不随滚动移动，内容在其上滑过 → 玻璃质感），均 pointer-events:none：
+   - ::before 网格层（z-index:-1）：可见但克制的网格线，椭圆遮罩四周渐隐；
+   - ::after  光晕层（z-index:-2）：3 团高斯模糊的彩色光晕，CSS 缓慢漂移 = "流动毛玻璃"。
+     光晕偏向四角 / 侧栏 / TOC 一侧，正文阅读列保持干净；侧栏与 TOC 的 backdrop-blur
+     会把它们二次模糊 → 玻璃面板的磨砂质感更足。
+   仅作用于 docs / notebook 布局，避免和首页 Hero 自带网格叠加。
+   ========================================================================== */
+#nd-docs-layout::before,
+#nd-notebook-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklch, var(--color-fd-foreground) 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--color-fd-foreground) 5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(
+    150% 130% at 50% 22%,
+    black 58%,
+    transparent 96%
+  );
+  mask-image: radial-gradient(
+    150% 130% at 50% 22%,
+    black 58%,
+    transparent 96%
+  );
+}
+
+.dark #nd-docs-layout::before,
+.dark #nd-notebook-layout::before {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklch, white 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, white 5%, transparent) 1px,
+      transparent 1px
+    );
+}
+
+#nd-docs-layout::after,
+#nd-notebook-layout::after {
+  content: '';
+  position: fixed;
+  inset: -12%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      34rem 34rem at 12% 14%,
+      color-mix(in oklch, var(--color-fd-accent-2) 38%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      30rem 30rem at 90% 20%,
+      color-mix(in oklch, var(--fd-accent-vivid) 30%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      32rem 32rem at 78% 90%,
+      color-mix(in oklch, var(--color-fd-accent-3) 34%, transparent),
+      transparent 60%
+    );
+  filter: blur(16px);
+  will-change: transform;
+  animation: docsAuroraDrift 18s ease-in-out infinite alternate;
+}
+
+/* 暗色：用 in srgb 调透明（修正泛红 bug），整体调淡，做成低调的冷色辉光，
+   与深石墨背景融合而非跳出来。 */
+.dark #nd-docs-layout::after,
+.dark #nd-notebook-layout::after {
+  background:
+    radial-gradient(
+      34rem 34rem at 12% 14%,
+      color-mix(in srgb, var(--color-fd-accent-2) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      30rem 30rem at 90% 20%,
+      color-mix(in srgb, var(--fd-accent-vivid) 18%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      32rem 32rem at 78% 90%,
+      color-mix(in srgb, var(--color-fd-accent-3) 20%, transparent),
+      transparent 60%
+    );
+}
+
+@keyframes docsAuroraDrift {
+  0% {
+    transform: translate3d(-4%, -3%, 0) scale(1.02);
+  }
+  50% {
+    transform: translate3d(6%, 5%, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(-5%, -4%, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #nd-docs-layout::after,
+  #nd-notebook-layout::after {
+    animation: none;
+  }
 }
 
 /* ==========================================================================
@@ -1935,6 +2077,19 @@ body {
 }
 
 /* ==========================================================================
+   标题上方的章节面包屑（breadcrumb）：缩小，作为标题的轻量眉标
+   （fumadocs 默认 text-sm = 0.875rem，这里降到 0.75rem 并同步缩小分隔箭头）
+   ========================================================================== */
+.fd-doc-breadcrumb {
+  font-size: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+.fd-doc-breadcrumb svg {
+  width: 0.8125rem;
+  height: 0.8125rem;
+}
+
+/* ==========================================================================
    文档页标题 Banner：占满 main 整个列宽（无背景，纯文字 + 留白）
    ========================================================================== */
 .fd-doc-banner {
@@ -1946,24 +2101,133 @@ body {
   border-bottom: 1px solid var(--fd-border-soft);
 }
 
-/* Banner 内的 H1 / P：干净排版 */
+/* Banner 内的 H1 / P：干净排版
+   标题改用与首页 Hero / Section 一致的「磨砂玻璃渐变」文字：
+   foreground → primary → accent-3 的 135° 渐变 + background-clip: text。
+   width: fit-content 让渐变铺满文字本身（而非整列宽），短标题也能看到完整渐变。
+   渐变色全部走 --color-fd-* token，自动适配亮/暗色。 */
 .fd-doc-banner h1,
 .fd-doc-banner > h1 {
-  margin: 0 0 0.5rem !important;
+  margin: 0 0 0.15rem !important;
   font-size: clamp(1.75rem, 3vw, 2.25rem) !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   letter-spacing: -0.025em;
-  line-height: 1.2;
-  color: var(--color-fd-foreground);
+  line-height: 1.25;
+  width: fit-content;
+  max-width: 100%;
+  /* 角度更偏水平（100°），让渐变沿文字横向铺开，单行短标题也看得清；
+     末端用高 chroma 的冷蓝（--fd-accent-vivid，与背景流动光晕同色），
+     从近黑 → 石墨 → 冷蓝，呈现首页那种磨砂玻璃渐变质感。 */
+  background: linear-gradient(
+    100deg,
+    var(--color-fd-foreground) 0%,
+    var(--color-fd-primary) 42%,
+    var(--fd-accent-vivid) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
+/* 副标题（description）：缩到约旧字号的 75%（1.0625rem → 0.8rem），
+   并靠 h1 的小 margin-bottom（0.15rem）更贴近标题。 */
 .fd-doc-banner p,
 .fd-doc-banner > p {
   margin: 0 !important;
-  font-size: 1.0625rem !important;
+  font-size: 0.8rem !important;
   color: var(--color-fd-muted-foreground);
-  line-height: 1.65;
+  line-height: 1.6;
   max-width: 64ch;
+}
+
+/* 标题行：思考动画 + 标题左右排布 */
+.fd-doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* ==========================================================================
+   标题前「思考中」半圆弧动画
+   3 段同心半圆弧（stroke-dasharray 各画半圈），不同半径 / 速度 / 方向旋转，
+   描边带 drop-shadow 辉光 + 透明度呼吸 → 微微发光的律动。
+   颜色走主题基调 token，随 --fd-brand-hue 旋转。
+   ========================================================================== */
+.fd-title-arcs {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 跟随标题字号（clamp(1.75rem,3vw,2.25rem)）放大并略大一圈，
+     让旋转弧与文字视觉体量匹配，不再显得偏小。 */
+  width: clamp(2rem, 3.4vw, 2.5rem);
+  height: clamp(2rem, 3.4vw, 2.5rem);
+  margin-top: 0.05em; /* 与文字视觉居中微调 */
+}
+.fd-title-arcs__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fd-title-arcs__ring {
+  fill: none;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(
+    0 0 2.5px color-mix(in srgb, var(--fd-accent-vivid) 75%, transparent)
+  );
+}
+/* C=2πr → 半圈 dash = πr */
+.fd-title-arcs__ring--1 {
+  stroke: var(--color-fd-primary);
+  stroke-width: 2.6;
+  stroke-dasharray: 50.27 50.27; /* r=16 */
+  animation: arcSpin 2.4s linear infinite, arcGlow 2.8s ease-in-out infinite;
+}
+.fd-title-arcs__ring--2 {
+  stroke: var(--fd-accent-vivid);
+  stroke-width: 2.6;
+  stroke-dasharray: 34.56 34.56; /* r=11 */
+  animation: arcSpin 1.7s linear infinite reverse,
+    arcGlow 3.2s ease-in-out 0.4s infinite;
+}
+.fd-title-arcs__ring--3 {
+  stroke: var(--color-fd-accent-3);
+  stroke-width: 2.6;
+  stroke-dasharray: 18.85 18.85; /* r=6 */
+  animation: arcSpin 1.25s linear infinite,
+    arcGlow 2.4s ease-in-out 0.2s infinite;
+}
+@keyframes arcSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes arcGlow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fd-title-arcs__ring {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   页脚上一页 / 下一页按钮：副标题（描述）缩小
+   fumadocs FooterItem 整块是 text-sm，标题与副标题同字号（仅靠 font-medium 区分），
+   导致副标题显得过大。副标题是 link 的「直接子 <p>」（标题是 a > div > p）。
+   ========================================================================== */
+.fd-doc-footer a > p {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 0.9;
 }
 
 /* ==========================================================================
@@ -1991,11 +2255,14 @@ article.fd-docs-article,
    代码块：扁平化（去掉磨砂玻璃 + 任何阴影，仅保留柔和边框 + 浅灰底）
    同步重置 Tailwind v4 的 --tw-shadow / --tw-inset-shadow / --tw-ring-shadow
    CSS 变量（不然 .shadow-md 等 utility 会通过这些变量重新合成阴影）。
+   底色 muted×card 的混色用 in srgb：亮色下 card 是 oklch(1 0 0)（hue=0），
+   与 muted 的 hue 255 在 oklch 里插值会绕道经品红（~297°）→ 浅灰底泛红。
+   in srgb 直接混 RGB，落在「略带凉意的纯灰白 / 深灰黑」，不泛红。
    ========================================================================== */
 .prose figure.shiki,
 .prose figure[data-rehype-pretty-code-figure] {
   /* 扁平：纯色 + 细边框，无 backdrop-filter，无阴影 */
-  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
+  background: color-mix(in srgb, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
   border: 1px solid var(--fd-border-soft) !important;
   box-shadow: none !important;
   --tw-shadow: 0 0 #0000 !important;
@@ -2024,7 +2291,7 @@ article.fd-docs-article,
 
 .prose pre:not(:where([data-rehype-pretty-code-figure] pre)) {
   border: 1px solid var(--fd-border-soft) !important;
-  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
+  background: color-mix(in srgb, var(--color-fd-muted) 60%, var(--color-fd-card)) !important;
   box-shadow: none !important;
   --tw-shadow: 0 0 #0000 !important;
   --tw-inset-shadow: 0 0 #0000 !important;
@@ -2043,7 +2310,7 @@ article.fd-docs-article,
 .prose [data-radix-collapsible-root] {
   border: 1px solid var(--fd-border-soft);
   border-radius: 12px;
-  background: color-mix(in oklch, var(--color-fd-muted) 60%, var(--color-fd-card));
+  background: color-mix(in srgb, var(--color-fd-muted) 60%, var(--color-fd-card));
   box-shadow: none;
   --tw-shadow: 0 0 #0000;
   --tw-inset-shadow: 0 0 #0000;
