@@ -3082,6 +3082,20 @@ body {
   33%      { transform: translate(-50%, -50%) translate(6%, 6%) scale(1.12); opacity: 1; }
   66%      { transform: translate(-50%, -50%) translate(-7%, -4%) scale(0.88); opacity: 0.82; }
 }
+/* 始终保持三光团动画（不应被省电模式 / 系统级 prefers-reduced-motion 停动）：
+   用 !important + 直接重写 animation 双重保险，既覆盖 UA 兜底，
+   也覆盖任何被 Tailwind 工具类 / 全局 reset 误关掉的情况。 */
+@media (prefers-reduced-motion: reduce) {
+  .fd-title-arcs__orb--1 {
+    animation: orbFlow1 7.5s ease-in-out infinite !important;
+  }
+  .fd-title-arcs__orb--2 {
+    animation: orbFlow2 9s ease-in-out infinite !important;
+  }
+  .fd-title-arcs__orb--3 {
+    animation: orbFlow3 8.2s ease-in-out infinite !important;
+  }
+}
 
 /* ==========================================================================
    页脚上一页 / 下一页按钮：副标题（描述）缩小
