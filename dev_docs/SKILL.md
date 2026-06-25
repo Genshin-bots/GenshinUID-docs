@@ -40,7 +40,7 @@ description: >
 | 章节 | 主题 | 链接 |
 |------|------|------|
 | 一 | 架构与目录结构（技术栈、关键文件、路由、布局网格、构建 / 部署） | [references/01-architecture-and-structure.md](./references/01-architecture-and-structure.md) |
-| 二 | 主题与样式系统（Slate 配色令牌、light/dark、玻璃辅助变量、布局宽度、全宽 Header、如何换配色、prose 行高 / 网格透明度、侧边栏多彩 icon） | [references/02-theme-and-styling.md](./references/02-theme-and-styling.md) |
+| 二 | 主题与样式系统（Slate 配色令牌、light/dark、玻璃辅助变量、布局宽度、全宽 Header、如何换配色、prose 行高 / 网格透明度、侧边栏 / 顶栏多彩 icon、玻璃下拉） | [references/02-theme-and-styling.md](./references/02-theme-and-styling.md) |
 | 三 | 自定义组件（MDX 组件清单、Badge / Card / ChatPanel / Callout…、如何新增一个组件） | [references/03-components.md](./references/03-components.md) |
 | 四 | 怎么写文档（frontmatter、标题 / description、提示框、聊天示例、徽章、CJK 加粗 / 大括号注意、leaf icon 多元化脚本） | [references/04-writing-mdx.md](./references/04-writing-mdx.md) |
 | 五 | i18n 多语言（语言配置、导航栏 nav-config、首页 home-content、UI 文案、如何加一门语言） | [references/05-i18n.md](./references/05-i18n.md) |

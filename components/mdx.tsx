@@ -10,6 +10,7 @@ import { CopyRight } from '@/components/CopyRight'
 import { Contact } from '@/components/Contact'
 import { ChatLayout } from '@/components/chat/ChatLayout'
 import { ChatPanel, ChatMessage } from '@/components/ChatPanel'
+import { FaqList } from '@/components/FaqList'
 import type { MDXComponents } from 'mdx/types'
 
 /**
@@ -33,6 +34,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ChatLayout,
     ChatPanel,
     ChatMessage,
+    FaqList,
     Callout,
     ...components,
   }

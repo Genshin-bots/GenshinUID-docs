@@ -2,9 +2,20 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Languages, Moon, Sun, Search, Github, ChevronDown, Menu } from 'lucide-react'
+import {
+  Languages,
+  Moon,
+  Sun,
+  Search,
+  Github,
+  ChevronDown,
+  Menu,
+  Package,
+  type LucideIcon,
+} from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useSearchContext } from 'fumadocs-ui/contexts/search'
 import { useSidebar } from 'fumadocs-ui/layouts/docs/slots/sidebar'
 import type { Language } from '@/lib/i18n'
@@ -16,6 +27,20 @@ interface DocsNavProps {
   lang: Language
 }
 
+/**
+ * 顶部导航：3 个下拉按钮 + 右侧主题 / 语言 / GitHub。
+ *
+ * 设计：
+ * · 三个主按钮（Quick Start / Plugin Series / Version）均带 lucide 彩色 icon。
+ *   颜色直接通过 inline `style={{ color }}` 写到 svg 上（不是 CSS 变量继承）——
+ *   之前用变量继承被父级 `text-fd-muted-foreground` 等高优先级规则覆盖，
+ *   icon 全显示成灰色。inline style 在所有 utility class 之上，稳。
+ * · 下拉面板用 `.glass-popover` 玻璃质感，与 `.glass-header` 共享同一组玻璃变量，
+ *   但**显式把透明度从 28% 压到 5% 以下**——28% 在浅色页面上几乎"看不见"。
+ * · 下拉子项按 6 色板循环（与侧边栏 folder / leaf 共享色板）。
+ * · 全部 icon 都来自 `lucide-react` 命名导出，**先** `node -e "console.log('<NAME>' in require('lucide-react').icons)"`
+ *   校验过再写进 nav-config（坑 #19）。
+ */
 export function DocsNav({ lang }: DocsNavProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
@@ -42,9 +67,27 @@ export function DocsNav({ lang }: DocsNavProps) {
   const navItems = getNavItems(lang)
   const versionItems = getVersionNavItems(version, lang)
   const languageOptions = getLanguageOptions()
+  const isDark = mounted && theme === 'dark'
 
   const toggle = (key: string) => setOpenMenu(openMenu === key ? null : key)
   const close = () => setOpenMenu(null)
+
+  /**
+   * 根据字符串名取 lucide icon。空 / 找不到时返回 null，调用方自行 fallback。
+   * 字符串来源是 `nav-config.ts` 的 `icon` 字段，已在 SKILL 文档要求做存在性校验。
+   */
+  const getIcon = (name?: string): LucideIcon | null => {
+    if (!name) return null
+    const Icon = (LucideIcons as unknown as Record<string, LucideIcon | undefined>)[name]
+    return Icon ?? null
+  }
+
+  /**
+   * 浅 / 暗色各一个 oklch 颜色。inline style 直接写进 svg 的 `color` 属性，
+   * 优先级高于任何 utility class。
+   */
+  const pickColor = (color: string, colorDark: string) =>
+    isDark ? colorDark : color
 
   return (
     <header className="glass-header">
@@ -77,50 +120,74 @@ export function DocsNav({ lang }: DocsNavProps) {
 
         {/* Nav Items */}
         <nav className="hidden md:flex flex-1 items-center justify-center gap-0.5 min-w-0">
-          {navItems.map((item) => (
-            <div key={item.label} className="relative">
-              <button
-                type="button"
-                onClick={() => toggle(item.label)}
-                className={cn(
-                  'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium transition-colors',
-                  'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
-                  openMenu === item.label && 'bg-fd-accent text-fd-foreground',
-                )}
-              >
-                <span className="truncate max-w-[12rem]">{item.label}</span>
-                <ChevronDown
+          {navItems.map((item) => {
+            const Icon = getIcon(item.icon)
+            return (
+              <div key={item.label} className="relative">
+                <button
+                  type="button"
+                  onClick={() => toggle(item.label)}
                   className={cn(
-                    'size-3.5 transition-transform duration-200',
-                    openMenu === item.label && 'rotate-180',
+                    'nav-trigger flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors',
+                    'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
+                    openMenu === item.label && 'bg-fd-accent text-fd-foreground',
                   )}
-                />
-              </button>
-              {openMenu === item.label && item.items && (
-                <div
-                  className="absolute left-0 top-full mt-1.5 min-w-[220px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
-                  style={{ animationDuration: '150ms' }}
                 >
-                  {item.items.map((sub) => (
-                    <Link
-                      key={sub.label}
-                      href={sub.href}
-                      target={sub.external ? '_blank' : undefined}
-                      rel={sub.external ? 'noopener noreferrer' : undefined}
-                      onClick={close}
-                      className={cn(
-                        'block rounded-md px-3 py-2 text-sm transition-colors',
-                        'text-fd-foreground hover:bg-fd-accent',
-                        pathname === sub.href && 'bg-fd-accent font-medium',
-                      )}
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                  {Icon && (
+                    <Icon
+                      className="nav-trigger__icon size-4 shrink-0"
+                      style={{ color: pickColor(item.color, item.colorDark) }}
+                      aria-hidden
+                    />
+                  )}
+                  <span className="truncate max-w-[12rem]">{item.label}</span>
+                  <ChevronDown
+                    className={cn(
+                      'size-3.5 transition-transform duration-200',
+                      openMenu === item.label && 'rotate-180',
+                    )}
+                  />
+                </button>
+                {openMenu === item.label && item.items && (
+                  // 三个主按钮的 popover 全部靠左展开：popover 左边缘对齐按钮左边缘，
+                  // popover 从左向右展开。`left-0` 是定位属性（不是 transform），
+                  // 不与 animate-in 的 keyframe `transform: translate3d(...)` 冲突，
+                  // 保持 flat 结构即可。
+                  // 整块走 Tailwind 默认 150ms 的 fade+slide-in-from-top-3；
+                  // 子项 stagger 由 `.nav-link` 的 navLinkEnter 动画 + `--i` 注入驱动。
+                  <div className="glass-popover absolute left-0 top-full mt-1.5 min-w-[240px] p-1.5 animate-in fade-in slide-in-from-top-3">
+                    {item.items.map((sub, i) => {
+                      const SubIcon = getIcon(sub.icon)
+                      return (
+                        <Link
+                          key={sub.label}
+                          href={sub.href}
+                          target={sub.external ? '_blank' : undefined}
+                          rel={sub.external ? 'noopener noreferrer' : undefined}
+                          onClick={close}
+                          style={{ '--i': i } as CSSProperties}
+                          className={cn(
+                            'nav-link group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
+                            'text-fd-foreground hover:bg-fd-accent',
+                            pathname === sub.href && 'bg-fd-accent font-medium',
+                          )}
+                        >
+                          {SubIcon && (
+                            <SubIcon
+                              className="nav-link__icon size-4 shrink-0"
+                              style={{ color: pickColor(sub.color, sub.colorDark) }}
+                              aria-hidden
+                            />
+                          )}
+                          <span className="flex-1 truncate">{sub.label}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
 
           {/* Version dropdown */}
           <div className="relative">
@@ -128,12 +195,21 @@ export function DocsNav({ lang }: DocsNavProps) {
               type="button"
               onClick={() => toggle('version')}
               className={cn(
-                'flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium transition-colors',
+                'nav-trigger flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors',
                 'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
                 openMenu === 'version' && 'bg-fd-accent text-fd-foreground',
               )}
             >
-              v{version}
+              <Package
+                className="nav-trigger__icon size-4 shrink-0"
+                style={{
+                  color: isDark
+                    ? 'oklch(0.74 0.16 250)'
+                    : 'oklch(0.58 0.18 250)',
+                }}
+                aria-hidden
+              />
+              <span>v{version}</span>
               <ChevronDown
                 className={cn(
                   'size-3.5 transition-transform duration-200',
@@ -142,22 +218,31 @@ export function DocsNav({ lang }: DocsNavProps) {
               />
             </button>
             {openMenu === 'version' && (
-              <div
-                className="absolute right-0 top-full mt-1.5 min-w-[200px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
-                style={{ animationDuration: '150ms' }}
-              >
-                {versionItems.map((sub) => (
-                  <Link
-                    key={sub.label}
-                    href={sub.href}
-                    target={sub.external ? '_blank' : undefined}
-                    rel={sub.external ? 'noopener noreferrer' : undefined}
-                    onClick={close}
-                    className="block rounded-md px-3 py-2 text-sm text-fd-foreground hover:bg-fd-accent transition-colors"
-                  >
-                    {sub.label}
-                  </Link>
-                ))}
+              // 三个主按钮的 popover 全部统一为靠左展开（见上面 map 块内的注释）。
+              <div className="glass-popover absolute left-0 top-full mt-1.5 min-w-[220px] p-1.5 animate-in fade-in slide-in-from-top-3">
+                {versionItems.map((sub, i) => {
+                  const SubIcon = getIcon(sub.icon)
+                  return (
+                    <Link
+                      key={sub.label}
+                      href={sub.href}
+                      target={sub.external ? '_blank' : undefined}
+                      rel={sub.external ? 'noopener noreferrer' : undefined}
+                      onClick={close}
+                      style={{ '--i': i } as CSSProperties}
+                      className="nav-link group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-fd-foreground hover:bg-fd-accent transition-colors"
+                    >
+                      {SubIcon && (
+                        <SubIcon
+                          className="nav-link__icon size-4 shrink-0"
+                          style={{ color: pickColor(sub.color, sub.colorDark) }}
+                          aria-hidden
+                        />
+                      )}
+                      <span className="flex-1 truncate">{sub.label}</span>
+                    </Link>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -206,17 +291,15 @@ export function DocsNav({ lang }: DocsNavProps) {
               <Languages className="h-4 w-4" />
             </button>
             {openMenu === 'lang' && (
-              <div
-                className="absolute right-0 top-full mt-1.5 min-w-[160px] rounded-lg border border-fd-border bg-fd-popover/95 backdrop-blur-md p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2"
-                style={{ animationDuration: '150ms' }}
-              >
-                {languageOptions.map((opt) => (
+              <div className="glass-popover absolute right-0 top-full mt-1.5 min-w-[160px] p-1.5 animate-in fade-in slide-in-from-top-3">
+                {languageOptions.map((opt, i) => (
                   <Link
                     key={opt.code}
                     href={opt.href(pathname)}
                     onClick={close}
+                    style={{ '--i': i } as CSSProperties}
                     className={cn(
-                      'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
+                      'nav-link flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
                       'text-fd-foreground hover:bg-fd-accent',
                       lang === opt.code && 'bg-fd-accent font-medium',
                     )}

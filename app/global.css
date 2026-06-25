@@ -409,13 +409,6 @@ body {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #nd-docs-layout::after,
-  #nd-notebook-layout::after {
-    animation: none;
-  }
-}
-
 /* ==========================================================================
    DocsNav 全宽磨砂玻璃 Header（position: fixed 脱离 docs 网格，撑满整屏宽度）
    ========================================================================== */
@@ -595,6 +588,114 @@ body {
 #nd-tocnav {
   border-left: 1px solid
     color-mix(in oklch, var(--color-fd-foreground) 5%, transparent);
+}
+
+/* ==========================================================================
+   DocsNav 下拉面板 · 玻璃质感（与 .glass-header 同源，但更"实"）
+
+   旧版下拉用的是 `bg-fd-popover/95 backdrop-blur-md` —— 是 Fumadocs 默认
+   半透白卡片，磨砂感很弱、和 .glass-header 的玻璃质感差一档。改成更"实"
+   的玻璃后，下拉真正成为「顶栏延伸」的视觉，与背景 / 侧边栏玻璃保持一致。
+
+   关于透明度：之前用 `var(--fd-glass-bg-strong)`（28% 透明），在浅色页面
+   上几乎"看不见"——28% 透明 ≈ 玻璃上压了一层 70% 透明度的白纸。改成
+   `oklch(...)` 直写 95%+ 不透明度的纯色底，再叠 `saturate(180%) blur(20px)`
+   做磨砂：既有玻璃感、又看得见"这是一块面板"。
+
+   玻璃辅助变量 `--fd-border-soft` 仍复用（见 :root），只覆盖 background。
+   ========================================================================== */
+.glass-popover {
+  background: oklch(0.99 0.003 250);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 14px;
+  /* 弹出感：顶栏下方的小幅投影，比卡片浮起更轻 + 顶边 inset highlight */
+  box-shadow:
+    0 12px 40px -10px color-mix(in oklch, var(--color-fd-foreground) 38%, transparent),
+    0 1px 0 0 color-mix(in oklch, white 50%, transparent) inset;
+}
+.dark .glass-popover {
+  background: oklch(0.26 0.014 262);
+  box-shadow:
+    0 12px 40px -10px color-mix(in oklch, black 65%, transparent),
+    0 1px 0 0 color-mix(in oklch, white 6%, transparent) inset;
+}
+
+/* ==========================================================================
+   DocsNav 中心三按钮 · 多彩 ICON（仿侧边栏 folder/leaf 设计语言）
+
+   设计要点：
+   · 三个主按钮各分一色（与侧边栏 6 色板对齐，整体视觉有连续性）：
+     - 快速开始 / Quick Start / クイックスタート → 蔚蓝 (hue 220)
+     - 系列插件 / Plugin Series / プラグインシリーズ → 紫 (hue 300)
+     - Version → 靛 (hue 250)
+   · 颜色直接通过组件的 `style={{ color }}` inline 写到 svg 上（不是 CSS
+     变量继承）—— 之前用变量 + 工具类组合，被父级 `text-fd-muted-foreground`
+     等高优先级规则覆盖，icon 全显示成灰色。inline style 在所有 utility
+     class 之上，**稳**。
+   · 暗色提亮：与侧边栏一致，浅色 L≈0.58-0.64 → 暗色 L≈0.74-0.78。
+   · 下拉子项按 6 色循环（与侧边栏 folder/leaf 完全同套色板），同样走
+     inline style —— 数据来源是 `lib/nav-config.ts` 的 `color` /
+     `colorDark` 字段。
+   · 所有 icon 必须是 lucide-react 命名导出，且在 `icons` map 中存在
+     （见坑 #19）。新增 icon 前先 `node -e "console.log('<NAME>' in require('lucide-react').icons)"`
+     校验。
+   ========================================================================== */
+
+/* 主按钮 hover 时彩色 icon 饱和度略提（其它样式已由 inline style 提供） */
+.nav-trigger__icon {
+  transition: color 0.18s ease, transform 0.2s ease, filter 0.18s ease;
+}
+.nav-trigger:hover .nav-trigger__icon {
+  filter: saturate(1.2);
+}
+
+/* 下拉子项的彩色 icon —— 颜色由 inline style 写入，这里只管 hover/active
+   时的色彩微调。子项 `.nav-link` 的高亮状态（font-medium / bg-fd-accent）
+   由组件自己控制。 */
+.nav-link__icon {
+  transition: color 0.18s ease, transform 0.2s ease, filter 0.18s ease;
+}
+.nav-link:hover .nav-link__icon,
+.nav-link[data-active="true"] .nav-link__icon,
+.nav-link[aria-current="page"] .nav-link__icon {
+  filter: saturate(1.25) brightness(0.92);
+}
+
+/* 下拉面板内 nav-link：行高 / 间距微调，让 icon 与文字基线对齐 */
+.nav-link {
+  line-height: 1.3;
+  min-height: 2.25rem;
+}
+.nav-link__icon {
+  margin-top: 1px; /* 微调对齐：lucide 默认 stroke 在中线上 */
+}
+
+/* 下拉面板子项 stagger 错开进入（短平快）。
+   · 整块 popover 走 `animate-in fade-in slide-in-from-top-3`（150ms，默认值）。
+   · 每条子项再走 `navLinkEnter`（200ms，Y 轴 6px→0），
+     用 `calc(var(--i, 0) * 30ms)` 错开 —— 与 Contributors 的 contrib__item
+     走完全一致的 `style={{ '--i': i }}` + CSS 变量模式。
+   · 12 个子项的 Plugin Series 总时长 ≈ 150 + 11×30 + 200 = 680ms，
+     体感是"列表一条条快速滑入"，不是瀑布。
+   · 6px 起步（4px 在 4K 屏上几乎看不出来）+ 200ms 时长（180ms 偏快），
+     加大幅度后即使瞥一眼也能感知到 stagger。
+   · `backwards` 让 from 状态在 delay 期间就生效（避免前几条在未动画前就可见）。
+   · **不响应 `prefers-reduced-motion: reduce`** —— 项目所有动画都应在所有设备上
+     完整显示，这是产品决策（与 orbFlow1/2/3、hero 视差、reveal 模糊入场、
+     contrib 弹跳、TitleArcs 等保持一致）。如未来需要为前庭敏感用户提供
+     a11y 降级，应在 #nd-docs-layout 顶层加一个全局 `@media (prefers-reduced-motion: reduce)`
+     块统一处理，而不是每个动画单独加。 */
+.nav-link {
+  line-height: 1.3;
+  min-height: 2.25rem;
+  animation: navLinkEnter 200ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+@keyframes navLinkEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
@@ -1046,12 +1147,6 @@ body {
   to {
     transform: translateX(-50%);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* 大字滚动条是装饰性「水平位移」，不属于引发前庭不适的剧烈动效，
-     且页面氛围依赖两行交错滚动，因此不被 prefers-reduced-motion 关闭。
-     其余动效（hero 视差 / reveal 模糊入场 / contrib 弹跳）依旧停。 */
 }
 
 /* ==========================================================================
@@ -3082,9 +3177,12 @@ body {
   33%      { transform: translate(-50%, -50%) translate(6%, 6%) scale(1.12); opacity: 1; }
   66%      { transform: translate(-50%, -50%) translate(-7%, -4%) scale(0.88); opacity: 0.82; }
 }
-/* 始终保持三光团动画（不应被省电模式 / 系统级 prefers-reduced-motion 停动）：
-   用 !important + 直接重写 animation 双重保险，既覆盖 UA 兜底，
-   也覆盖任何被 Tailwind 工具类 / 全局 reset 误关掉的情况。 */
+/* 三光团动画兜底：项目策略是「所有动画在所有设备上完整显示，不响应
+   prefers-reduced-motion」。这里用 !important 强制开启 animation，
+   覆盖任何 UA 兜底（如某些浏览器在 reduce 模式下默认禁 CSS 动画）、
+   或任何 Tailwind 工具类 / 全局 reset 误关掉的情况。
+   这是项目里唯一保留的 reduce 媒体查询 —— 用途是「在 reduce 模式下
+   强制 keep 动画」而不是「关闭动画」，与项目策略一致。 */
 @media (prefers-reduced-motion: reduce) {
   .fd-title-arcs__orb--1 {
     animation: orbFlow1 7.5s ease-in-out infinite !important;
@@ -3637,6 +3735,587 @@ article.fd-docs-article,
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--fd-border-soft) !important;
+}
+
+/* ==========================================================================
+   常见问题列表（FaqList.tsx）
+   设计目标：
+   · 与项目其它卡片（.fd-plugin-card / .fd-chatpanel）共享同一套玻璃变量
+     + 主题强调色（--color-fd-primary / --fd-accent-vivid）。
+   · 顶部 toolbar 走「统计 + 搜索」布局，搜索框聚焦时显示 primary 焦点环。
+   · 卡片默认收起，展开时显示左侧 3px 渐变条 + primary 边框强化。
+   · 平滑高度过渡用 grid-template-rows 0fr→1fr，无需 framer-motion / 写死高度。
+   · 高亮匹配用 <mark class="fd-faq-highlight">，色与 primary 关联。
+   ========================================================================== */
+.fd-faq {
+  margin: 1.5rem 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* —— toolbar（统计 + 搜索框） —— */
+.fd-faq-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 14px;
+  background: var(--fd-glass-bg-strong);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  box-shadow: var(--fd-glass-shadow);
+  flex-wrap: wrap;
+}
+
+.fd-faq-toolbar-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.85rem;
+  font-weight: 500;
+  min-width: 0;
+}
+.fd-faq-toolbar-info > svg {
+  color: var(--color-fd-primary);
+  flex-shrink: 0;
+}
+.fd-faq-toolbar-count {
+  padding-left: 0.6rem;
+  margin-left: 0.4rem;
+  border-left: 1px solid var(--fd-border-soft);
+  color: var(--color-fd-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* —— 搜索框 —— */
+.fd-faq-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 320px;
+  min-width: 200px;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 10px;
+  background: var(--color-fd-background);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.fd-faq-search:focus-within {
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 60%,
+    var(--color-fd-border)
+  );
+  box-shadow: 0 0 0 3px
+    color-mix(in oklch, var(--color-fd-primary) 18%, transparent);
+}
+.fd-faq-search__icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-fd-muted-foreground);
+  pointer-events: none;
+}
+.fd-faq-search__input {
+  flex: 1;
+  width: 100%;
+  padding: 0.55rem 2.2rem 0.55rem 2.15rem;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--color-fd-foreground);
+  font-size: 0.88rem;
+  font-family: inherit;
+  min-width: 0;
+}
+.fd-faq-search__input::placeholder {
+  color: var(--color-fd-muted-foreground);
+}
+.fd-faq-search__clear {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: color-mix(
+    in oklch,
+    var(--color-fd-muted-foreground) 15%,
+    transparent
+  );
+  color: var(--color-fd-muted-foreground);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.fd-faq-search__clear:hover {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 22%,
+    transparent
+  );
+  color: var(--color-fd-primary);
+}
+
+/* —— 列表 —— */
+.fd-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+/* —— 单条卡片 —— */
+.fd-faq-item {
+  position: relative;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 14px;
+  background: var(--fd-glass-bg-strong);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  overflow: hidden;
+  transition: border-color 0.22s ease, box-shadow 0.25s ease;
+}
+/* 左侧 3px 渐变条：仅展开时显示，呼应章节标题渐变 */
+.fd-faq-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  transition: background 0.22s ease;
+  pointer-events: none;
+}
+.fd-faq-item.is-open {
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 38%,
+    var(--color-fd-border)
+  );
+  box-shadow: var(--fd-glass-shadow);
+}
+.fd-faq-item.is-open::before {
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-primary),
+    var(--color-fd-accent-2)
+  );
+}
+/* tag 渐变色变体 */
+.fd-faq-item.is-tag-warning.is-open::before {
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-warning),
+    var(--color-fd-accent-2)
+  );
+}
+.fd-faq-item.is-tag-danger.is-open::before {
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-error),
+    var(--color-fd-accent-2)
+  );
+}
+.fd-faq-item.is-tag-info.is-open::before {
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-info),
+    var(--color-fd-accent-2)
+  );
+}
+.fd-faq-item.is-tag-tip.is-open::before {
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-success),
+    var(--color-fd-accent-2)
+  );
+}
+
+/* —— 问题 header（按钮） —— */
+.fd-faq-question {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.95rem 1.1rem 0.95rem 1.25rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-fd-foreground);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+  transition: background 0.15s ease;
+}
+.fd-faq-question:hover {
+  background: color-mix(in oklch, var(--color-fd-primary) 4%, transparent);
+}
+.fd-faq-question:focus-visible {
+  outline: 2px solid
+    color-mix(in oklch, var(--color-fd-primary) 70%, transparent);
+  outline-offset: -2px;
+}
+
+.fd-faq-q-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--color-fd-primary-foreground);
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-primary),
+    var(--color-fd-accent-2)
+  );
+  box-shadow: 0 2px 6px -2px
+    color-mix(in oklch, var(--color-fd-primary) 50%, transparent);
+}
+.fd-faq-q-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fd-faq-chevron {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--color-fd-muted-foreground);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease;
+}
+.fd-faq-item.is-open .fd-faq-chevron {
+  transform: rotate(180deg);
+  color: var(--color-fd-primary);
+}
+
+/* —— tag 徽章（与 fd-badge 同色系，半径更小） —— */
+.fd-faq-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+.fd-faq-tag--info {
+  background: color-mix(in oklch, var(--color-fd-info) 14%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-info) 32%, transparent);
+  color: var(--color-fd-info);
+}
+.fd-faq-tag--tip {
+  background: color-mix(in oklch, var(--color-fd-success) 14%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-success) 32%, transparent);
+  color: var(--color-fd-success);
+}
+.fd-faq-tag--warning {
+  background: color-mix(in oklch, var(--color-fd-warning) 14%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-warning) 32%, transparent);
+  color: var(--color-fd-warning);
+}
+.fd-faq-tag--danger {
+  background: color-mix(in oklch, var(--color-fd-error) 14%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-error) 32%, transparent);
+  color: var(--color-fd-error);
+}
+
+/* —— 折叠 body（grid-template-rows 0fr → 1fr） —— */
+.fd-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fd-faq-item.is-open .fd-faq-body {
+  grid-template-rows: 1fr;
+}
+.fd-faq-body > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* —— 答案区 —— */
+.fd-faq-answer {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0 1.1rem 1.1rem 1.25rem;
+  color: var(--color-fd-foreground);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.fd-faq-a-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-fd-muted-foreground);
+  background: color-mix(
+    in oklch,
+    var(--color-fd-muted-foreground) 12%,
+    transparent
+  );
+  border: 1px solid var(--fd-border-soft);
+}
+.fd-faq-a-content {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-fd-muted-foreground);
+}
+.fd-faq-a-content > *:first-child {
+  margin-top: 0;
+}
+.fd-faq-a-content > *:last-child {
+  margin-bottom: 0;
+}
+.fd-faq-a-content p {
+  margin: 0.55rem 0;
+}
+.fd-faq-a-content code {
+  font-size: 0.86em;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: color-mix(
+    in oklch,
+    var(--color-fd-foreground) 8%,
+    transparent
+  );
+  border: 1px solid var(--fd-border-soft);
+  color: var(--color-fd-foreground);
+}
+.fd-faq-a-content a {
+  color: var(--color-fd-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 40%,
+    transparent
+  );
+  transition: text-decoration-color 0.15s ease;
+}
+.fd-faq-a-content a:hover {
+  text-decoration-color: var(--color-fd-primary);
+}
+.fd-faq-a-content ul,
+.fd-faq-a-content ol {
+  margin: 0.55rem 0;
+  padding-left: 1.5rem;
+}
+.fd-faq-a-content li {
+  margin: 0.2rem 0;
+}
+.fd-faq-a-content li > p {
+  margin: 0.3rem 0;
+}
+.fd-faq-a-content strong {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+}
+
+/* —— Callout（在 FAQ 答案里复用 prose 上下文的磨砂玻璃样式） —— */
+.fd-faq-a-content > div[style*="--callout-color"] {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin: 0.85rem 0;
+  padding: 0.7rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid
+    color-mix(in oklch, var(--callout-color) 28%, transparent);
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 6%,
+    var(--color-fd-background)
+  );
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 35%, transparent) inset,
+    0 4px 18px -12px
+      color-mix(in oklch, var(--callout-color) 30%, transparent);
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+.fd-faq-a-content > div[style*="--callout-color"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 80% at 0% 0%,
+    color-mix(in oklch, var(--callout-color) 16%, transparent),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+.dark .fd-faq-a-content > div[style*="--callout-color"] {
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 9%,
+    var(--color-fd-card)
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--callout-color) 32%,
+    transparent
+  );
+}
+.fd-faq-a-content > div[style*="--callout-color"] > [role='none'] {
+  display: none;
+}
+.fd-faq-a-content > div[style*="--callout-color"] > svg {
+  display: none;
+}
+.fd-faq-a-content > div[style*="--callout-color"] > div > p {
+  margin: 0 0 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--callout-color);
+}
+.fd-faq-a-content > div[style*="--callout-color"] > div > div {
+  color: var(--color-fd-muted-foreground);
+  line-height: 1.6;
+}
+.fd-faq-a-content > div[style*="--callout-color"] > div > div a {
+  color: var(--callout-color);
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--callout-color) 35%,
+    transparent
+  );
+}
+.fd-faq-a-content > div[style*="--callout-color"] > div > div a:hover {
+  text-decoration-color: var(--callout-color);
+}
+
+/* —— pre/code 块（在 FAQ 答案里） —— */
+.fd-faq-a-content pre {
+  margin: 0.7rem 0;
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--fd-border-soft);
+  background: color-mix(
+    in srgb,
+    var(--color-fd-muted) 60%,
+    var(--color-fd-card)
+  );
+  font-size: 0.78rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  color: var(--color-fd-foreground);
+}
+.fd-faq-a-content pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  word-break: normal;
+}
+
+/* —— 搜索高亮（mark） —— */
+.fd-faq-highlight {
+  background: color-mix(in oklch, var(--color-fd-primary) 26%, transparent);
+  color: var(--color-fd-primary);
+  padding: 0 0.15rem;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+/* —— 空状态 —— */
+.fd-faq-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--fd-border-soft);
+  border-radius: 14px;
+  background: var(--fd-glass-bg);
+  color: var(--color-fd-muted-foreground);
+  text-align: center;
+}
+.fd-faq-empty > svg {
+  opacity: 0.5;
+  color: var(--color-fd-muted-foreground);
+}
+.fd-faq-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.fd-faq-empty__reset {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 8px;
+  background: var(--fd-glass-bg-strong);
+  color: var(--color-fd-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.fd-faq-empty__reset:hover {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 12%,
+    transparent
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 40%,
+    var(--color-fd-border)
+  );
+}
+
+/* —— 移动端 —— */
+@media (max-width: 640px) {
+  .fd-faq-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .fd-faq-search {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .fd-faq-toolbar-info {
+    flex-wrap: wrap;
+  }
 }
 
 /* ==========================================================================

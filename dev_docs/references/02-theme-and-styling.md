@@ -186,6 +186,116 @@ heading 不动（它们各自有更紧的 1.1–1.3）。
 调整位置：`app/global.css`「侧边栏 folder / leaf icon 多彩着色」段。
 **红线**：写新 selector 之前**先用 Chrome DevTools Protocol 抓真实 DOM**，确认 `[data-radix-scroll-area-viewport]` 仍是 sidebar 唯一 hook；别凭印象沿用旧 `ul[role="list"]`（坑 #16）。
 
+### 2.7.4 顶部导航中心三按钮 · 多彩 ICON + 玻璃下拉
+
+顶部 `.glass-header` 中央三个下拉按钮（Quick Start / Plugin Series / Version）原本用
+emoji（如 🎉 / 💖）做 icon——emoji 在不同 OS / 浏览器下渲染不稳定、粗细不一致，
+与侧边栏 lucide 多彩 icon 的设计语言完全脱节。改成 lucide + 与侧边栏**完全同源**的
+6 色板，整体视觉就连续了。
+
+**两个改动**：
+
+1. **`.glass-popover` 玻璃下拉面板**（旧 `bg-fd-popover/95 backdrop-blur-md`）：
+   磨砂玻璃感太弱、和 `.glass-header` 不在一个层级。**改成显式 `oklch(0.99 0.003 250)`**
+   （亮色，约 99% 不透明度的近白冷灰）+ `saturate(180%) blur(20px)`，暗色版用
+   `oklch(0.26 0.014 262)`。`var(--fd-border-soft)` 仍复用做边框，drop shadow
+   用 `color-mix(in oklch, var(--color-fd-foreground) 38%, transparent)` 增强层次。
+
+   **不要**用 `var(--fd-glass-bg-strong)` —— 它是 `color-mix(in oklch, white 72%, transparent)`，
+   28% 透明度在浅色页面上几乎"看不见"（之前第一版踩过这坑，用户反馈「完全透明」）。
+   玻璃感来自 `backdrop-filter: saturate(180%) blur(20px)`，底色**必须**实，
+   否则磨砂效果会"透"过页背景把面板稀释掉。
+
+   所有下拉面板（Quick Start / Plugin Series / Version / Language）一律走
+   `.glass-popover`，不要再回退到 fumadocs 默认 popover。
+
+2. **多彩 ICON（必须用 inline `style={{ color }}`）**：
+   - 三个主按钮各分一色：`Quick Start → 蔚蓝` / `Plugin Series → 紫` / `Version → 靛`。
+   - 下拉子项按 6 色循环（青 / 靛 / 紫 / 蔚蓝 / 青绿 / 蓝紫），与侧边栏 folder / leaf
+     完全同套色板。
+   - **颜色通过组件的 `style={{ color: 'oklch(...)' }}` 直接写到 svg 的 `color` 属性上**。
+     不要走 CSS 变量继承 + 工具类的方案（`.nav-trigger__icon { color: var(--nav-accent) }`）
+     —— 之前试过这套，被父级 `text-fd-muted-foreground` 等高优先级 utility class
+     覆盖，icon 全显示成灰色。inline style 在所有 utility class 之上，**稳**。
+   - 数据来源是 `lib/nav-config.ts` 的 `color` / `colorDark` 字段（不是 CSS 变量），
+     渲染端 `pickColor(color, colorDark)` 根据 `isDark` 选一个，写到 `style` 上。
+
+**icon 渲染约定**：
+
+- `lib/nav-config.ts` 的 `NavItem.icon` / `NavSubItem.icon` 是 lucide-react **命名导出字符串**。
+- 渲染端（`components/DocsNav.tsx` 的 `getIcon`）走
+  `(LucideIcons as Record<string, LucideIcon>)[name] ?? null`，
+  找不到就 null 静默跳过，不报错。
+- 任何新加的 icon 名称**必须**先经
+  `node -e "const {icons} = require('lucide-react'); console.log('<NAME>' in icons)"`
+  验证为 `true`（见 [七、坑 #19](./07-pitfalls.md)）。
+- 当前 nav 用到的所有 icon 名称都已在
+  `dev_docs/references/02-theme-and-styling.md` §2.7.4 注释里列出，详见 `lib/nav-config.ts` 顶部注释。
+
+**三个主按钮的 popover 全部靠左向下展开**（Quick Start / Plugin Series / Version）：
+
+- 早期实现里前两个 popover 用 `absolute left-0`（popover 左边缘对齐按钮左边缘 → 向**右**展开），
+  Version 单独用 `absolute right-0`（向**左**展开）——三个按钮展开方向**不一致**，视觉上很乱。
+- 改为统一**靠左展开**：popover **左边缘**对齐按钮**左边缘**，popover 从按钮左边缘**向右**展开。
+  三个主按钮统一 className 为
+  `glass-popover absolute left-0 top-full mt-1.5 min-w-[...] p-1.5 animate-in fade-in slide-in-from-top-2`。
+  `left-0` 是定位属性（不是 `transform`），不与 animate-in keyframe 的
+  `transform: translate3d(0, var(--tw-enter-translate-y, 0), 0)` 冲突，
+  所以**可以保持 flat 结构**，不需要再套 wrapper。
+- **右侧的 Language Switcher popover 仍用 `right-0`**——它是右上角按钮，
+  靠左展开反而会让 popover 越出左边界；不要为了"统一"把它也改成 `left-0`。
+- 调整位置：`components/DocsNav.tsx` 三个主按钮的 popover 块（map 里两个 + Version 一个）。
+
+**Dev server 缓存陷阱**：global.css 改动后 Next.js 16 + Turbopack 的 dev server
+偶尔不重打 CSS bundle，需要：
+- `touch app/global.css` 触发 HMR（不一定有效）
+- 或直接 `taskkill /F /PID <next dev>` 重启 dev server（最稳）
+
+调整位置：
+- `.glass-popover` 段：`app/global.css`「DocsNav 下拉面板 · 玻璃质感」段。
+- 主按钮 / 子项配色：已迁到组件 inline style，不再依赖 CSS 变量。
+- 渲染逻辑：`components/DocsNav.tsx`。
+
+**下拉面板子项 stagger 错开进入（短平快）**：
+
+- 整块 popover 走 `animate-in fade-in slide-in-from-top-3` —— **Tailwind v4 默认 150ms**
+  （`var(--tw-duration, .15s)`），所以原来组件里 `style={{ animationDuration: '150ms' }}`
+  是冗余 no-op，**新版组件已删**。`slide-in-from-top-3` = -0.75rem，比 `slide-in-from-top-2`
+  的 -0.5rem 更明显。
+- 每条子项 `.nav-link` 再走自定义 `navLinkEnter`（200ms，Y 轴 **6px→0**），
+  `animation-delay: calc(var(--i, 0) * 30ms)` 错开。
+  `--i` 由组件 `style={{ '--i': i } as CSSProperties}` 注入（map 索引）。
+- 12 项 Plugin Series 总时长 = 150 + 11×30 + 200 ≈ 680ms，
+  体感是"列表一条条快速滑入"，不是瀑布。
+- 6px 起步（4px 在 4K 屏上几乎看不出来）+ 200ms 时长（180ms 偏快瞥一眼看不到），
+  加大幅度后即使瞥一眼也能感知到 stagger。
+- 模式与 `components/Contributors.tsx` + `app/global.css` `.contrib__item` 走完全一致的
+  `style={{ '--i': i }}` + CSS 变量方案 —— **项目惯用模式，别用 `style={{ animationDelay: ... }}` 替代**。
+- `animation-fill-mode: backwards` 写进 `navLinkEnter` 的 shorthand 里：
+  delay 期间 from 状态就生效，前几条子项在未开始动画前是隐藏的（避免"先出现再缩回去"的跳变）。
+- **🆕 项目动画策略：所有动画在所有设备上完整显示，不响应 `prefers-reduced-motion: reduce`**。
+  这是产品决策（与 `.fd-title-arcs__orb--1/2/3` 的 `orbFlow1/2/3`、`HomeHero` 鼠标视差、
+  `Reveal` 模糊入场、`contrib__item` 弹跳、`TitleArcs` 装饰动画保持一致）。
+  - **不要**给 popover 子项、整块 popover、文档页背景装饰等任何动画加
+    `@media (prefers-reduced-motion: reduce) { animation: none }` 降级块。
+  - 项目里**唯一保留**的 reduce 媒体查询是 orb 动画的 `!important` 强制开启块
+    （`app/global.css` 第 3186 行附近），作用是覆盖 UA 兜底
+    （某些浏览器在 reduce 模式下默认禁 CSS 动画），与"不响应 reduce"策略一致。
+  - 如未来需要为前庭敏感用户提供 a11y 降级，应在 `#nd-docs-layout` 顶层加
+    一个全局 reduce 块统一处理，而不是每个动画单独加。
+- **冲突检查**：`.nav-link` 当前**没有 `transform` 相关的 transition**（只有 `color 0.18s`、`filter 0.18s`），
+  所以 keyframe 与 hover 状态不冲突。`.nav-link__icon` 的 `transform 0.2s` 是子元素独立规则，也不冲突。
+- **红线**：
+  - **不要**在 `.nav-link` 上额外加 `transform` 相关的 `transition`（hover/active）—— 会和 keyframe 打架。
+  - **不要**把 stagger 间隔调到 >40ms 或子项动画时长 >250ms —— 偏离"短平快"语义。
+  - **不要**改用 `style={{ animationDelay: '${i * 30}ms' }}` 直接写 —— 项目惯用 CSS 变量 `calc(var(--i) * Nms)` 模式。
+  - **不要**重新加回 `style={{ animationDuration: '150ms' }}` —— 是 no-op 冗余。
+  - **不要**给 popover 动画新增 `prefers-reduced-motion` 降级块 —— 违反项目策略。
+
+调整位置：
+- `.nav-link` 动画规则与 `@keyframes navLinkEnter`：`app/global.css`「下拉面板内 nav-link」段之后。
+- 组件 `--i` 注入、冗余 `animationDuration` 删除、整块 `slide-in-from-top-2` → `slide-in-from-top-3`：`components/DocsNav.tsx` 三处 popover。
+
 ---
 
 ## 2.8 文档页 banner 网格重排（关面包屑 + 按钮移到右下）

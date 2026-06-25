@@ -30,10 +30,6 @@ const MAP = {
   'install-plugins/plugins-list.mdx': 'LayoutList',
   // faq
   // (faq/index.mdx 无 icon，跳过)
-  // extra
-  'extra/add-ck.mdx': 'KeyRound',
-  'extra/faq.mdx': 'MessageCircleQuestion',
-  'extra/resource-download.mdx': 'CloudDownload',
   // advance
   'advance/ai-config.mdx': 'Brain',
   'advance/base-info.mdx': 'Info',

@@ -43,7 +43,7 @@ async def notice_job():
 
 对于需要持续向某些用户/群聊推送消息的场景（公告、签到、数据更新等），推荐使用**订阅系统**将目标会话持久化，在定时任务中直接调用 `send()`，省去手动获取和传递平台参数的麻烦。
 
-详见 [订阅消息](./Subscribe) 文档。
+详见 [订阅消息](./subscribe) 文档。
 
 ```python
 from gsuid_core.aps import scheduler
