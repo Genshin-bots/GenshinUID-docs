@@ -1,0 +1,26 @@
+{
+  "title": "编写插件",
+  "icon": "CodeXml",
+  "pages": [
+    "start",
+    "cook-book",
+    "env",
+    "simple",
+    "exsample",
+    "scheduler",
+    "plugins-prefix",
+    "get-data-path",
+    "plugins-config",
+    "get-plugins-config",
+    "plugins-data-base",
+    "resp",
+    "plugins-help",
+    "subscribe",
+    "trigger",
+    "bot-call",
+    "send-to-master",
+    "class",
+    "buttons",
+    "..."
+  ]
+}

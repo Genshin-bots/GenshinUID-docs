@@ -1,0 +1,10 @@
+{
+  "title": "链接支持Bot",
+  "icon": "Bot",
+  "pages": [
+    "none-bot2",
+    "hoshino-bot",
+    "adapter-list",
+    "..."
+  ]
+}

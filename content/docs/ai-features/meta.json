@@ -1,0 +1,17 @@
+{
+  "title": "AI功能",
+  "icon": "Brain",
+  "pages": [
+    "ai-core-api-for-plugins",
+    "trigger-bridge",
+    "tools",
+    "knowledge-base",
+    "agent",
+    "alias",
+    "mcp",
+    "builtin-tools",
+    "skills",
+    "examples",
+    "..."
+  ]
+}

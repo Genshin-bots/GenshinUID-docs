@@ -1,0 +1,17 @@
+{
+  "title": "进阶介绍",
+  "icon": "SlidersHorizontal",
+  "pages": [
+    "ai-config",
+    "base-info",
+    "data-struct",
+    "database",
+    "bind-device",
+    "trans-url",
+    "markdown-template",
+    "core-config",
+    "http-call",
+    "export-and-import",
+    "..."
+  ]
+}

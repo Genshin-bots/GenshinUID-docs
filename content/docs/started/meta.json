@@ -1,0 +1,14 @@
+{
+  "title": "快速开始",
+  "icon": "Rocket",
+  "pages": [
+    "env-check",
+    "install-core",
+    "start-core",
+    "docker-core",
+    "core-config",
+    "secure",
+    "web-console",
+    "..."
+  ]
+}

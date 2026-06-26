@@ -21,7 +21,9 @@ yarn.lock
 bun.lockb
 
 # json
+# 全局忽略 meta.json，但 content/docs 下的章节元数据需要进库
 meta.json
+!content/docs/**/meta.json
 
 dist
 out
@@ -37,3 +39,5 @@ tsconfig.tsbuildinfo
 # Git Bash 误把 `> nul` 重定向当成字面文件名时产生的 Windows 保留名文件，
 # Turbopack 会尝试把它当资源读然后 panic。
 /nul
+nul
+.commandcode

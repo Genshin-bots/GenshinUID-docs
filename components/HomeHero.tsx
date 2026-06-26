@@ -73,11 +73,20 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
     <section ref={ref} className="hero-px home-snap-point">
       {/* 视差背景层（不响应指针） */}
       <div className="hero-px__bg" aria-hidden>
+        {/* 动漫眼睛层：eyes.png 作主体，两块「眼睑」div 跟着 @keyframes heroBlink 闭合。
+           mask-image 软化边缘让原 orbs 在四周自然显出；眼睑颜色与 PNG 肤色采样一致。 */}
+        <div className="hero-px__eyes">
+          <img src="/home/eyes.png" alt="" className="hero-px__eyes-img" />
+          <span className="hero-px__lid hero-px__lid--l" />
+          <span className="hero-px__lid hero-px__lid--r" />
+        </div>
         <div className="hero-px__grid" />
         <div className="hero-px__orb hero-px__orb--1" />
         <div className="hero-px__orb hero-px__orb--2" />
         <div className="hero-px__orb hero-px__orb--3" />
         <div className="hero-px__beam" />
+        {/* 内容可读性遮罩：content 区域轻微压暗，让 logo / 标题 / 按钮在人脸上仍可读 */}
+        <div className="hero-px__scrim" />
       </div>
 
       {/* 前景内容（静态居中，snap 期间不再随滚动变形，避免与对齐动画打架） */}

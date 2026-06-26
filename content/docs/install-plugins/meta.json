@@ -1,0 +1,9 @@
+{
+  "title": "安装插件",
+  "icon": "Puzzle",
+  "pages": [
+    "install-plugins",
+    "plugins-list",
+    "..."
+  ]
+}

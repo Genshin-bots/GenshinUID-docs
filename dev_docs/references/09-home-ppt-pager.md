@@ -172,7 +172,21 @@ filter: blur(14px);
 | `app/[lang]/page.tsx` | 在 `<HomeLayout>` 内挂 `<HomePager />` + 5 个 `.home-snap-point` |
 | `app/global.css` | `.home-snap-point` 与 scroll-snap 全部移除；详见本节 #9.4 |
 
-## 9.8 测试要点
+## 9.8 Hero 动漫眼睛眨眼层
+
+为提升首页"动漫感"，Hero 背景层新增一个**纯 CSS 驱动**的眨眼动画：
+
+- 资源：`public/home/eyes.png`（1672×941，16:9，从项目根移入）。SVG / Spine 都被排除（位图保真度差 / 运行时与静态导出冲突）。
+- 实现：在 `.hero-px__bg` 内放 `<img class="hero-px__eyes-img">` + 两个 `<span class="hero-px__lid">`（左/右眼睑），眼睑用同肤色 `oklch(92% 0.04 54)` 径向渐变 + 软阴影，闭合时与原图肤色无缝融合。
+- 动画：`@keyframes heroBlink`（5s 一周期，92% 睁开 → 94% 完全闭合 → 96.5% 打开 → 100% 继续睁开），**只动 `transform: scaleY()`（GPU 合成层）**，零 JS、零额外请求。
+- 软化边缘：img 用 `mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, black 28%, transparent 82%)`，让原 orbs / grid / beam 在边缘自然显出，不抢戏。
+- 可读性：`.hero-px__scrim` 在 content 区域轻微压暗 ~24%（`--color-fd-background`），让 logo / 标题 / 按钮在人脸上仍清晰。
+- 鼠标视差：眼睑层跟随 `--mx/--my` 反向位移（-8px / -6px），与 orbs 同一坐标系。
+- 关键 CSS 钩子：`.hero-px__eyes` / `.hero-px__lid` / `@keyframes heroBlink` / `.hero-px__scrim`。
+- **沿用项目"不响应 `prefers-reduced-motion`"策略**——动画在所有设备上完整播放，不加 reduce-motion 降级块。
+- 源图眼睛位置探测：左 22.5% / 右 77.5%、垂直 53.5%，对应 `left` / `top` 百分比。CSS 注释里记下探测过程，方便后续换图时校对。
+
+## 9.9 测试要点
 
 `pnpm build` 通过后，本地起 `pnpm dev` 用桌面浏览器自测：
 
@@ -182,3 +196,4 @@ filter: blur(14px);
 - ✅ 键盘 PageDown / Space / ArrowDown：单次按一次切一页；连按也不会漏页（被 `isAnimating` 拦）。
 - ✅ 触屏：单指竖向 swipe 超过 40px 切页。
 - ✅ 搜索弹窗打开时滚动：不会切页（被 `isInteractiveTarget` 拦）。
+- ✅ Hero 动漫眼睛：每 ~5s 看到一次完整眨眼（~250ms），眼睑肤色与原图无缝；移动鼠标整张脸轻微反方向视差跟随；滚走时眼睛层随 snap 一起退出视口，无残留 / 撕裂。
