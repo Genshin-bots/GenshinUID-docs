@@ -100,9 +100,16 @@ export default async function Page({ params }: PageProps) {
       </div>
       <DocsBody>
         <MDX
-          components={getMDXComponents({
-            a: createRelativeLink(source, page),
-          })}
+          components={getMDXComponents(
+            {
+              a: createRelativeLink(source, page),
+            },
+            {
+              // frontmatter `sectionTitles: true` → 该页所有 H2 渲染为
+              // SectionTitleHeading（浮动光团 + 渐变），并保留 TOC。
+              sectionTitles: page.data.sectionTitles === true,
+            },
+          )}
         />
       </DocsBody>
     </DocsPage>

@@ -41,6 +41,10 @@ const MAX_LOGICAL_W = 2400;
  *  让 ~3.3MB 的重型 SPA 在**滚动停下后**才加载，不在翻页途中阻塞主线程（修「滚动卡顿」）。
  *  若用户在延迟内又翻走，挂载会被取消——快速划过的页面根本不加载。 */
 const MOUNT_DELAY_MS = 500;
+/** 离屏后延迟卸载 iframe 的毫秒数：只保留视口附近(当前±1)的重型 SPA 处于挂载态，
+ *  远处面板卸载以省下合成层显存与后台动画开销（修「滚动卡顿」）。延迟够久以免
+ *  「划过又划回」时刚卸载又重挂载造成抖动；资源已被浏览器缓存，重挂载很快。 */
+const UNMOUNT_DELAY_MS = 1200;
 
 /**
  * 单个内嵌面板：把 hub Demo 以「容器宽 / 固定比例」反推的逻辑尺寸渲染，再等比缩放进缩略框。
@@ -50,12 +54,25 @@ const MOUNT_DELAY_MS = 500;
 function EmbedFrame({
   item,
   liveBadge,
+  active,
 }: {
   item: ShowcaseItem;
   liveBadge?: string;
+  /** 面板当前是否在视口内。离屏时通知 iframe 暂停其内部动画（见下方 postMessage）。 */
+  active: boolean;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
+
+  // 把「是否在视口」同步给 iframe：hub(demo) 据此暂停离屏面板的 CSS 动画 / 力导图，
+  // 避免离屏 SPA 的动画抢主线程拖累在屏面板的滚动。loaded 变化时也补发一次，确保初值同步。
+  useEffect(() => {
+    frameRef.current?.contentWindow?.postMessage(
+      { source: 'gshub-docs', type: 'embed-visibility', visible: active },
+      '*',
+    );
+  }, [active, loaded]);
   // 逻辑视口尺寸：随容器宽度反推（保持 TARGET_SCALE 固定显示比例）
   const [dims, setDims] = useState({ w: 1600, h: Math.round(1600 / RATIO) });
 
@@ -94,6 +111,7 @@ function EmbedFrame({
         <span className="showcase-shot__spinner" />
       </div>
       <iframe
+        ref={frameRef}
         className="showcase-embed__frame"
         style={{ width: dims.w, height: dims.h }}
         src={item.embedSrc}
@@ -129,8 +147,13 @@ export function HomeShowcase({
   // 已挂载实时 iframe 的面板下标。一旦加入不再移除（保持挂载，避免来回滚动重载）。
   // 但挂载本身是**延迟**的：滚停后才加载，快速划过的面板不会触发加载（见下方 timers）。
   const [mounted, setMounted] = useState<Set<number>>(() => new Set());
-  // 每个面板「待挂载」的延迟计时器；离场时清掉，避免在翻页途中加载重型 SPA。
-  const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+  // 当前在视口内的面板下标集合：驱动「向 iframe 通报可见性」（离屏暂停其内部动画）。
+  const [visible, setVisible] = useState<Set<number>>(() => new Set());
+  // 每个面板「待挂载」/「待卸载」的延迟计时器；翻页途中互相取消，避免抖动。
+  const mountTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+  const unmountTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
   // 用 ref 镜像 mounted，供 observer 回调内读取最新值（不必把 mounted 放进依赖重建 observer）。
@@ -144,20 +167,36 @@ export function HomeShowcase({
     const panels = Array.from(
       root.querySelectorAll<HTMLElement>('.showcase-panel'),
     );
-    const timers = timersRef.current;
+    const mountTimers = mountTimersRef.current;
+    const unmountTimers = unmountTimersRef.current;
 
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           const idx = Number((entry.target as HTMLElement).dataset.index);
+          const inView = entry.isIntersecting;
           // 入场/离场动效（立即响应，不受挂载延迟影响）
-          entry.target.classList.toggle('is-in', entry.isIntersecting);
+          entry.target.classList.toggle('is-in', inView);
 
-          if (entry.isIntersecting) {
-            // 滚入视口：延迟挂载——盖过 700ms 翻页动画，避免加载阻塞主线程造成卡顿。
-            if (!mountedRef.current.has(idx) && !timers.has(idx)) {
+          // 同步可见性集合 → EmbedFrame 据此 postMessage 给 iframe 暂停/恢复动画
+          setVisible((prev) => {
+            if (prev.has(idx) === inView) return prev;
+            const next = new Set(prev);
+            if (inView) next.add(idx);
+            else next.delete(idx);
+            return next;
+          });
+
+          if (inView) {
+            // 进入视口：取消待卸载，并延迟挂载（盖过 700ms 翻页动画，避免加载阻塞主线程）。
+            const pendingUnmount = unmountTimers.get(idx);
+            if (pendingUnmount) {
+              clearTimeout(pendingUnmount);
+              unmountTimers.delete(idx);
+            }
+            if (!mountedRef.current.has(idx) && !mountTimers.has(idx)) {
               const id = setTimeout(() => {
-                timers.delete(idx);
+                mountTimers.delete(idx);
                 setMounted((prev) => {
                   if (prev.has(idx)) return prev;
                   const next = new Set(prev);
@@ -165,14 +204,26 @@ export function HomeShowcase({
                   return next;
                 });
               }, MOUNT_DELAY_MS);
-              timers.set(idx, id);
+              mountTimers.set(idx, id);
             }
           } else {
-            // 在延迟内又翻走：取消挂载（这一页根本不加载）。已挂载的保持不变。
-            const pending = timers.get(idx);
-            if (pending) {
-              clearTimeout(pending);
-              timers.delete(idx);
+            // 离开视口：取消待挂载；已挂载的则延迟卸载，只保留视口附近的重型 iframe。
+            const pendingMount = mountTimers.get(idx);
+            if (pendingMount) {
+              clearTimeout(pendingMount);
+              mountTimers.delete(idx);
+            }
+            if (mountedRef.current.has(idx) && !unmountTimers.has(idx)) {
+              const id = setTimeout(() => {
+                unmountTimers.delete(idx);
+                setMounted((prev) => {
+                  if (!prev.has(idx)) return prev;
+                  const next = new Set(prev);
+                  next.delete(idx);
+                  return next;
+                });
+              }, UNMOUNT_DELAY_MS);
+              unmountTimers.set(idx, id);
             }
           }
         }
@@ -184,8 +235,10 @@ export function HomeShowcase({
 
     return () => {
       io.disconnect();
-      for (const id of timers.values()) clearTimeout(id);
-      timers.clear();
+      for (const id of mountTimers.values()) clearTimeout(id);
+      for (const id of unmountTimers.values()) clearTimeout(id);
+      mountTimers.clear();
+      unmountTimers.clear();
     };
   }, []);
 
@@ -232,7 +285,11 @@ export function HomeShowcase({
                   </span>
                   <div className="showcase-shot__media">
                     {showEmbed ? (
-                      <EmbedFrame item={item} liveBadge={liveBadge} />
+                      <EmbedFrame
+                        item={item}
+                        liveBadge={liveBadge}
+                        active={visible.has(i)}
+                      />
                     ) : (
                       // 挂载前（延迟挂载期间）显示轻量骨架，而非旧截图占位
                       <div className="showcase-shot__skeleton" aria-hidden>

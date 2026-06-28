@@ -130,7 +130,7 @@ node scripts/update-doc-icons.mjs
 
 | folder | 文件名 | 新 icon |
 |--------|--------|---------|
-| started | env-check / install-core / start-core / docker-core / core-config / secure / web-console | ListChecks / Download / Play / Container / Settings2 / ShieldCheck / Monitor |
+| started | install-core（合并：env-check + install + start + config + secure） / docker-core / web-console | Wrench / Container / Monitor |
 | link-bots | adapter-list / hoshino-bot / none-bot2 | List / Bot / PlugZap |
 | code-plugins | bot-call / buttons / scheduler / plugins-data-base / subscribe / start | Phone / MousePointerClick / Clock / Database / Bell / Rocket |
 | plugins-help | arknights-uid / blue-archive-uid / cs2-uid / genshin-uid / star-rail-uid | Swords / GraduationCap / Crosshair / Mountain / **TrainFront**（不是 Train） |

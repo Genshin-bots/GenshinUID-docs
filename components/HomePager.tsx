@@ -32,6 +32,12 @@ export function HomePager() {
     // (0.16,1,0.3,1) 缓动后，翻页节奏与入场曲线同源，每一帧都受控。
     let isAnimating = false;
     let animId = 0;
+    // 翻页期间给 <html> 打标记：CSS 据此临时关掉固定顶栏的 backdrop-filter
+    // （大面积 blur 每帧重算是滚动卡顿主因之一），停下即恢复磨砂玻璃。
+    const setAnimating = (v: boolean) => {
+      isAnimating = v;
+      document.documentElement.classList.toggle('home-scrolling', v);
+    };
     // cubic-bezier(0.16, 1, 0.3, 1) 的近似实现：先用 ease-out 强减速曲线
     // y = 1 - (1 - t)^4 极好地近似该 bezier，且无需 newton 迭代，cheap。
     const ease = (t: number) => 1 - (1 - t) ** 4;
@@ -40,11 +46,11 @@ export function HomePager() {
       const start = window.scrollY;
       const delta = target - start;
       if (Math.abs(delta) < 1) {
-        isAnimating = false;
+        setAnimating(false);
         return;
       }
       const t0 = performance.now();
-      isAnimating = true;
+      setAnimating(true);
       const step = (now: number) => {
         const p = Math.min(1, (now - t0) / ANIM_MS);
         window.scrollTo(0, start + delta * ease(p));
@@ -52,7 +58,7 @@ export function HomePager() {
           animId = requestAnimationFrame(step);
         } else {
           animId = 0;
-          isAnimating = false;
+          setAnimating(false);
         }
       };
       animId = requestAnimationFrame(step);
@@ -191,6 +197,7 @@ export function HomePager() {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
       if (animId) cancelAnimationFrame(animId);
+      document.documentElement.classList.remove('home-scrolling');
     };
   }, []);
 

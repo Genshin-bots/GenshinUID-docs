@@ -579,3 +579,262 @@
     会让 Chrome 拒绝解码（`ERR_INVALID_IMAGE_TYPE` 之类）依然 broken image。
     一定要走嗅探。
 
+---
+
+## 坑 #28：MDX 在 JSX 表达式里不解析 markdown（fenced code block 退化成 inline code）
+
+- **现象**：写一个自定义组件接收 `options={[...]} content={<details>...\`\`\`shell\n...\`\`\`</details>}`，
+  构建 / 渲染都过，**但 shell 代码块在页面上是一坨没换行的 plain text**——
+  `` ``` `` 被当 inline code 的开头处理，整段（包括 `#` 注释和换行）塌成一行。
+  没有 Shiki 高亮、没有复制按钮、没有语言标签。
+- **根因**：
+  - MDX 的解析分两阶段：先走 markdown-it-like 的 micromark 解析 markdown，
+    再用 acorn-jsx 把 `{...}` 里的内容当 JS 表达式。
+  - **在 `{...}` 表达式内部，markdown 完全不解析**——`{...}` 里的字面 `<div>` 、
+    `<details>` 这些 JSX 元素是直接当 JSX 处理，里面的 `\`\`\`shell` 只是个普通字符串字面量，
+    不会被识别为 fenced code block。
+  - 验证：随便写个 `const x = <div>\`\`\`shell\nfoo\n\`\`\`</div>;`，浏览器看到的是
+    ``<div>`shell\nfoo\n`</div>``——一坨字面量。
+- **解法**：**走 Compound Component 模式**，让内容用 **children 传入**而不是塞进 `options[i].content`。
+  ```mdx
+  <PkgManager options={[{ id: 'uv', ... }, ...]}>
+    <details data-pkg="uv">
+      <summary>检查uv</summary>
+      ```shell
+      uv -V
+      >>> uv 0.5.18
+      ```
+    </details>
+    <details data-pkg="poetry">...</details>
+  </PkgManager>
+  ```
+  这样 `<details>` 是 MDX 的 markdown 顶层 JSX 元素（不是 `{...}` 表达式内的 JSX），
+  micromark 正常解析其内部的 fenced code block → rehype-pretty-code → Shiki 高亮 + 复制按钮全恢复。
+  组件内部用 `Children.forEach(children, ...)` 按 `data-pkg` 属性归类，过滤出当前激活那个渲染。
+  本项目 `PkgManager`（`components/PkgManager.tsx`）就是这个套路。
+- **判定方法**：如果你在写 / 改一个自定义组件，
+  它的 props 里有 `options: Array<{ ..., content: ReactNode }>` 之类
+  让用户传 JSX 进数组元素的 API，**几乎一定是反模式**。改成 children + data-attr 关联。
+- **关联**：[三、自定义组件 §3.5](./03-components.md) 新增组件步骤的「可序列化注意」一节也提到
+  函数 / 组件 prop 跨 server→client 边界有坑；本坑是同一类问题的另一个变体。
+- **红线**：
+  - **别**试图用 `dangerouslySetInnerHTML={{ __html: '```shell\n...' }}` 在 JSX 表达式里硬塞
+    markdown——失去 Shiki 高亮 + 主题切换 + 复制按钮，得不偿失。
+  - **别**改用 `unified()` / `remark-parse` 在运行时把字符串编译成 React tree——把 markdown
+    pipeline 重复拉进客户端 bundle，体积和性能双输。
+
+## 坑 #29：MDX 把 `>>>` 等连续 `>` 字符当 JSX 闭合标签解析
+
+- **现象**：在 MDX 里写 fenced code block 包 Python REPL 提示符 `>>>`：
+  ```mdx
+  <details>
+    <summary>检查</summary>
+    ```shell
+    python -V
+    >>> Python 3.x.x
+    ```
+  </details>
+  ```
+  acorn-jsx 报错 `Could not parse expression with acorn / Unexpected token '>'`，
+  构建失败。
+- **根因**：
+  - acorn-jsx 在解析 JSX 时，**看到连续的 `>` 字符会按 JSX 语法尝试匹配闭合标签**，
+    而不是当作 markdown 的代码块内容。
+  - 即便 `>>>` 处于 fenced code block 内（在 `{...}` 表达式之外，markdown 应该正常识别），
+    acorn-jsx 的 tokenizer 也会先于 markdown 处理这段内容。
+  - 类似触发字符：连续 `>` / 连续 `<` 裸字符 / `<` 后接字母（疑似开始标签）。
+- **解法**：**用 JS 模板字面量构造**连续 `>` 字符，让 acorn-jsx 在源码里看不到 `>>>`：
+  ```jsx
+  <pre><code>{`# 命令
+python -V
+${'>'.repeat(3)} Python 3.x.x`}</code></pre>
+  ```
+  acorn-jsx 看到的只是 `'>>>'.repeat(3)`，运行后拼出真正的 `>>>`。
+  React 会把字符串里的 `>` HTML-escape 成 `&gt;`，浏览器渲染回 `>>>`。
+- **判定方法**：在 mdx 里 grep `>>>` 或 `<<<` 这类连续 `>` `<` 字面量——只要它们没被
+  模板字面量 / 转义包裹，就是潜在的报错源。常见的 Python REPL / MySQL CLI / heredoc
+  都会有这种问题。
+- **关联**：坑 #28 的最终修复方案（compound component + children）也用到了这个技巧——
+  PkgManager 的 data-pkg div 内部写 `\`\`\`shell` 围栏时，`>>>` 改用模板字面量就不会触发本坑。
+- **红线**：
+  - **别**用 HTML entity `&gt;` 凑合——代码块内的 entity 会被 Shiki 当成普通字符
+    染成不同颜色，且很多 Markdown 渲染器会把 entity 转换打断。
+  - **别**改用 backtick 转义 `` `>` `` 之类——一样会被 Shiki 当 inline code 处理。
+
+## 坑 #30：Next.js + Turbopack dev server 缓存 CSS，HMR 加新类不生效
+
+- **现象**：在 `app/global.css` 加了一组新 CSS 类（如 `.fd-checkitem__*` / `.fd-pkgmgr__*`），
+  保存后 dev server 不报错、`pnpm build` 也通过、构建产物里能找到新类。
+  **但浏览器访问页面，新类完全没应用**——DOM 上有正确 className，CSS 文件里就是没那段规则。
+  多次 `Ctrl+Shift+R` 硬刷新也没用。
+- **根因**：
+  - Next.js 16 + Turbopack dev server 对**全局 CSS 改动**的 HMR 支持不完整——
+    它能检测到源文件变化、重启 SCSS / PostCSS 流水线，但**新加的 CSS 选择器经常不进 dev bundle**。
+  - 生产构建走 `pnpm build` 走的是另一套打包（webpack/Turbopack prod 模式），
+    那里**会**包含新类——所以"build 里有、dev 里没有"是这种缓存问题的典型症状。
+  - 与坑 #6 提到的 `EBUSY` 没关系；这是 dev server 的内存级缓存，不是磁盘锁。
+- **解法**（**遇到这种问题，固定流程**）：
+  1. `taskkill //F //PID <dev_server_pid>` 杀掉 dev server（`netstat -ano | grep ":3000.*LISTENING"` 找 PID）。
+  2. `rm -rf .next/dev` 清空 Turbopack 缓存（Windows 上偶尔 `rm -rf .next` 报 "Directory not empty"，
+     只清 `.next/dev` 子目录就够了）。
+  3. `pnpm dev:docs`（或 `pnpm dev`）重新启动。
+  4. `curl -s http://localhost:3000/_next/static/chunks/[root-of-the-server]__xxx._.css | grep <新类名>`
+     确认新类已经在 dev bundle 里。
+- **判定方法**：dev 页面表现与 build 后产物不一致时，
+  先 `curl` 拉 dev 的 CSS chunk URL，grep 你的新类名 / 新选择器。
+  - 命中 0 → 是本坑，清缓存重启。
+  - 命中但页面没应用 → 是选择器写错（特异性 / 后代 / 拼写），与缓存无关。
+  - 命中且应用了 → 浏览器自己缓存，`Ctrl+Shift+R` 即可。
+- **预防**：
+  - **大改 CSS 前先 plan**：本次 CheckItem 改造一次性加了几十行新选择器 + 改了多个旧规则，
+    dev server 缓存几乎必然陈旧。
+  - **优先在 `pnpm build` 验证**，生产构建能跑通至少证明"代码本身没问题"，再去折腾 dev 缓存。
+- **关联**：
+  - 坑 #6 是 `pnpm build` 时的磁盘锁；本坑是 `pnpm dev` 时的内存缓存。**症状不同**——
+    坑 #6 报 `EBUSY: rmdir 'out'`；本坑报 HTTP 200 但新类不生效。
+- **红线**：
+  - **别**靠"再保存几次 CSS 文件"试图触发 HMR——本坑里 HMR 就是不刷新新类，存 100 次也没用。
+  - **别**改用 `pnpm dev:docs --turbo` 之类的 flag 想强制 HMR 刷新——Turbopack 缓存策略
+    不在这层暴露，绕不开。
+  - **别**去检查 `node_modules/.cache` 之类的地方——dev 缓存主要在 `.next/dev/`，不是 node_modules。
+
+## 坑 #31：项目自定义 Callout 玻璃样式只覆盖 4 个容器上下文，新组件用需扩选择器
+
+- **现象**：写了个新组件，里头放 `<Callout type="info" title="...">...`，发现 Callout 退回
+  fumadocs 默认的紧凑灰底样式（带 ⓘ 图标、圆角小、padding 紧），**不是项目统一的
+  磨砂玻璃质感**。同样的 Callout 放在 markdown 顶层或 `<details>` 里就是项目样式。
+- **根因**：
+  - `app/global.css` 把 Callout 的玻璃样式写死成 4 个具体选择器（坑 #21 的延伸）：
+    ```css
+    .prose.prose > div[style*="--callout-color"]                  /* 直接子级 */
+    .prose details > div[style*="--callout-color"]               /* <details> 内 */
+    .fd-checkitem__body > div[style*="--callout-color"]          /* CheckItem 内 */
+    .fd-faq-a-content > div[style*="--callout-color"]           /* FAQ 答案内 */
+    ```
+  - 全部用 `>` 直接子选择器，**不支持后代选择器**。新组件如果 Callout 在其
+    `.xxx__body > div > div` 这样的孙级位置（典型场景：组件为了过滤 children 套了
+    一层 wrapper div），**所有 4 个选择器都不命中**。
+- **解法**（`app/global.css`）：给那 9 条 Callout 规则**每个**都加上新选择器，
+  视嵌套深度决定用 `>` 还是后代：
+  - 直接子级（`<Component> > <Callout>`）：用 `>`。
+    ```css
+    .fd-newcomp__body > div[style*="--callout-color"] { ... }
+    ```
+  - 隔一层 wrapper（`<Component> > <Wrapper> > <Callout>`）：用后代选择器（空格）。
+    ```css
+    .fd-pkgmgr__panel div[style*="--callout-color"] { ... }
+    ```
+    PkgManager 就是这种结构：panel > `<div data-pkg="uv">` > `<Callout>`，
+    callout 在 panel 的孙级，必须用后代选择器。
+  - **9 条规则都要同步改**（玻璃底 / ::before 辉光 / .dark 暗色 / 隐藏 [role="none"] /
+    隐藏 svg / 标题样式 / 内容样式 / 链接颜色 / 链接 hover）——漏一条就只生效一半
+    （比如玻璃底变了但图标还在）。
+- **判定方法**：
+  - 写完新选择器后，**先 `pnpm build` 验证**——生产构建会编译 CSS，能直接 grep 到新选择器。
+  - dev 模式 + Turbopack 可能缓存不刷新（坑 #30），第一次写时优先用 `pnpm build` 验证。
+  - 也可以用 Chrome DevTools 的 Computed Style 面板：选中 Callout 元素，看
+    `background` / `border-radius` / `padding` 是不是项目那一套值（`--fd-glass-bg-strong`、
+    `14px` border-radius、`0.85rem 1.1rem` padding）。
+- **关联**：
+  - 坑 #21 提到了 `.prose.prose > div[style*="--callout-color"]` 的特异性 (0,2,1) 设计。
+  - 坑 #28 解释了为什么新组件（如 PkgManager）天然就会遇到"Callout 在孙级"——content
+    走 children + wrapper 是设计约束，反过来也要求 Callout 选择器是后代的。
+- **红线**：
+  - **别**改用单一 `div[style*="--callout-color"]` 通用选择器——会**全站覆盖**，
+    破坏 `.fd-faq-a-content` 内的特殊排版（FAQ 答案里的 callout 字号更小、间距更紧）。
+  - **别**给新组件加 `not-prose` class 期待绕开——not-prose 只是让 prose 排版不生效，
+    不能让玻璃样式自动套上；glass 样式必须有对应的 selector 命中才生效。
+
+## 坑 #32：自定义 JSX 标题组件会让 TOC 丢失，右下角章节树消失
+
+- **现象**：想把"小节标题（一、二、三…）"做得和页头 DocsTitle 一样有浮动光团 +
+  磨砂玻璃渐变，于是写了个 `<SectionTitle>一、xxx</SectionTitle>` JSX 组件。
+  视觉确实生效了，但右下角「On this page」只剩下页头 H1 + 几个 `###` 小标题，
+  所有主 H2 都不见了。
+- **根因**：
+  - fumadocs-mdx 的 TOC 是**构建期**生成的，由 `remark-heading` 在 markdown AST 上
+    扫 `heading` 节点 + `rehypeToc` 在 HAST 上扫 `h1`~`h6` 元素。两条路径都依赖
+    "DOM 里真的有 h 标签"，对 JSX 自定义组件**完全不可见**。
+  - `<SectionTitle>` 渲染成 `<h2>` 是 React 运行时的事，TOC 生成早于此——根本没机会看到。
+- **正解**：用 **H2 映射 + frontmatter 开关**，不要写 JSX 标题组件：
+  1. 在 `source.config.ts` 扩展 `pageSchema`，加 `sectionTitles: z.boolean().optional()`。
+  2. 在 `components/mdx.tsx` 给 `getMDXComponents` 加第二个参数
+     `options.sectionTitles`，为 `true` 时把 `h2` 映射到 `SectionTitleHeading`。
+  3. `app/[lang]/docs/[[...slug]]/page.tsx` 透传 `page.data.sectionTitles`。
+  4. MDX 里**仍然写 `## 一、xxx`**——`remark-heading` 看到的是真 heading，照常进 TOC；
+     渲染时才被映射成带 TitleArcs + 渐变的 `<h2>`。
+  5. 仅在需要"主章节级视觉"的页面打开开关（如 `install-core.mdx`），避免在 H2
+     密集的页面（web-console 13 个、advance/core-config 32 个）里视觉过载。
+- **验证方法**：build 后看产物 `out/<lang>/docs/<path>/__next._full.txt` 里 `"toc":[...]`
+  数组是否含目标 H2；或直接 DevTools 看右侧 TOC 树。
+- **关联**：`components/SectionTitleHeading.tsx` / `components/mdx.tsx` /
+  `source.config.ts` / `app/.../page.tsx` 4 处联动改动。
+
+## 坑 #33：CheckItem / 自定义 `not-prose` 容器内的 `<ol>` `<ul>` 数字 / 圆点消失
+
+- **现象**：在 `<CheckItem>` 里写有序列表：
+  ```mdx
+  <CheckItem step={1} title="...">
+    1. 启动 GsCore
+    2. 浏览器打开...
+  </CheckItem>
+  ```
+  浏览器渲染时**没有 1. 2. 3.** 数字，整段缩成纯文本，看起来像段落堆叠。
+- **根因**：
+  - `<CheckItem>` 整张卡是 `not-prose`（用玻璃质感，不走 prose 排版）。
+  - fumadocs 的 `.prose ol` 排版规则是：
+    ```css
+    .prose :where(ol):not(:where([class~=not-prose],[class~=not-prose] *)) {
+      list-style-type: decimal;
+    }
+    ```
+    `not-prose` 容器内的 `<ol>` **不匹配**，于是数字 marker 被默认样式吃掉。
+  - 同样适用于 `<ul>`（disc 圆点消失）。
+- **正解**：在 `app/global.css` 给 `.fd-checkitem__body` 内的列表补 prose 排版：
+  ```css
+  .fd-checkitem__body > ol { list-style-type: decimal; padding-inline-start: 1.625rem; }
+  .fd-checkitem__body > ul { list-style-type: disc;    padding-inline-start: 1rem; }
+  .fd-checkitem__body > ol > li,
+  .fd-checkitem__body > ul > li { margin: 0.25rem 0; line-height: 1.7; }
+  ```
+  仅作用于「直接子级」，嵌套子列表由浏览器默认继续缩进 + 切换 marker。
+- **判定方法**：`pnpm build` → 在 `out/_next/static/chunks/*.css` 里 grep
+  `fd-checkitem__body>ol` 能找到规则即生效。
+- **关联**：坑 #31 的 Callout 玻璃样式选择器问题有类似思路——`not-prose` 容器内的
+  Prose 默认排版需要**显式补**，不能依赖 `.prose` 通配。
+
+## 坑 #34：Client Component 的 `icon` prop 不能直接传 lucide-react 组件
+
+- **现象**：`<PkgManager icon={Monitor} ...>` 报
+  `Functions cannot be passed directly to Client Components`。
+- **根因**：
+  - `<PkgManager>` 是 `'use client'`，MDX 是 Server Component。
+  - `import { Monitor } from 'lucide-react'` 得到的是函数（React 组件），
+    跨 `use client` 边界序列化时被拒。
+  - 把 `icon` 直接写成 lucide 组件值会爆；只能传**可序列化值**（字符串、数字、JSON）。
+- **正解**：让 `PkgManager` 内部维护 `icon?: string` → 组件 的 map：
+  ```tsx
+  const ICON_MAP = { monitor: Monitor, fileJson: FileJson, ... };
+  <PkgManager options={[{ ..., icon: 'monitor' }]} />  // 字符串键
+  ```
+  MDX 里只写 `icon: 'monitor'` / `icon: 'fileJson'` 等已知键，由组件内部解析。
+- **判定方法**：见 console 报 `'use client' ... function ...` 字样的错。
+- **延伸**：所有 'use client' 组件的 prop 都得想清楚"能不能跨边界序列化"——
+  函数 / 类实例 / Symbol 全不行。复杂数据传 JSON，对象 / 数组传 POJO。
+
+## 坑 #35：CheckItem 的「步骤序号 + 连接线」会暗示顺序，别用来承载"二选一"
+
+- **现象**：把"打开网页控制台" 和 "或者直接修改配置文件" 放在两个 `step=1, step=2` 的
+  CheckItem 里，加上"连接线"形成"必须先 1 再 2"的视觉强暗示，但实际二者是**替代关系**，
+  任意一个做完即可。用户被误导。
+- **根因**：
+  - CheckItem 设计上就是**线性流程**——左侧圆形序号 + 卡间连接线强调顺序；
+  - 但有些场景下，"分支选择 / 多选一"也被错放到 CheckItem。
+- **正解**：
+  - **线性步骤**（如 "1. 克隆 → 2. 装依赖 → 3. 装插件"）→ `<CheckItem>` + 连接线，
+    视觉强提示"按顺序走"。
+  - **二选一 / 多选一**（如 "网页控制台 vs 改配置文件"、"用 uv vs 用 poetry"）→
+    `<PkgManager>`（Tabs）二选一卡片，**无连接线**，用户只点自己想看的那张。
+  - **强制按顺序走的「混合步骤」**（如"装好插件 → 重启 → 验证"）→ 还是 CheckItem。
+- **关联**：本项目 `install-core.mdx` 第四小节（配置 GsCore）已经按这条规则重构成
+  PkgManager + 内部用有序列表 `<ol>` 走子步骤。

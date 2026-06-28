@@ -459,6 +459,15 @@ body {
   box-shadow: 0 1px 0 0 color-mix(in oklch, white 4%, transparent) inset;
 }
 
+/* 翻页动画进行中（HomePager 在 <html> 上加 .home-scrolling）：临时关掉顶栏的
+   backdrop-filter——大面积模糊每帧重算是「滚动卡顿」的主因。改用更不透明的纯色底
+   补偿失去的模糊，0.2s 过渡让切换平滑、肉眼几乎无感；停下即恢复磨砂玻璃。 */
+.home-scrolling .glass-header {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--fd-glass-bg-strong);
+}
+
 /* ==========================================================================
    Sidebar 暗色磨砂玻璃 + 紧凑舒适
    ========================================================================== */
@@ -822,53 +831,6 @@ body {
     black 28%,
     transparent 82%
   );
-}
-/* 眼睑：位置按 eyes.png (1672x941) 实际眼睛中心反推的百分比
-   （左 22.5% / 右 77.5%，垂直 53.5%），覆盖面积略大于眼睛开口，
-   周边 mask + 圆形 border-radius 让偏移容差变大。 */
-.hero-px__lid {
-  position: absolute;
-  width: 14.5%;
-  height: 16%;
-  top: 53.5%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse 100% 90% at 50% 50%,
-    oklch(0.93 0.028 50) 0%,
-    oklch(0.9 0.045 50) 80%,
-    oklch(0.86 0.05 50) 100%
-  );
-  box-shadow:
-    inset 0 -2px 4px oklch(0.5 0.06 50 / 0.18),
-    0 1px 3px oklch(0.4 0.05 50 / 0.15);
-  transform: translate(-50%, -50%) scaleY(0);
-  transform-origin: center;
-  animation: heroBlink 5s ease-in-out infinite;
-}
-.hero-px__lid--l {
-  left: 22.5%;
-}
-.hero-px__lid--r {
-  left: 77.5%;
-  animation-delay: 0.03s; /* 极小延迟更像真人在看你 */
-}
-/* 眨眼：92% 时间睁开 → 94% 完全闭合 → 96.5% 完全打开 → 100% 继续睁开。
-   ease-in-out 让闭合更柔和；动画只动 transform（GPU 合成层）。
-   沿用项目「不响应 prefers-reduced-motion」策略，不加降级块。 */
-@keyframes heroBlink {
-  0%,
-  92% {
-    transform: translate(-50%, -50%) scaleY(0);
-  }
-  94% {
-    transform: translate(-50%, -50%) scaleY(1);
-  }
-  96.5% {
-    transform: translate(-50%, -50%) scaleY(0);
-  }
-  100% {
-    transform: translate(-50%, -50%) scaleY(0);
-  }
 }
 /* 内容可读性遮罩：在 logo / 标题 / 按钮所在区域轻微压暗，让人脸背景下文字仍清晰 */
 .hero-px__scrim {
@@ -2156,18 +2118,33 @@ body {
   font-style: normal;
 }
 
-/* 表格：去外框，仅保留分隔行 */
+/* 表格：去外框，仅保留分隔行 + 充足单元格内边距 */
 .prose table {
   border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.9rem;
 }
 .prose th,
 .prose td {
   border: 0;
   border-bottom: 1px solid var(--fd-border-soft);
+  /* 之前没写 padding，导致多行表格行间挤成一条线。
+     这里给垂直 0.55rem（行间呼吸）+ 水平 0.75rem（避免贴边）。 */
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
 }
 .prose th {
   border-bottom: 1px solid
     color-mix(in oklch, var(--color-fd-foreground) 12%, transparent);
+  font-weight: 600;
+  color: var(--color-fd-foreground);
+  background: color-mix(in oklch, var(--color-fd-foreground) 3%, transparent);
+}
+/* 行间悬停高亮——长表格里辅助阅读（弱对比，不抢戏） */
+.prose tbody tr:hover {
+  background: color-mix(in oklch, var(--color-fd-primary) 4%, transparent);
 }
 
 /* 水平分割线更轻 */
@@ -3789,6 +3766,53 @@ body {
 }
 
 /* ==========================================================================
+   文档页内「小节标题」（由 <SectionTitle> 渲染）
+
+   视觉与页头 DocsTitle 同源：左侧浮动光团（TitleArcs） + 右侧磨砂玻璃渐变文字。
+   与 .prose h2 不同：
+     - 用 flex 横排让 TitleArcs 与标题文字基线对齐；
+     - 字号略大于 h2，渐变铺满文字本身（width: fit-content）；
+     - scroll-margin-top 沿用 prose h2 的 6rem，让目录跳转不被 fixed header 遮挡。
+
+   注意：`.prose h2` 的原有规则（border-bottom:0 / margin-top:2.5rem）保持不变，
+   那些规则只对裸 `##` 标题生效，本组件自带结构覆盖，所以两者互不干扰。
+   ========================================================================== */
+.fd-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 2.5rem 0 1.25rem;
+  /* 与 prose h2 一致的滚动偏移，避免 fixed header 遮挡锚点 */
+  scroll-margin-top: 6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  font-size: clamp(1.5rem, 2.6vw, 1.875rem);
+}
+.fd-section-title__text {
+  /* 与页头 DocsTitle 完全一致的渐变：foreground → primary → accent-vivid，
+     角度 100° 让渐变沿文字横向铺开；fit-content 让短标题也能看到完整渐变 */
+  background: linear-gradient(
+    100deg,
+    var(--color-fd-foreground) 0%,
+    var(--color-fd-primary) 42%,
+    var(--fd-accent-vivid) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  width: fit-content;
+  max-width: 100%;
+}
+/* TitleArcs 尺寸原本跟随页头 h1（2~2.5rem），小节标题下略显偏大，
+   这里把它收到与小节字号匹配（1.5~1.875rem），同时保留光晕的视觉张力。 */
+.fd-section-title .fd-title-arcs {
+  width: clamp(1.7rem, 3vw, 2.05rem);
+  height: clamp(1.7rem, 3vw, 2.05rem);
+  margin-top: 0.05em;
+}
+
+/* ==========================================================================
    DocsPage article 容器：在 main 列内居中，留足呼吸感
    ========================================================================== */
 .fd-docs-article,
@@ -4028,6 +4052,161 @@ article.fd-docs-article,
   ) !important;
 }
 .prose.prose > div[style*="--callout-color"] > div > div a:hover {
+  text-decoration-color: var(--callout-color) !important;
+}
+
+/* —— 同样的样式也应用到嵌在 <details> / <CheckItem> / PkgManager 面板 内的 Callout
+   （如 env-check 的 Git 检查 / 包管理器的"未安装时"提示卡）——
+   .prose details > div[style*="--callout-color"] /
+   .fd-checkitem__body > div[style*="--callout-color"] /
+   .fd-pkgmgr__panel div[style*="--callout-color"]（用 descendant 而非 >，
+     因为面板里的 callout 在 data-pkg div 之内，是面板的孙级）
+   选择器特异性都高于 .prose.prose > div[style*="--callout-color"]，且叠加在
+   主规则之后，因此各处样式属性会按覆盖顺序取这里的值，整体视觉一致。 */
+.fd-pkgmgr__panel div[style*="--callout-color"],
+.prose details > div[style*="--callout-color"],
+.fd-checkitem__body > div[style*="--callout-color"] {
+  position: relative !important;
+  isolation: isolate !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0 !important;
+  margin: 0.75rem 0 !important;
+  padding: 0.85rem 1.1rem !important;
+  border-radius: 14px !important;
+  border: 1px solid color-mix(in oklch, var(--callout-color) 28%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 6%,
+    var(--color-fd-background)
+  ) !important;
+  backdrop-filter: blur(14px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(170%) !important;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 35%, transparent) inset,
+    0 6px 24px -14px color-mix(in oklch, var(--callout-color) 30%, transparent) !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-inset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  overflow: hidden !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"]::before,
+.prose details > div[style*="--callout-color"]::before,
+.fd-checkitem__body > div[style*="--callout-color"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 80% at 0% 0%,
+    color-mix(in oklch, var(--callout-color) 16%, transparent),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+.dark .fd-pkgmgr__panel div[style*="--callout-color"],
+.dark .prose details > div[style*="--callout-color"],
+.dark .fd-checkitem__body > div[style*="--callout-color"] {
+  background: color-mix(
+    in oklch,
+    var(--callout-color) 9%,
+    var(--color-fd-card)
+  ) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--callout-color) 32%,
+    transparent
+  ) !important;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 5%, transparent) inset,
+    0 6px 28px -12px color-mix(in oklch, var(--callout-color) 35%, transparent) !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > [role="none"],
+.prose details > div[style*="--callout-color"] > [role="none"],
+.fd-checkitem__body > div[style*="--callout-color"] > [role="none"] {
+  display: none !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > svg,
+.prose details > div[style*="--callout-color"] > svg,
+.fd-checkitem__body > div[style*="--callout-color"] > svg {
+  display: none !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > p,
+.prose details > div[style*="--callout-color"] > div > p,
+.fd-checkitem__body > div[style*="--callout-color"] > div > p {
+  margin: 0 0 0.25rem !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em !important;
+  color: var(--callout-color) !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div,
+.prose details > div[style*="--callout-color"] > div > div,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div {
+  color: var(--color-fd-muted-foreground) !important;
+  line-height: 1.65 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Callout 内容节奏：恢复适度间距。
+   fumadocs-ui 给内容容器加了 `.prose-no-margin` 工具类，把所有 prose 子元素
+   margin 压平。目的原本是「Callout 内紧凑」，但太狠——相邻 `<p>`、`<p>` 与
+   `<ul>` 全部贴在一起没有视觉节奏。这里**显式还原**间距：
+   - 段落之间：0.4rem；首/末段额外压 0
+   - 列表前后：0.55rem；缩进 1.4rem；恢复 marker（decimal/disc）
+   - 列表项之间：0.2rem
+   三组选择器覆盖 4 种上下文：直接 prose / details 内 / CheckItem 内 / PkgManager 内。 */
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > p,
+.prose details > div[style*="--callout-color"] > div > div > p,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > p {
+  margin: 0.4rem 0 !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > p:first-child,
+.prose details > div[style*="--callout-color"] > div > div > p:first-child,
+.fd-checkitem__body
+  > div[style*="--callout-color"]
+  > div
+  > div
+  > p:first-child {
+  margin-top: 0 !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > p:last-child,
+.prose details > div[style*="--callout-color"] > div > div > p:last-child,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > p:last-child {
+  margin-bottom: 0 !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > ul,
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > ol,
+.prose details > div[style*="--callout-color"] > div > div > ul,
+.prose details > div[style*="--callout-color"] > div > div > ol,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > ul,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > ol {
+  margin: 0.55rem 0 !important;
+  padding-inline-start: 1.4rem !important;
+  list-style-type: revert !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > ul > li,
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div > ol > li,
+.prose details > div[style*="--callout-color"] > div > div > ul > li,
+.prose details > div[style*="--callout-color"] > div > div > ol > li,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > ul > li,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div > ol > li {
+  margin: 0.2rem 0 !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div a,
+.prose details > div[style*="--callout-color"] > div > div a,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div a {
+  color: var(--callout-color) !important;
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--callout-color) 35%,
+    transparent
+  ) !important;
+}
+.fd-pkgmgr__panel div[style*="--callout-color"] > div > div a:hover,
+.prose details > div[style*="--callout-color"] > div > div a:hover,
+.fd-checkitem__body > div[style*="--callout-color"] > div > div a:hover {
   text-decoration-color: var(--callout-color) !important;
 }
 
@@ -4933,6 +5112,512 @@ article.fd-docs-article,
     flex-wrap: wrap;
   }
 }
+
+/* ==========================================================================
+   包管理器「三选一」选择器（components/PkgManager.tsx）
+
+   设计目标：
+   · Tabs 行为：点击卡片**只显示**被选中那张的安装/检查内容（藏在 `content` 槽里），
+     其余两份内容视觉上隐藏，把"三选一"从字面文字落实成可见的 UI 状态。
+   · 风格延续项目其它玻璃卡片：--fd-glass-bg-strong + backdrop-blur + 柔和边框。
+   · 卡片是 button 角色（role=tab），hover / focus 时上浮 + 主题色描边，
+     呼应 .fd-plugin-card。
+   · 「推荐」徽章 + 「active」高亮 + 左上角小对勾三件套共同指示"现在选的是这张"。
+   ========================================================================== */
+.fd-pkgmgr {
+  margin: 1.25rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.fd-pkgmgr__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0 0.25rem;
+}
+
+.fd-pkgmgr__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  /* 撑成"小节标题"的视觉体量，与下方卡片形成"标题 + 卡片"层级。
+     比 .fd-section-title（1.5rem）小一档，避免在小容器里喧宾夺主。 */
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-foreground);
+}
+.fd-pkgmgr__label::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.15rem;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--color-fd-primary),
+    var(--color-fd-accent-2)
+  );
+}
+
+.fd-pkgmgr__hint {
+  font-size: 0.75rem;
+  color: var(--color-fd-muted-foreground);
+  opacity: 0.85;
+}
+
+.fd-pkgmgr__grid {
+  display: grid;
+  /* auto-fit + 最小宽度：3 张 → 一行 3 列，4 张 → 一行 4 列（卡片自动收窄），
+     窄屏 → 自动换行。避免硬编码 3 列导致 4 选项（如启动方式）溢出。 */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+/* 中等屏：退化为 1 列堆叠（避免被压成竖条） */
+@media (max-width: 720px) {
+  .fd-pkgmgr__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fd-pkgmgr__card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  /* 卡片更扁：padding 由 0.95rem → 0.65rem，整张卡高度收敛 ~0.6rem。 */
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 14px;
+  background: var(--fd-glass-bg-strong);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    box-shadow 0.25s ease,
+    background-color 0.2s ease;
+}
+
+/* hover/focus：上浮 + 主题色描边 + 玻璃阴影，与 .fd-plugin-card 同源 */
+.fd-pkgmgr__card:hover,
+.fd-pkgmgr__card:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 38%,
+    var(--color-fd-border)
+  );
+  box-shadow: var(--fd-glass-shadow);
+  outline: none;
+}
+.fd-pkgmgr__card:focus-visible {
+  box-shadow:
+    var(--fd-glass-shadow),
+    0 0 0 3px color-mix(in oklch, var(--color-fd-primary) 22%, transparent);
+}
+
+.fd-pkgmgr__card--recommended {
+  /* 主题色极淡底，让「推荐」卡片在视觉上自然被眼睛捕捉 */
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 8%,
+    var(--fd-glass-bg-strong)
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 42%,
+    var(--color-fd-border)
+  );
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 50%, transparent) inset,
+    0 8px 24px -14px
+    color-mix(in oklch, var(--color-fd-primary) 45%, transparent);
+}
+.fd-pkgmgr__card--recommended:hover,
+.fd-pkgmgr__card--recommended:focus-visible {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 14%,
+    var(--fd-glass-bg-strong)
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 60%,
+    var(--color-fd-border)
+  );
+}
+
+/* 暗色：推荐卡片底色更深、边框更亮（与 .dark .fd-callout 套路一致） */
+.dark .fd-pkgmgr__card--recommended {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 16%,
+    var(--fd-glass-bg-strong)
+  );
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 5%, transparent) inset,
+    0 10px 28px -14px
+    color-mix(in oklch, var(--color-fd-primary) 55%, transparent);
+}
+
+/* 选中态：把"现在选的是这张"用实色描边 + 主题色底明确标出。
+   优先级：--active > --recommended > hover（CSS 源序天然保证后者不覆盖前者，
+   因为 .fd-pkgmgr__card--active 定义在 --recommended 之后）。 */
+.fd-pkgmgr__card--active,
+.fd-pkgmgr__card--active.fd-pkgmgr__card--recommended {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 18%,
+    var(--fd-glass-bg-strong)
+  );
+  border-color: var(--color-fd-primary);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 55%, transparent) inset,
+    0 10px 30px -12px
+    color-mix(in oklch, var(--color-fd-primary) 55%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--color-fd-primary) 60%, transparent);
+}
+.fd-pkgmgr__card--active:hover,
+.fd-pkgmgr__card--active:focus-visible {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 24%,
+    var(--fd-glass-bg-strong)
+  );
+  transform: translateY(-2px);
+}
+.dark .fd-pkgmgr__card--active,
+.dark .fd-pkgmgr__card--active.fd-pkgmgr__card--recommended {
+  background: color-mix(
+    in oklch,
+    var(--color-fd-primary) 26%,
+    var(--fd-glass-bg-strong)
+  );
+}
+
+/* 选中态下，左上角的「✓」小角标显示；其它状态隐藏。 */
+.fd-pkgmgr__check {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  color: var(--color-fd-primary-foreground);
+  background: var(--color-fd-primary);
+  box-shadow: 0 2px 6px -2px
+    color-mix(in oklch, var(--color-fd-primary) 55%, transparent);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.2s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+/* 卡片右上角是「推荐」徽章时，「✓」与「推荐」错开（挪到左下），避免堆叠 */
+.fd-pkgmgr__card--recommended .fd-pkgmgr__check {
+  top: auto;
+  bottom: 0.45rem;
+}
+.fd-pkgmgr__card--active .fd-pkgmgr__check {
+  opacity: 1;
+  transform: scale(1);
+}
+/* 若同时是「推荐 + 选中」，badge 仍在右上、check 在左下，互不遮挡 */
+.fd-pkgmgr__card--active.fd-pkgmgr__card--recommended .fd-pkgmgr__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fd-pkgmgr__badge {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.08rem 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-fd-primary-foreground);
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-accent-2),
+    var(--color-fd-accent-1)
+  );
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px -2px
+    color-mix(in oklch, var(--color-fd-primary) 55%, transparent);
+}
+
+.fd-pkgmgr__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--color-fd-primary) 14%, transparent);
+  border: 1px solid
+    color-mix(in oklch, var(--color-fd-primary) 22%, transparent);
+  color: var(--color-fd-primary);
+}
+.fd-pkgmgr__card--recommended .fd-pkgmgr__icon {
+  background: color-mix(in oklch, var(--color-fd-primary) 22%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-primary) 38%, transparent);
+  color: var(--color-fd-primary);
+}
+
+.fd-pkgmgr__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  /* 留出顶部空间给右上角的「推荐」徽章，避免与名字重叠 */
+  padding-right: 2rem;
+  /* 强制 1 行高度的紧凑感：name + version badge + 1 行 desc。
+     即使 desc 偶尔换行，gap 也很小，整体保持扁平。 */
+  min-height: 0;
+  justify-content: center;
+}
+.fd-pkgmgr__card:not(.fd-pkgmgr__card--recommended) .fd-pkgmgr__body {
+  padding-right: 0;
+}
+
+/* 标题行：name + 版本 badge 并排，缩小卡片整体高度 */
+.fd-pkgmgr__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fd-pkgmgr__name {
+  /* UI 标签走 MiSans VF（项目字体规范）；版本号/数字才用 mono。 */
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--color-fd-foreground);
+}
+
+.fd-pkgmgr__desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* 版本号 inline badge：紧贴名字右侧，仍走 mono（版本号是 identifier，mono 更易读） */
+.fd-pkgmgr__version-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.05rem 0.4rem;
+  border-radius: 9999px;
+  color: var(--color-fd-muted-foreground);
+  background: color-mix(
+    in oklch,
+    var(--color-fd-muted-foreground) 10%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(in oklch, var(--color-fd-muted-foreground) 18%, transparent);
+  white-space: nowrap;
+}
+.fd-pkgmgr__card--recommended .fd-pkgmgr__version-badge {
+  color: var(--color-fd-primary);
+  background: color-mix(in oklch, var(--color-fd-primary) 14%, transparent);
+  border-color: color-mix(in oklch, var(--color-fd-primary) 32%, transparent);
+}
+
+/* —— Tabs 面板：只渲染当前选中的 content，其余两份在 DOM 里但视觉隐藏 ——
+   · visibility:hidden + 高度 0 + opacity 0 让 <details> 内部结构完全不占位；
+     但当前面板需要正常显示、动画入场，故用 key={active.id} 触发整块重挂载 +
+     下方 fdPkgPanelFadeIn 动画。
+   · 面板自身是 role=tabpanel + 类 .prose，让内层 <details>/<pre>/<code>
+     直接复用正文 prose 样式，无需重复写一份。 */
+.fd-pkgmgr__panel {
+  margin-top: 1rem;
+  outline: none;
+  /* 不限制宽度：与 article 主列同宽（66ch 以内仍可读） */
+  max-width: none;
+  /* 切换面板时整块重挂载触发 key 变化 → 重跑 fade-in 动画 */
+  animation: fdPkgPanelFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fdPkgPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 面板内首个（也是唯一一个）details 块：去掉 prose 默认的 margin-top，
+   让面板紧贴卡片，节奏更紧凑 */
+.fd-pkgmgr__panel > :first-child {
+  margin-top: 0 !important;
+}
+/* 面板内最后一个块：去掉 prose 默认的 margin-bottom（避免和下方 Callout 间距过大） */
+.fd-pkgmgr__panel > :last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ==========================================================================
+   引导式检查步骤卡（components/CheckItem.tsx）
+   --------------------------------------------------------------------------
+   设计目标：
+   · 把「按步骤走」的章节（环境检查 / 安装流程）从 <details> 折叠升级为
+     始终展开的步骤卡，**默认所有内容可见**，不再需要点开 detail。
+   · 多张 CheckItem 连续出现时，卡之间自动出现 2px 渐变连接线
+     （::after 伪元素，无需手动接线）。
+   · 步骤号 = 圆形主题色渐变 badge + 数字，MiSans VF（不是 mono）。
+   · 内容区沿用项目玻璃质感（--fd-glass-bg-strong + backdrop-filter + 柔和边框），
+     风格与 .fd-pkgmgr__card / .fd-plugin-card 保持一致。
+   ========================================================================== */
+.fd-checkitem {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 16px;
+  background: var(--fd-glass-bg-strong);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  margin: 1.25rem 0;
+}
+
+/* 连接线：除最后一张外的所有 CheckItem 下方伸出一条 2px 渐变竖线，
+   视觉上把多张卡串成"流程"。位置算法：
+   · 卡 padding-left = 1.5rem，步骤号宽 2.5rem → 圆心 = 1.5 + 1.25 = 2.75rem
+   · 线宽 2px → left = 2.75rem - 1px = 2.75rem - 0.0625rem ≈ 2.6875rem
+   · top 从步骤号圆心下方开始（步骤号底 = 1.25 + 2.5 = 3.75rem），
+     bottom 越过卡的 margin 底部到下一张卡 → 形成无缝连接。 */
+.fd-checkitem:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 2.6875rem;
+  top: 3.75rem;
+  bottom: -1.25rem;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--color-fd-primary) 30%, transparent),
+    color-mix(in oklch, var(--color-fd-primary) 8%, transparent)
+  );
+  z-index: -1;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* 步骤号：圆形渐变 badge */
+.fd-checkitem__step {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--color-fd-primary),
+    var(--color-fd-accent-2)
+  );
+  color: var(--color-fd-primary-foreground);
+  font-family: var(--font-sans); /* 显式声明：UI 数字走 MiSans VF */
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 35%, transparent) inset,
+    0 4px 12px -4px
+    color-mix(in oklch, var(--color-fd-primary) 50%, transparent);
+}
+
+.fd-checkitem__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fd-checkitem__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.fd-checkitem__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-foreground);
+}
+
+.fd-checkitem__subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-fd-muted-foreground);
+}
+
+.fd-checkitem__body {
+  /* 内容区不加 padding / margin —— 由内层 prose pre / callout / PkgManager
+     各自负责自身间距，避免双重间距。 */
+}
+
+/* CheckItem 整张卡是 `not-prose`（卡本身用玻璃质感，不走 prose 排版），
+   但 children 里的 markdown（有序/无序列表、p、code）需要 prose 排版。
+   原 `.prose :where(ol):not(:where([class~=not-prose] *))` 因为外层
+   `not-prose` 而**不会**匹配，导致 `<ol>` 数字消失、列表变成纯文本。
+   这里给 `.fd-checkitem__body` 内的列表显式补上 prose 排版：
+   - ol → 阿拉伯数字（decimal）+ 1.625em 缩进；
+   - ul → 实心圆点（disc）+ 1rem 缩进；
+   - li 上下 0.25em 微间距，与 prose 默认一致；
+   - 仅作用于「直接子级」，避免误伤内嵌子列表（嵌套列表由子项自带缩进）。 */
+.fd-checkitem__body > ol {
+  margin: 0.75rem 0;
+  padding-inline-start: 1.625rem;
+  list-style-type: decimal;
+}
+.fd-checkitem__body > ul {
+  margin: 0.75rem 0;
+  padding-inline-start: 1rem;
+  list-style-type: disc;
+}
+.fd-checkitem__body > ol > li,
+.fd-checkitem__body > ul > li {
+  margin: 0.25rem 0;
+  line-height: 1.7;
+}
+/* 嵌套列表用浏览器默认的继续缩进 + 变更 marker 类型，不强制复写。 */
 
 /* ==========================================================================
    首页 · PPT 式硬翻页（JS 接管 wheel/keydown/touch，见 components/HomePager.tsx）

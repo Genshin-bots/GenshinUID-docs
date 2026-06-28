@@ -172,19 +172,21 @@ filter: blur(14px);
 | `app/[lang]/page.tsx` | 在 `<HomeLayout>` 内挂 `<HomePager />` + 5 个 `.home-snap-point` |
 | `app/global.css` | `.home-snap-point` 与 scroll-snap 全部移除；详见本节 #9.4 |
 
-## 9.8 Hero 动漫眼睛眨眼层
+## 9.8 Hero 动漫眼睛背景层
 
-为提升首页"动漫感"，Hero 背景层新增一个**纯 CSS 驱动**的眨眼动画：
+Hero 背景层叠加一张动漫眼睛 PNG 提升首页"动漫感"：
 
 - 资源：`public/home/eyes.png`（1672×941，16:9，从项目根移入）。SVG / Spine 都被排除（位图保真度差 / 运行时与静态导出冲突）。
-- 实现：在 `.hero-px__bg` 内放 `<img class="hero-px__eyes-img">` + 两个 `<span class="hero-px__lid">`（左/右眼睑），眼睑用同肤色 `oklch(92% 0.04 54)` 径向渐变 + 软阴影，闭合时与原图肤色无缝融合。
-- 动画：`@keyframes heroBlink`（5s 一周期，92% 睁开 → 94% 完全闭合 → 96.5% 打开 → 100% 继续睁开），**只动 `transform: scaleY()`（GPU 合成层）**，零 JS、零额外请求。
+- 实现：在 `.hero-px__bg` 内放 `<img class="hero-px__eyes-img">` 作主体。
 - 软化边缘：img 用 `mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, black 28%, transparent 82%)`，让原 orbs / grid / beam 在边缘自然显出，不抢戏。
 - 可读性：`.hero-px__scrim` 在 content 区域轻微压暗 ~24%（`--color-fd-background`），让 logo / 标题 / 按钮在人脸上仍清晰。
-- 鼠标视差：眼睑层跟随 `--mx/--my` 反向位移（-8px / -6px），与 orbs 同一坐标系。
-- 关键 CSS 钩子：`.hero-px__eyes` / `.hero-px__lid` / `@keyframes heroBlink` / `.hero-px__scrim`。
-- **沿用项目"不响应 `prefers-reduced-motion`"策略**——动画在所有设备上完整播放，不加 reduce-motion 降级块。
-- 源图眼睛位置探测：左 22.5% / 右 77.5%、垂直 53.5%，对应 `left` / `top` 百分比。CSS 注释里记下探测过程，方便后续换图时校对。
+- 鼠标视差：眼睛层跟随 `--mx/--my` 反向位移（-8px / -6px），与 orbs 同一坐标系。
+- 关键 CSS 钩子：`.hero-px__eyes` / `.hero-px__eyes-img` / `.hero-px__scrim`。
+
+> **已移除：CSS 眨眼动画**。早期版本在 PNG 上叠两块同肤色 `<span class="hero-px__lid">` 眼睑，
+> 用 `@keyframes heroBlink`（`transform: scaleY()`）模拟眨眼。但纯色径向渐变的眼睑与 PNG
+> 眼睛细节无法精确对齐，闭合瞬间像两团肤色色块在脸上闪，与背景图完全不搭，已整体删除。
+> 若日后要重做眨眼，应改用「同图双帧 cross-fade / sprite 序列帧」，而非纯色 div 盖眼睑。
 
 ## 9.9 测试要点
 

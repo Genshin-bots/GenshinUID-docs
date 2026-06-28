@@ -31,6 +31,9 @@ return {
 | `NavCard` | `components/NavCard.tsx` | 两列导航卡片 | 内联 Tailwind |
 | `MarkdownDescription` | `components/MarkdownDescription.tsx` | 文档页 banner 副标题：在 frontmatter `description` 字符串里识别 `[text](url)` 链接 + `**text**` 加粗。**替代** fumadocs `DocsDescription`（后者不解析 Markdown）。 | `.fd-doc-description` |
 | `ChatPanel` / `ChatMessage` | `components/ChatPanel.tsx` | **静态聊天示例**（复刻 VitePress） | `.fd-chatpanel*`, `.fd-chatmsg*` |
+| `CheckItem` | `components/CheckItem.tsx` | **引导式步骤卡**（server component）：左侧圆形渐变步骤号 + 标题行（标题 + Badge）+ 副标题 + 内容。多张连续使用自动出现 2px 渐变连接线。**默认所有内容展开**（不再用 `<details>` 折叠），适合「按步骤走」的章节（环境检查 / 安装流程）。 | `.fd-checkitem*` |
+| `PkgManager` | `components/PkgManager.tsx` | **「N 选一」Tabs 选择器**（client component）：玻璃卡片横向并排，默认选中 `recommended: true` 的那张，点击切换下方内容。**支持 N 选项**（grid 用 `auto-fit minmax(220px,1fr)`），4 卡也优雅排版。**子节点用 `data-pkg` 属性关联**（不是 props.content），保证 fenced code block 走 MDX → Shiki 完整流程。`options[i].icon` 必须是**字符串键名**（`'monitor'` / `'fileJson'` / `'uv'` / `'pip'` 等，由组件内 `ICON_MAP` 解析），不能直接传 lucide 组件——跨 `use client` 边界传函数会爆（坑 #34）。**`PkgManager` 同时承担「包管理器选择」与「配置方式二选一」两种场景**——前者选 uv/poetry/pdm/pip，后者可选 网页控制台/改配置文件 等；视觉是同一种"挑一个看下面"卡片，避免被 `CheckItem` 的"序号 + 连接线"误读为强制顺序（坑 #35）。 | `.fd-pkgmgr*` |
+| `SectionTitleHeading` | `components/SectionTitleHeading.tsx` | **小节标题 H2 渲染器**（不是 JSX 组件，是 `getMDXComponents().h2` 的映射目标）。MDX 里仍写 `## 标题`——`remark-heading` 能识别并加进 TOC；通过 `sectionTitles: true` 开关把它映射到本组件后，渲染时套上 `TitleArcs` + 磨砂玻璃渐变文字，与页头 DocsTitle 同款。**不能用 `<SectionTitleHeading>` JSX 写法**——JSX 对 TOC 是不可见的，会丢右下角"On this page"。 | `.fd-section-title`, `.fd-section-title__text` |
 | `Callout` | fumadocs-ui | 提示 / 警告框（`type=info/warn/error/success`） | `.prose [style*="--callout-color"]` |
 | `Contributors` | `components/Contributors.tsx` | 首页「感谢成员贡献」：拉 GitHub `/contributors` 渲染**堆叠圆形头像**（一行 24 个，多行堆叠，展示全部） | `.contrib__rows`, `.contrib__stack`, `.contrib__item` |
 | `DataPanel` | `components/DataPanel.tsx` | 不蒜子访问量统计 | 内联 Tailwind |
@@ -99,3 +102,65 @@ return {
 > **可序列化注意**：`Providers.tsx` 是 client component，因为搜索弹窗里有函数（`initOrama`）
 > 无法从 server component 跨边界传递。若你的组件需要给 `RootProvider` 传函数 / 组件 prop，
 > 同理要放在 client 包裹里。见 [六、搜索](./06-search.md)。
+
+## 3.6 重点：CheckItem（引导式步骤卡）
+
+复刻 VitePress 时代「按步骤走」的视觉，但**默认所有内容展开**，不再让用户点 `<details>`：
+
+```mdx
+<CheckItem
+  step={1}
+  title="确保安装 Python 环境"
+  subtitle="版本须 >3.9，建议 >=3.12"
+  badge={{ text: "必装", type: "warning" }}
+>
+  ```shell
+  python -V
+  ```
+</CheckItem>
+
+<CheckItem step={2} title="...">...</CheckItem>
+<CheckItem step={3} title="...">...</CheckItem>
+```
+
+- `step`（必填）：左侧圆形渐变步骤号（MiSans VF 数字 + 主题色渐变背景）。
+- `title`（必填）：卡片标题。
+- `subtitle`（可选）：标题下灰色说明。
+- `badge`（可选）：`{ text, type }` —— type 走 `Badge` 组件的 4 档（`info`/`tip`/`warning`/`danger`）。
+- `children`：任意 MDX 内容（code 块、Callout、嵌套 PkgManager 都能塞）。
+- 多张卡连续出现时，CSS 伪元素自动画 2px 渐变连接线（`step 1` 底 → `step 2` 顶）。
+- **实现约束**：内容**不能放在 `options[i].content` 这种数组 prop 里**——MDX 在
+  `{...}` 表达式内不解析 markdown，code 块会退化成 inline code（见 [七、坑 #28](./07-pitfalls.md)）。
+
+## 3.7 重点：PkgManager（三选一 Tabs）
+
+适合「互斥三选一」的场景（包管理器 / 数据库 / 主题等），点击卡片切换下方内容：
+
+```mdx
+<PkgManager
+  options={[
+    { id: 'uv',     name: 'uv',     desc: '...', minVersion: '>= 0.5.0', recommended: true },
+    { id: 'poetry', name: 'poetry', desc: '...' },
+    { id: 'pdm',    name: 'pdm',    desc: '...' },
+  ]}
+>
+  <div data-pkg="uv">
+    ```shell
+    uv -V
+    ```
+    <Callout type="info" title="">未安装时: `pip install uv`</Callout>
+  </div>
+  <div data-pkg="poetry">...</div>
+  <div data-pkg="pdm">...</div>
+</PkgManager>
+```
+
+- **`options` prop** 只放元数据（id / name / desc / minVersion / recommended），**不放** JSX 内容。
+- **`children` + `data-pkg` 属性**承载内容：组件内部用 `Children.forEach` 按 `data-pkg` 过滤
+  出当前激活那张渲染。**这是必须的**——直接放 `options[i].content: <JSX>` 会让 Shiki / fenced
+  code / Callout 玻璃样式全部失效（见 [七、坑 #28](./07-pitfalls.md) / [坑 #31](./07-pitfalls.md)）。
+- `recommended: true` 的那张会被默认选中 + 高亮（实色描边 + 左上角对勾）。
+- `minVersion` 会作为 mono 字体的 inline badge 紧贴 name 右侧（`uv ≥ 0.5.0` 风格）。
+- a11y：grid = `role="tablist"`，每张卡 = `role="tab"`（用 `<button>` 而非 `<a>`），面板 = `role="tabpanel"`。
+- **嵌套 Callout 时**确认外层 `data-pkg` div 没有其他兄弟节点挡住——参考 install-core.mdx
+  「确认环境有无缺失」一节中 `PkgManager` 当前用法。

@@ -45,7 +45,7 @@ description: >
 | 四 | 怎么写文档（frontmatter、标题 / description、提示框、聊天示例、徽章、CJK 加粗 / 大括号注意、leaf icon 多元化脚本） | [references/04-writing-mdx.md](./references/04-writing-mdx.md) |
 | 五 | i18n 多语言（语言配置、导航栏 nav-config、首页 home-content、UI 文案、如何加一门语言） | [references/05-i18n.md](./references/05-i18n.md) |
 | 六 | 搜索（静态 Orama 索引、中文 / 日文分词、自定义搜索弹窗、为什么默认搜不到中文） | [references/06-search.md](./references/06-search.md) |
-| 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY、sidebar DOM 迁移、inline code / pre 字体链、banner 重排、lucide icons map 陷阱） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
+| 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY、sidebar DOM 迁移、inline code / pre 字体链、banner 重排、lucide icons map 陷阱、**MDX JSX 表达式不解析 markdown**、**`>>>` 被解析为 JSX 闭合标签**、**Turbopack dev CSS 缓存不刷新**、**Callout 玻璃样式容器作用域**、**JSX 标题组件会让 TOC 丢失**、**`not-prose` 容器内的 ol/ul 数字消失**、**Client Component 不能传函数 prop**、**CheckItem 别用来承载二选一**） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
 | 八 | 字体切片（MiSans VF + unicode-range，源文件位置、重新生成、VF 轴校验） | [references/08-font-slice.md](./references/08-font-slice.md) |
 | 九 | 首页 PPT 式硬翻页（`HomePager` rAF 缓动 + `HomeShowcase` 入场动画的设计要点） | [references/09-home-ppt-pager.md](./references/09-home-ppt-pager.md) |
 | 十 | 实时聊天室路由（`/chat` 独立全页路由 vs `/sp/chat` 文档内嵌、HomeLayout 复用、ChatInterface 与 ChatLayout / ChatStandalone 关系、WebSocket 状态机、滚动策略） | [references/10-chat-route.md](./references/10-chat-route.md) |
@@ -77,3 +77,24 @@ description: >
 >   想给 folder icon 着色或定位"页"位置，先看坑 #16 再写 selector。
 > - **lucide-react 的 `icons` map 不等于 `lucide-react` 命名导出**。`Home` / `Train` 等少数 icon
 >   在 `icons` map 里**不存在**，写进 frontmatter 会被 `lucideIconsPlugin` 报 `Unknown icon detected`，见坑 #19。
+> - **MDX 在 `{...}` 表达式内不解析 markdown**。fenced code block、表格、列表全不识别。
+>   设计「包装 JSX」组件时**不要让用户把内容塞进 `options[i].content` 这类数组 prop**，
+>   必须用 **children + `data-xxx` 属性**的 compound component 模式（参考 `PkgManager`）。
+>   否则 Shiki 高亮、复制按钮、Callout 玻璃样式全失效。见 [三、§3.7](./references/03-components.md) / [七、坑 #28](./references/07-pitfalls.md)。
+> - **MDX 把 `>>>` / `<<<` 等连续 `>` `<` 字符当 JSX 闭合标签解析**，即便它们在 fenced code
+>   block 内。Python REPL 提示符、MySQL CLI 等场景会触发。**用 JS 模板字面量构造**：
+>   `` `${'>'.repeat(3)} Python 3.x.x` ``，让 acorn-jsx 源码里看不到连续 `>`。见坑 #29。
+> - **Next.js + Turbopack dev server 缓存 CSS**：HMR 不能保证把新加的 CSS 类刷新到
+>   dev bundle。dev 页面表现与 `pnpm build` 产物不一致时（HTTP 200 + 新类不生效），
+>   固定流程是 `taskkill` 杀 dev server → `rm -rf .next/dev` → `pnpm dev:docs` 重启。
+>   验证命令：`curl -s http://localhost:3000/_next/static/chunks/<chunk>.css | grep <新类名>`。
+>   见坑 #30。
+> - **项目自定义 Callout 玻璃样式只覆盖 4 个具体选择器**（`.prose.prose >` / `.prose details >` /
+>   `.fd-checkitem__body >` / `.fd-faq-a-content >`），都用 `>` 直接子选择器，**不支持后代**。
+>   新组件要承载 Callout，必须在 4 个容器内（直接子级），或修改 `app/global.css` 9 条规则
+>   各加一条新选择器（孙级用后代选择器 ` `）。见 [三、§3.7](./references/03-components.md) / [七、坑 #31](./references/07-pitfalls.md)。
+> - **自定义 JSX 标题组件会让 TOC 丢失**——fumadocs TOC 由 `remark-heading` 在构建期扫 markdown
+>   heading 节点 + `rehypeToc` 在 HAST 上扫 h1~h6 元素生成，JSX 对两条路径都不可见。
+>   想让主 H2 有页头级视觉（TitleArcs + 渐变）必须走 **H2 映射 + frontmatter 开关**，
+>   MDX 里仍然写 `## 标题`，渲染时才映射到 `<SectionTitleHeading>`。见 [三](./references/03-components.md) /
+>   [七、坑 #32](./references/07-pitfalls.md)。

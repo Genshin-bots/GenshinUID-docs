@@ -80,12 +80,10 @@ export function HomeHero({
     <section ref={ref} className="hero-px home-snap-point">
       {/* 视差背景层（不响应指针） */}
       <div className="hero-px__bg" aria-hidden>
-        {/* 动漫眼睛层：eyes.png 作主体，两块「眼睑」div 跟着 @keyframes heroBlink 闭合。
-           mask-image 软化边缘让原 orbs 在四周自然显出；眼睑颜色与 PNG 肤色采样一致。 */}
+        {/* 动漫眼睛层：eyes.png 作主体，mask-image 软化边缘让原 orbs 在四周自然显出。
+           （此前叠加的「眼睑」div + @keyframes heroBlink 眨眼效果与 PNG 不搭，已移除。） */}
         <div className="hero-px__eyes">
           <img src="/home/eyes.png" alt="" className="hero-px__eyes-img" />
-          <span className="hero-px__lid hero-px__lid--l" />
-          <span className="hero-px__lid hero-px__lid--r" />
         </div>
         <div className="hero-px__grid" />
         <div className="hero-px__orb hero-px__orb--1" />

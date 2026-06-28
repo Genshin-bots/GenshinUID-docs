@@ -1,88 +1,626 @@
 ---
-title: "安装Core"
-description: "下载并安装 GsCore 框架的完整步骤。"
-icon: Download
+title: "安装与配置GsCore"
+description: "从环境检查、安装、启动到配置GsCore的完整上手流程。"
+icon: Wrench
+sectionTitles: true
 ---
 
 import { Badge } from '@/components/Badge'
+import { CheckItem } from '@/components/CheckItem'
+import { PkgManager } from '@/components/PkgManager'
 
-# 安装Core<Badge type="danger" text="普通" />
+# 安装与配置GsCore<Badge type="danger" text="必读" />
 
+<Callout type="info" title="">
 
-## 下载/克隆仓库
+本页是 **GsCore 完整上手流程**：**确认环境 → 安装 → 启动 → 配置**。按顺序走完即可。
 
-- 在`Bot目录`的上级（例如你的bot目录为`./Wuyi/nb2`,则cd至`./Wuyi`处）
+如果你想用 Docker 跑，请前往 [Docker 章节](./docker-core)；
 
-- 输入安装core命令
+如果你只想看网页控制台，请前往 [网页控制台章节](./web-console)。
+
+</Callout>
+
+## 确认环境有无缺失<Badge type="tip" text="简单" />
+
+下面三步是 GsCore 安装的前置检查。**所有检查命令默认展开**，按顺序走完即可。
+
+<CheckItem
+  step={1}
+  title="确保安装 Python 环境"
+  subtitle="版本须 >3.9，建议 >=3.12，不建议 >=3.14"
+  badge={{ text: "必装", type: "warning" }}
+>
+
+```shell
+# 【命令行内输入】
+python -V
+
+# 【以下为回复示例、无需输入】
+# 回复类似Python 3.10.10的信息，即为已经安装python环境
+>>> Python 3.x.x
+```
+
+</CheckItem>
+
+<CheckItem
+  step={2}
+  title="确保安装 git 环境"
+  badge={{ text: "必装", type: "warning" }}
+>
+
+<Callout type="info" title="">
+
+如果你没有安装`git`且的系统是`ubuntu`，安装`git`只需要输入`sudo apt-get install git`
+
+如果系统为`Windows`，则自行前往 🔗[官网](https://git-scm.com/) 下载安装包安装即可
+
+</Callout>
+
+```shell
+# 【命令行内输入】(注意v为小写)
+git -v
+
+# 【以下为回复示例、无需输入】
+# 回复类似git version 2.38.1.windows.1的信息，即为已经安装Git环境
+>>> git version xxxxx
+```
+
+</CheckItem>
+
+<CheckItem
+  step={3}
+  title="选择并安装一个包管理器"
+  subtitle="三选一即可，点击下方卡片查看对应安装命令"
+  badge={{ text: "推荐 uv", type: "tip" }}
+>
+
+{/* PkgManager 顺序：uv 第一（推荐项最左，符合 F-pattern 阅读顺序） */}
+<PkgManager
+  options={[
+    {
+      id: 'uv',
+      name: 'uv',
+      desc: '极速包管理器',
+      minVersion: '>= 0.5.0',
+      recommended: true,
+    },
+    {
+      id: 'poetry',
+      name: 'poetry',
+      desc: '经典包管理器',
+      minVersion: '>= 1.4.0',
+    },
+    {
+      id: 'pdm',
+      name: 'pdm',
+      desc: 'PEP 582 实现',
+      minVersion: '>= 2.10',
+    },
+  ]}
+>
+
+  <div data-pkg="uv">
+    ```shell
+    # 【uv】
+    # 命令行内输入
+    uv -V
+
+    # 以下为回复示例、无需输入
+    # 回复类似`uv 0.5.18`的信息，即为已经安装uv环境
+    >>> uv 0.5.18 (27d1bad55 2025-01-11)
+    ```
+
+    <Callout type="info" title="">
+
+    如果你没有安装`uv`, 只需要输入`pip install uv`即可安装
+
+    </Callout>
+  </div>
+
+  <div data-pkg="poetry">
+    ```shell
+    # 【Poetry】
+    # 命令行内输入
+    poetry -V
+
+    # 以下为回复示例、无需输入
+    # 回复类似Poetry (version 1.4.1)的信息，即为已经安装Poetry环境
+    >>> Poetry (version 1.4.1)
+    ```
+
+    <Callout type="info" title="">
+
+    如果你没有安装`poetry`，只需要输入`pip install poetry`即可安装
+
+    </Callout>
+  </div>
+
+  <div data-pkg="pdm">
+    ```shell
+    # 【PDM】
+    # 命令行内输入
+    pdm -V
+
+    # 以下为回复示例、无需输入
+    # 回复类似PDM (PDM, version 2.10.4)的信息，即为已经安装PDM环境
+    >>> PDM, version x.x.x
+    ```
+
+    <Callout type="info" title="">
+
+    如果你没有安装`pdm`, 则更加复杂一点, 必须使用`pipx`管理`pdm`环境
+    `pipx install pdm`
+
+    </Callout>
+  </div>
+
+</PkgManager>
+
+</CheckItem>
+
+## 安装 Core<Badge type="danger" text="普通" />
+
+按下面 3 步走完即可，每步只展示当前需要的命令。
+
+<CheckItem
+  step={1}
+  title="克隆仓库"
+  subtitle="把 GsCore 源码拉到本地"
+>
+
+在 `Bot 目录的上级` 打开终端（例如你的 bot 目录为 `./Wuyi/nb2`，则 cd 到 `./Wuyi` 处），输入：
 
 ```sh
 git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
 ```
-- 进入文件夹内
 
+进入仓库目录：
 
 ```sh
 cd gsuid_core
 ```
 
-## 安装依赖
+</CheckItem>
+
+<CheckItem
+  step={2}
+  title="安装依赖"
+  subtitle="选择你刚才装好的包管理器对应的命令"
+  badge={{ text: "按你上面的选择", type: "tip" }}
+>
+
 <Callout type="info" title="">
 
-可以根据你的喜好，自行选择`uv`, `pdm`, `poetry`等环境工具安装Core
-
-或使用裸环境`python`&`pip`安装
+可以根据你的喜好，自行选择 `uv` / `poetry` / `pdm` 安装依赖，或使用裸 `python` & `pip`。
 
 </Callout>
 
-<details>
-<summary>【🥳 推荐】uv</summary>
+<PkgManager
+  label="选一个工具执行"
+  options={[
+    {
+      id: 'uv',
+      name: 'uv',
+      desc: '推荐 · 极速',
+      recommended: true,
+    },
+    {
+      id: 'poetry',
+      name: 'poetry',
+      desc: '经典 · 易上手',
+    },
+    {
+      id: 'pdm',
+      name: 'pdm',
+      desc: 'PEP 582',
+    },
+    {
+      id: 'pip',
+      name: 'python',
+      desc: '不推荐 · 裸环境',
+    },
+  ]}
+>
+
+  <div data-pkg="uv">
+    ```sh
+    # uv 安装依赖（推荐）
+    uv python install 3.13
+    uv sync --python 3.13
+    uv run python -m ensurepip
+    ```
+  </div>
+
+  <div data-pkg="poetry">
+    ```sh
+    # poetry 安装依赖
+    poetry install
+    ```
+  </div>
+
+  <div data-pkg="pdm">
+    ```sh
+    # pdm 安装依赖
+    pdm install
+    pdm run python -m ensurepip
+    ```
+  </div>
+
+  <div data-pkg="pip">
+    ```sh
+    # 不推荐该方式（裸环境）
+    python -m pip install -r requirements.txt
+    ```
+  </div>
+
+</PkgManager>
+
+</CheckItem>
+
+<CheckItem
+  step={3}
+  title="安装所需插件"
+  subtitle="示例：安装 GenshinUID v4。跳过这一步也能跑 Core，但没有任何插件可用"
+  badge={{ text: "可选", type: "tip" }}
+>
+
 ```sh
-# uv安装依赖方式
-uv python install 3.13
-uv sync --python 3.13
-uv run python -m ensurepip
-```
-</details>
-
-<details>
-<summary>poetry</summary>
-```sh
-# poetry安装依赖方式
-poetry install
-```
-</details>
-
-<details>
-<summary>pdm</summary>
-
-```sh
-# pdm安装依赖方式
-pdm install
-pdm run python -m ensurepip
-```
-
-</details>
-
-<details>
-<summary>【😡 不推荐】直接使用python</summary>
-
-```sh
-# 不推荐该方式
-python -m pip install -r requirements.txt
-```
-
-</details>
-
-## 安装所需插件<Badge type="tip" text="可选" />
-
-```sh
-cd gsuid_core
-cd plugins
-# 安装v4 GenshinUID
+cd gsuid_core/plugins
+# 安装 v4 GenshinUID（示例插件，可换成任何适配 GsCore 的插件）
 git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
 ```
 
-##  🎉你已经成功安装GsCore
+</CheckItem>
 
- ▶ [启动Core](./start-core)
+## 启动 Core<Badge type="tip" text="简单" />
 
+<Callout type="warn" title="">
+
+启动前先 `cd` 到主路径，例如 `E:\gsuid_core` 或 `~/gsuid_core`。
+
+下面根据你安装时使用的工具点击对应卡片即可——**只显示你选的那条命令**，避免在四种命令之间来回翻找。
+
+</Callout>
+
+<CheckItem
+  step={1}
+  title="选择你安装时使用的工具"
+  subtitle="点击下方卡片切换，下方只显示对应的那条命令"
+  badge={{ text: "选一张卡", type: "warning" }}
+>
+
+<PkgManager
+  label="我用的是…"
+  options={[
+    {
+      id: 'uv',
+      name: 'uv',
+      desc: '推荐',
+      recommended: true,
+    },
+    {
+      id: 'poetry',
+      name: 'poetry',
+      desc: '经典',
+    },
+    {
+      id: 'pdm',
+      name: 'pdm',
+      desc: 'PEP 582',
+    },
+    {
+      id: 'pip',
+      name: 'python',
+      desc: '不推荐',
+    },
+  ]}
+>
+
+  <div data-pkg="uv">
+    ```sh
+    # uv 启动
+    uv run core
+    ```
+  </div>
+
+  <div data-pkg="poetry">
+    ```sh
+    # poetry 启动
+    poetry run core
+    ```
+  </div>
+
+  <div data-pkg="pdm">
+    ```sh
+    # pdm 启动
+    pdm run core
+    ```
+  </div>
+
+  <div data-pkg="pip">
+    ```sh
+    # 直接使用 python（不推荐）
+    python -m gsuid_core.core
+    ```
+  </div>
+
+</PkgManager>
+
+</CheckItem>
+
+<CheckItem
+  step={2}
+  title="看到控制台输出 + 网页控制台就绪"
+  subtitle="首次启动会自动生成 `data/config.json` 和 `data/core_config.json`"
+>
+
+启动成功后你会看到类似这样的输出（不需要理解所有日志，看到这两行就够了）：
+
+- ✅ `[Core] 启动完成`
+- ✅ `网页控制台已就绪: http://localhost:8765/app`
+
+第一次启动一定要看到这两个提示，否则下面的配置步骤无法进行。
+
+</CheckItem>
+
+### 下一步：连接 Bot 或继续配置
+
+<Callout type="warn" title="">
+
+GsCore **不能独立使用** —— 你需要连接 NoneBot2 或其他支持的 Bot 才能对话。
+
+</Callout>
+
+- 🔌 [连接 NoneBot2](../link-bots/none-bot2)（最常用）
+- 🔌 [连接 HoshinoBot](../link-bots/hoshino-bot)
+- 🔌 [连接 YunZai-Bot](https://gitee.com/xiaoye12123/ws-plugin)
+- 🔌 [连接 ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot)
+- 🔌 [连接 Koishi](https://github.com/GithubCin/gscore-adapter)
+
+前往 [Bot 适配器列表](../link-bots/adapter-list) 查看更多支持列表。
+
+如果只是想先把 Core 配好再接 Bot，继续往下看 👇
+
+## 配置 GsCore<Badge type="warning" text="普通" />
+
+<Callout type="info" title="">
+
+GsCore 有两个配置文件：
+
+- `gsuid_core/data/config.json` ← 本节关注
+- `gsuid_core/data/core_config.json` ← 通过 [网页控制台](./web-console) 调整，或参考 [GsCore 选项](../../advance/core-config)
+
+首次启动 Core 后会自动生成这两个文件。
+
+新版本开始，插件配置不再放在 `config.json` 的 `"plugins"` key 下，而是拆到 `data/plugins_configs/<name>.json` 里——首次启动时会自动从旧版迁移，无需手动操作。
+
+</Callout>
+
+<Callout type="error" title="">
+
+如果 GsCore 和连接端不在同一台机器上，**强烈建议**配置 `WS_TOKEN` 或 `TRUSTED_IPS`，见 [配置 WsToken（跨机部署安全）](#配置-wstoken跨机部署安全)。
+
+</Callout>
+
+下面两种方式**二选一**——它们达成同一件事，不是「先 1 再 2」：
+
+<PkgManager
+  label="选一种方式配置主人账号"
+  options={[
+    {
+      id: 'console',
+      name: '网页控制台',
+      desc: '推荐 · 最简单',
+      recommended: true,
+      icon: 'monitor',
+    },
+    {
+      id: 'file',
+      name: '修改配置文件',
+      desc: '可选 · 直接编辑 JSON',
+      icon: 'fileJson',
+    },
+  ]}
+>
+
+<div data-pkg="console">
+
+<Callout type="tip" title="">
+
+本节的核心目标就一句话：**把自己常用的账号加进主人账号列表**，让 Bot 知道「这是管理员」。
+
+</Callout>
+
+1. **启动 GsCore**（参考上一节）
+2. **打开网页控制台**：浏览器访问 `http://localhost:8765/app`
+3. **注册管理员**：首次进入需要注册，注册码在 `data/config.json` 的 `REGISTER_CODE` 字段，每人不同
+4. **添加主人账号**：左侧【Core 配置】→ 主人账号列表 → 输入自己的 QQ 号（或其他平台账号）→ 回车 → 「确认修改」
+5. **重启 GsCore**：控制台里的修改不会自动生效，发 `core重启` 命令或在控制台点重启
+6. **验证权限**：发一条消息，后端日志里看到 `pm=0` 就说明配置成功
+
+<details>
+<summary>权限字段说明（点开看完整说明）</summary>
+
+- `masters` = 主人账号列表（`pm=0`，最高权限）
+- `superusers` = 超级用户账号列表（`pm=1`）
+
+常见 `pm` 等级：`0=主人` / `1=超级用户` / `2=群主` / `3=群管理员` / `6=普通用户`，数字越小权限越高。
+
+部分网页控制台版本会把 `masters` 显示为"管理员列表"——这里的"管理员"指主人账号，不是群管理员（`pm=3`）。
+
+如果不确定账号怎么填，先用该平台给 Bot 发一条消息，从 GsCore 后端日志里复制你的 `user_id` 即可。
+
+</details>
+
+</div>
+
+<div data-pkg="file">
+
+<Callout type="tip" title="">
+
+萌新只需要改 `masters` 字段——把 `["444835641"]` 里的数字换成你自己的账号。其它字段**可以完全不动**。记得数字/字符串加双引号。
+
+</Callout>
+
+```json
+{
+  "HOST": "localhost",
+  "PORT": "8765",
+  "masters": ["444835641"],
+  "superusers": [],
+  "misfire_grace_time": 90,
+  "WS_TOKEN": "",
+  "TRUSTED_IPS": ["127.0.0.1"],
+  "REGISTER_CODE": "4e8cd750c93de5c5",
+  "log": { "level": "INFO" },
+  "command_start": [],
+  "sv": {
+    "Core管理": {
+      "priority": 5,
+      "enabled": true,
+      "pm": 0,
+      "black_list": [],
+      "area": "ALL",
+      "white_list": []
+    }
+  }
+}
+```
+
+<details>
+<summary>字段含义（点开看完整说明）</summary>
+
+| 字段 | 含义 |
+| --- | --- |
+| `HOST` | 本机 Host，一般无需修改 |
+| `PORT` | GsCore 运行端口，一般无需修改 |
+| `masters` | 主人账号列表（`pm=0`），类型 `List[string]` |
+| `superusers` | 超级用户账号列表（`pm=1`），类型 `List[string]` |
+| `misfire_grace_time` | 定时任务超时时间，一般无需修改 |
+| `WS_TOKEN` | 连接 WS 的 Token；不修改则只允许本机 Bot 连接 |
+| `TRUSTED_IPS` | 信任的 IP 列表，类型 `List[string]` |
+| `REGISTER_CODE` | 网页控制台注册码，每个人不同 |
+| `log.level` | 日志等级，一般 `INFO` 即可；反馈 Bug 时改 `DEBUG` |
+| `command_start` | 命令头，类型 `List[string]`；默认 `[]`；填入后所有命令必须带命令头 |
+| `sv` | 插件注册的全部服务列表，均可通过网页控制台修改 |
+
+</details>
+
+</div>
+
+</PkgManager>
+
+## 配置 WsToken（跨机部署安全）<Badge type="warning" text="可选" />
+
+<Callout type="warn" title="">
+
+只有当 **GsCore 和 Bot 端不在同一台机器** 时才需要这一步：
+
+- 同机部署（包括 Bot 和 Core 同时在 Docker 容器内）→ 不需要
+- 跨机部署 → 必须配置 `WS_TOKEN` 或 `TRUSTED_IPS`
+
+</Callout>
+
+<Callout type="info" title="">
+
+**Bot 端的 Token 必须和 GsCore 端的 `WS_TOKEN` 完全一致**。
+
+</Callout>
+
+<CheckItem
+  step={1}
+  title="在 GsCore 端配置"
+  subtitle="任选其一即可"
+>
+
+两种方式等价，选你觉得方便的：
+
+- **网页控制台**：打开 [网页控制台](./web-console) → 修改 `WS_TOKEN` 或 `TRUSTED_IPS`
+- **改配置文件**：编辑 `data/config.json` 的 `WS_TOKEN` 或 `TRUSTED_IPS` 字段
+
+</CheckItem>
+
+<CheckItem
+  step={2}
+  title="在 Bot 端配置相同的 Token"
+  subtitle="选你用的 Bot 平台，看对应那一条"
+>
+
+<PkgManager
+  label="我用的是…"
+  options={[
+    {
+      id: 'nonebot',
+      name: 'NoneBot2',
+      desc: '最常用',
+      recommended: true,
+    },
+    {
+      id: 'hoshino',
+      name: 'HoshinoBot',
+      desc: 'Python 传统',
+    },
+    {
+      id: 'astrbot',
+      name: 'AstrBot',
+      desc: '有 WebUI',
+    },
+    {
+      id: 'other',
+      name: '其他 Bot',
+      desc: '参考适配器文档',
+    },
+  ]}
+>
+
+  <div data-pkg="nonebot">
+    修改 `.env` 文件，**新增** `gsuid_core_ws_token` 字段，填写 GsCore 处的 WsToken：
+
+    ```properties
+    gsuid_core_ws_token=123
+    ```
+  </div>
+
+  <div data-pkg="hoshino">
+    修改 `client.py` 文件，找到第 17 行附近的 `WS_TOKEN` 字段，填写 GsCore 处的 WsToken。
+  </div>
+
+  <div data-pkg="astrbot">
+    直接通过 AstrBot WebUI 修改配置文件，找到 `WS_TOKEN` 字段，填写 GsCore 处的 WsToken。
+  </div>
+
+  <div data-pkg="other">
+    参考你所用 Bot 的适配器文档说明，把 GsCore 的 WsToken 填进去。
+
+    GsCore 侧的连接 URL 格式：
+
+    ```
+    ws://<HOST>:<PORT>/<BOT_ID>?token=<WS_TOKEN>
+    ```
+
+    该接口有限流处理，自写适配器时需要注意。
+  </div>
+
+</PkgManager>
+
+</CheckItem>
+
+<CheckItem
+  step={3}
+  title="重启两端，让 Token 生效"
+>
+
+1. 重启 GsCore
+2. 重启 Bot
+3. 让 Bot 给 GsCore 发一条消息，能收到 `pm=0` 的回执即说明 Token 配置成功
+
+</CheckItem>
+
+### 后续
+
+到这里 GsCore 的安装、启动、配置就全部完成了。下一步可以：
+
+- 🤖 去 [插件市场](../install-plugins/plugins-list) 安装更多插件
+- 🔧 去 [Bot 适配器列表](../link-bots/adapter-list) 接上你的 Bot
+- 📖 翻翻 [进阶文档](../../advance/core-config) 了解更多配置选项
