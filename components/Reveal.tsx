@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { type CSSProperties, type ReactNode, useEffect, useRef } from 'react';
 
 interface RevealProps {
-  children: ReactNode
+  children: ReactNode;
   /** 进入视口后的延迟（毫秒），用于做 stagger 错落动画 */
-  delay?: number
+  delay?: number;
   /** 额外 class，会与 .reveal 合并 */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -22,23 +22,22 @@ interface RevealProps {
  * 动效始终开启——应需求不因 prefers-reduced-motion / 省电模式而关闭。
  */
 export function Reveal({ children, delay = 0, className }: RevealProps) {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = ref.current
-    if (!el)
-      return
+    const el = ref.current;
+    if (!el) return;
 
     const io = new IntersectionObserver(
       ([entry]) => {
         // 双向：进入加类、离开去类。CSS 过渡同一组，进退都丝滑。
-        el.classList.toggle('reveal--in', entry.isIntersecting)
+        el.classList.toggle('reveal--in', entry.isIntersecting);
       },
       { threshold: 0.15, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <div
@@ -48,5 +47,5 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
     >
       {children}
     </div>
-  )
+  );
 }

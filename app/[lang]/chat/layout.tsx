@@ -1,13 +1,13 @@
-import type { ReactNode } from 'react'
-import { notFound } from 'next/navigation'
-import { HomeLayout } from 'fumadocs-ui/layouts/home'
-import { SidebarProvider } from 'fumadocs-ui/layouts/docs/slots/sidebar'
-import { DocsNav } from '@/components/DocsNav'
-import { i18n, type Language } from '@/lib/i18n'
+import { SidebarProvider } from 'fumadocs-ui/layouts/docs/slots/sidebar';
+import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
+import { DocsNav } from '@/components/DocsNav';
+import { i18n, type Language } from '@/lib/i18n';
 
 interface ChatRouteLayoutProps {
-  children: ReactNode
-  params: Promise<{ lang: string }>
+  children: ReactNode;
+  params: Promise<{ lang: string }>;
 }
 
 /**
@@ -23,10 +23,10 @@ export default async function ChatRouteLayout({
   children,
   params,
 }: ChatRouteLayoutProps) {
-  const { lang } = await params
+  const { lang } = await params;
 
   if (!i18n.languages.includes(lang as Language)) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -47,5 +47,5 @@ export default async function ChatRouteLayout({
         {children}
       </HomeLayout>
     </SidebarProvider>
-  )
+  );
 }

@@ -11,9 +11,19 @@
     "build:hub": "node scripts/hub.mjs build",
     "start": "next start",
     "serve": "npx serve out",
-    "lint": "next lint",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "postbuild": "node scripts/postbuild.mjs"
+    "postbuild": "node scripts/postbuild.mjs",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,json,jsonc,css}": "biome check --write --linter-enabled=false --no-errors-on-unmatched"
   },
   "dependencies": {
     "@orama/orama": "^3.1.18",
@@ -30,13 +40,14 @@
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^16.0.0",
+    "lint-staged": "^17.0.8",
     "postcss": "^8.4.29",
+    "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.2.2"
   },

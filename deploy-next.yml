@@ -39,6 +39,12 @@ jobs:
         run: pnpm typecheck
         continue-on-error: true
 
+      # Biome（类 ruff 的一体化格式化 + Lint）。暂设为非阻断（同 typecheck），
+      # 待全量格式化基线落地后可去掉 continue-on-error 改为强制门禁。
+      - name: 🎨 Lint & format check (Biome)
+        run: pnpm check
+        continue-on-error: true
+
       - name: 🚀 Build Next.js application
         env:
           UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}

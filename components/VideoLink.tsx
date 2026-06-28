@@ -1,13 +1,13 @@
-import type { ReactNode } from 'react'
-import { Play } from 'lucide-react'
+import { Play } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 interface VideoLinkProps {
-  bvId: string
-  children?: ReactNode
+  bvId: string;
+  children?: ReactNode;
 }
 
 export function VideoLink({ bvId, children }: VideoLinkProps) {
-  const link = `https://www.bilibili.com/video/${bvId}/`
+  const link = `https://www.bilibili.com/video/${bvId}/`;
   return (
     <div className="my-2">
       <a
@@ -20,5 +20,5 @@ export function VideoLink({ bvId, children }: VideoLinkProps) {
         {children}
       </a>
     </div>
-  )
+  );
 }

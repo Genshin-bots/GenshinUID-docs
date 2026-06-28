@@ -1,4 +1,4 @@
-import type { Language } from '@/lib/i18n'
+import type { Language } from '@/lib/i18n';
 
 /**
  * 顶部导航的图标设计要点：
@@ -23,7 +23,7 @@ export const NAV_ACCENT_LIGHT = {
   azure: 'oklch(0.62 0.14 220)', // 蔚蓝
   teal: 'oklch(0.64 0.13 165)', // 青绿
   violet: 'oklch(0.58 0.18 275)', // 蓝紫
-} as const
+} as const;
 
 export const NAV_ACCENT_DARK = {
   cyan: 'oklch(0.78 0.14 200)',
@@ -32,23 +32,23 @@ export const NAV_ACCENT_DARK = {
   azure: 'oklch(0.78 0.13 220)',
   teal: 'oklch(0.78 0.13 165)',
   violet: 'oklch(0.74 0.16 275)',
-} as const
+} as const;
 
 export interface NavSubItem {
-  label: string
-  href: string
-  external?: boolean
-  icon: string
-  color: string
-  colorDark: string
+  label: string;
+  href: string;
+  external?: boolean;
+  icon: string;
+  color: string;
+  colorDark: string;
 }
 
 export interface NavItem {
-  label: string
-  icon: string
-  color: string
-  colorDark: string
-  items: NavSubItem[]
+  label: string;
+  icon: string;
+  color: string;
+  colorDark: string;
+  items: NavSubItem[];
 }
 
 export function getNavItems(lang: Language): NavItem[] {
@@ -60,15 +60,69 @@ export function getNavItems(lang: Language): NavItem[] {
         color: NAV_ACCENT_LIGHT.azure,
         colorDark: NAV_ACCENT_DARK.azure,
         items: [
-          { label: 'Install Core', href: '/en/docs/started/install-core/', icon: 'Download', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'Docker', href: '/en/docs/started/docker-core/', icon: 'Container', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'Link Bot', href: '/en/docs/link-bots/adapter-list/', icon: 'Bot', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-          { label: 'Install Plugins', href: '/en/docs/install-plugins/install-plugins/', icon: 'PackagePlus', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'Bind Account', href: '/en/docs/advance/bind-device/', icon: 'Smartphone', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'FAQ', href: '/en/docs/faq/', icon: 'MessageCircleQuestion', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'Write Plugin', href: '/en/docs/code-plugins/start/', icon: 'CodeXml', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'Write Adapter', href: '/en/docs/code-adapter/pack/', icon: 'Cable', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'Online Chat', href: '/en/chat/', icon: 'MessageSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+          {
+            label: 'Install Core',
+            href: '/en/docs/started/install-core/',
+            icon: 'Download',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'Docker',
+            href: '/en/docs/started/docker-core/',
+            icon: 'Container',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'Link Bot',
+            href: '/en/docs/link-bots/adapter-list/',
+            icon: 'Bot',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
+          {
+            label: 'Install Plugins',
+            href: '/en/docs/install-plugins/install-plugins/',
+            icon: 'PackagePlus',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'Bind Account',
+            href: '/en/docs/advance/bind-device/',
+            icon: 'Smartphone',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'FAQ',
+            href: '/en/docs/faq/',
+            icon: 'MessageCircleQuestion',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'Write Plugin',
+            href: '/en/docs/code-plugins/start/',
+            icon: 'CodeXml',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'Write Adapter',
+            href: '/en/docs/code-adapter/pack/',
+            icon: 'Cable',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'Online Chat',
+            href: '/en/chat/',
+            icon: 'MessageSquare',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
         ],
       },
       {
@@ -77,21 +131,104 @@ export function getNavItems(lang: Language): NavItem[] {
         color: NAV_ACCENT_LIGHT.purple,
         colorDark: NAV_ACCENT_DARK.purple,
         items: [
-          { label: 'GenshinUID', href: 'https://github.com/KimigaiiWuyi/GenshinUID', external: true, icon: 'Mountain', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'StarRailUID', href: 'https://github.com/baiqwerdvd/StarRailUID', external: true, icon: 'TrainFront', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'WzryUID', href: 'https://github.com/KimigaiiWuyi/WzryUID', external: true, icon: 'Gamepad2', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'ArknightsUID', href: 'https://github.com/baiqwerdvd/ArknightsUID/', external: true, icon: 'Swords', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'BlueArchiveUID', href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID', external: true, icon: 'GraduationCap', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'MajsoulUID', href: 'https://github.com/KimigaiiWuyi/MajsoulUID', external: true, icon: 'Dice5', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-          { label: 'LOLegendsUID', href: 'https://github.com/KimigaiiWuyi/LOLegendsUID', external: true, icon: 'Joystick', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'ZZZeroUID', href: 'https://github.com/ZZZure/ZZZeroUID', external: true, icon: 'Zap', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'CS2UID', href: 'https://github.com/Agnes4m/CS2UID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'DeltaUID', href: 'https://github.com/Agnes4m/DeltaUID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'VAUID', href: 'https://github.com/Agnes4m/VAUID', external: true, icon: 'Music', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'More Plugins', href: '/en/docs/install-plugins/plugins-list/', icon: 'LayoutList', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+          {
+            label: 'GenshinUID',
+            href: 'https://github.com/KimigaiiWuyi/GenshinUID',
+            external: true,
+            icon: 'Mountain',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'StarRailUID',
+            href: 'https://github.com/baiqwerdvd/StarRailUID',
+            external: true,
+            icon: 'TrainFront',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'WzryUID',
+            href: 'https://github.com/KimigaiiWuyi/WzryUID',
+            external: true,
+            icon: 'Gamepad2',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'ArknightsUID',
+            href: 'https://github.com/baiqwerdvd/ArknightsUID/',
+            external: true,
+            icon: 'Swords',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'BlueArchiveUID',
+            href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID',
+            external: true,
+            icon: 'GraduationCap',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'MajsoulUID',
+            href: 'https://github.com/KimigaiiWuyi/MajsoulUID',
+            external: true,
+            icon: 'Dice5',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
+          {
+            label: 'LOLegendsUID',
+            href: 'https://github.com/KimigaiiWuyi/LOLegendsUID',
+            external: true,
+            icon: 'Joystick',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'ZZZeroUID',
+            href: 'https://github.com/ZZZure/ZZZeroUID',
+            external: true,
+            icon: 'Zap',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'CS2UID',
+            href: 'https://github.com/Agnes4m/CS2UID',
+            external: true,
+            icon: 'Crosshair',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'DeltaUID',
+            href: 'https://github.com/Agnes4m/DeltaUID',
+            external: true,
+            icon: 'Crosshair',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'VAUID',
+            href: 'https://github.com/Agnes4m/VAUID',
+            external: true,
+            icon: 'Music',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'More Plugins',
+            href: '/en/docs/install-plugins/plugins-list/',
+            icon: 'LayoutList',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
         ],
       },
-    ]
+    ];
   }
 
   if (lang === 'ja') {
@@ -102,15 +239,69 @@ export function getNavItems(lang: Language): NavItem[] {
         color: NAV_ACCENT_LIGHT.azure,
         colorDark: NAV_ACCENT_DARK.azure,
         items: [
-          { label: 'Coreインストール', href: '/ja/docs/started/install-core/', icon: 'Download', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'Docker', href: '/ja/docs/started/docker-core/', icon: 'Container', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'Bot連携', href: '/ja/docs/link-bots/adapter-list/', icon: 'Bot', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-          { label: 'プラグイン', href: '/ja/docs/install-plugins/install-plugins/', icon: 'PackagePlus', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'アカウント連携', href: '/ja/docs/advance/bind-device/', icon: 'Smartphone', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'よくある質問', href: '/ja/docs/faq/', icon: 'MessageCircleQuestion', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'プラグイン開発', href: '/ja/docs/code-plugins/start/', icon: 'CodeXml', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'アダプタ開発', href: '/ja/docs/code-adapter/pack/', icon: 'Cable', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'オンラインチャット', href: '/ja/chat/', icon: 'MessageSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+          {
+            label: 'Coreインストール',
+            href: '/ja/docs/started/install-core/',
+            icon: 'Download',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'Docker',
+            href: '/ja/docs/started/docker-core/',
+            icon: 'Container',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'Bot連携',
+            href: '/ja/docs/link-bots/adapter-list/',
+            icon: 'Bot',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
+          {
+            label: 'プラグイン',
+            href: '/ja/docs/install-plugins/install-plugins/',
+            icon: 'PackagePlus',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'アカウント連携',
+            href: '/ja/docs/advance/bind-device/',
+            icon: 'Smartphone',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'よくある質問',
+            href: '/ja/docs/faq/',
+            icon: 'MessageCircleQuestion',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'プラグイン開発',
+            href: '/ja/docs/code-plugins/start/',
+            icon: 'CodeXml',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'アダプタ開発',
+            href: '/ja/docs/code-adapter/pack/',
+            icon: 'Cable',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'オンラインチャット',
+            href: '/ja/chat/',
+            icon: 'MessageSquare',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
         ],
       },
       {
@@ -119,21 +310,104 @@ export function getNavItems(lang: Language): NavItem[] {
         color: NAV_ACCENT_LIGHT.purple,
         colorDark: NAV_ACCENT_DARK.purple,
         items: [
-          { label: 'GenshinUID', href: 'https://github.com/KimigaiiWuyi/GenshinUID', external: true, icon: 'Mountain', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'StarRailUID', href: 'https://github.com/baiqwerdvd/StarRailUID', external: true, icon: 'TrainFront', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'WzryUID', href: 'https://github.com/KimigaiiWuyi/WzryUID', external: true, icon: 'Gamepad2', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'ArknightsUID', href: 'https://github.com/baiqwerdvd/ArknightsUID/', external: true, icon: 'Swords', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'BlueArchiveUID', href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID', external: true, icon: 'GraduationCap', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'MajsoulUID', href: 'https://github.com/KimigaiiWuyi/MajsoulUID', external: true, icon: 'Dice5', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-          { label: 'LOLegendsUID', href: 'https://github.com/KimigaiiWuyi/LOLegendsUID', external: true, icon: 'Joystick', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-          { label: 'ZZZeroUID', href: 'https://github.com/ZZZure/ZZZeroUID', external: true, icon: 'Zap', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-          { label: 'CS2UID', href: 'https://github.com/Agnes4m/CS2UID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-          { label: 'DeltaUID', href: 'https://github.com/Agnes4m/DeltaUID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-          { label: 'VAUID', href: 'https://github.com/Agnes4m/VAUID', external: true, icon: 'Music', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-          { label: 'その他のプラグイン', href: '/ja/docs/install-plugins/plugins-list/', icon: 'LayoutList', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+          {
+            label: 'GenshinUID',
+            href: 'https://github.com/KimigaiiWuyi/GenshinUID',
+            external: true,
+            icon: 'Mountain',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'StarRailUID',
+            href: 'https://github.com/baiqwerdvd/StarRailUID',
+            external: true,
+            icon: 'TrainFront',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'WzryUID',
+            href: 'https://github.com/KimigaiiWuyi/WzryUID',
+            external: true,
+            icon: 'Gamepad2',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'ArknightsUID',
+            href: 'https://github.com/baiqwerdvd/ArknightsUID/',
+            external: true,
+            icon: 'Swords',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'BlueArchiveUID',
+            href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID',
+            external: true,
+            icon: 'GraduationCap',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'MajsoulUID',
+            href: 'https://github.com/KimigaiiWuyi/MajsoulUID',
+            external: true,
+            icon: 'Dice5',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
+          {
+            label: 'LOLegendsUID',
+            href: 'https://github.com/KimigaiiWuyi/LOLegendsUID',
+            external: true,
+            icon: 'Joystick',
+            color: NAV_ACCENT_LIGHT.azure,
+            colorDark: NAV_ACCENT_DARK.azure,
+          },
+          {
+            label: 'ZZZeroUID',
+            href: 'https://github.com/ZZZure/ZZZeroUID',
+            external: true,
+            icon: 'Zap',
+            color: NAV_ACCENT_LIGHT.teal,
+            colorDark: NAV_ACCENT_DARK.teal,
+          },
+          {
+            label: 'CS2UID',
+            href: 'https://github.com/Agnes4m/CS2UID',
+            external: true,
+            icon: 'Crosshair',
+            color: NAV_ACCENT_LIGHT.violet,
+            colorDark: NAV_ACCENT_DARK.violet,
+          },
+          {
+            label: 'DeltaUID',
+            href: 'https://github.com/Agnes4m/DeltaUID',
+            external: true,
+            icon: 'Crosshair',
+            color: NAV_ACCENT_LIGHT.cyan,
+            colorDark: NAV_ACCENT_DARK.cyan,
+          },
+          {
+            label: 'VAUID',
+            href: 'https://github.com/Agnes4m/VAUID',
+            external: true,
+            icon: 'Music',
+            color: NAV_ACCENT_LIGHT.indigo,
+            colorDark: NAV_ACCENT_DARK.indigo,
+          },
+          {
+            label: 'その他のプラグイン',
+            href: '/ja/docs/install-plugins/plugins-list/',
+            icon: 'LayoutList',
+            color: NAV_ACCENT_LIGHT.purple,
+            colorDark: NAV_ACCENT_DARK.purple,
+          },
         ],
       },
-    ]
+    ];
   }
 
   // zh-CN
@@ -144,15 +418,69 @@ export function getNavItems(lang: Language): NavItem[] {
       color: NAV_ACCENT_LIGHT.azure,
       colorDark: NAV_ACCENT_DARK.azure,
       items: [
-        { label: '安装Core', href: '/zh-CN/docs/started/install-core/', icon: 'Download', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-        { label: '使用Docker运行Core', href: '/zh-CN/docs/started/docker-core/', icon: 'Container', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-        { label: '链接Bot', href: '/zh-CN/docs/link-bots/adapter-list/', icon: 'Bot', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-        { label: '安装插件', href: '/zh-CN/docs/install-plugins/install-plugins/', icon: 'PackagePlus', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-        { label: '绑定账号', href: '/zh-CN/docs/advance/bind-device/', icon: 'Smartphone', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-        { label: '常见问题', href: '/zh-CN/docs/faq/', icon: 'MessageCircleQuestion', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-        { label: '编写插件', href: '/zh-CN/docs/code-plugins/start/', icon: 'CodeXml', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-        { label: '编写适配器', href: '/zh-CN/docs/code-adapter/pack/', icon: 'Cable', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-        { label: '在线聊天室', href: '/zh-CN/chat/', icon: 'MessageSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+        {
+          label: '安装Core',
+          href: '/zh-CN/docs/started/install-core/',
+          icon: 'Download',
+          color: NAV_ACCENT_LIGHT.cyan,
+          colorDark: NAV_ACCENT_DARK.cyan,
+        },
+        {
+          label: '使用Docker运行Core',
+          href: '/zh-CN/docs/started/docker-core/',
+          icon: 'Container',
+          color: NAV_ACCENT_LIGHT.indigo,
+          colorDark: NAV_ACCENT_DARK.indigo,
+        },
+        {
+          label: '链接Bot',
+          href: '/zh-CN/docs/link-bots/adapter-list/',
+          icon: 'Bot',
+          color: NAV_ACCENT_LIGHT.purple,
+          colorDark: NAV_ACCENT_DARK.purple,
+        },
+        {
+          label: '安装插件',
+          href: '/zh-CN/docs/install-plugins/install-plugins/',
+          icon: 'PackagePlus',
+          color: NAV_ACCENT_LIGHT.azure,
+          colorDark: NAV_ACCENT_DARK.azure,
+        },
+        {
+          label: '绑定账号',
+          href: '/zh-CN/docs/advance/bind-device/',
+          icon: 'Smartphone',
+          color: NAV_ACCENT_LIGHT.teal,
+          colorDark: NAV_ACCENT_DARK.teal,
+        },
+        {
+          label: '常见问题',
+          href: '/zh-CN/docs/faq/',
+          icon: 'MessageCircleQuestion',
+          color: NAV_ACCENT_LIGHT.violet,
+          colorDark: NAV_ACCENT_DARK.violet,
+        },
+        {
+          label: '编写插件',
+          href: '/zh-CN/docs/code-plugins/start/',
+          icon: 'CodeXml',
+          color: NAV_ACCENT_LIGHT.cyan,
+          colorDark: NAV_ACCENT_DARK.cyan,
+        },
+        {
+          label: '编写适配器',
+          href: '/zh-CN/docs/code-adapter/pack/',
+          icon: 'Cable',
+          color: NAV_ACCENT_LIGHT.indigo,
+          colorDark: NAV_ACCENT_DARK.indigo,
+        },
+        {
+          label: '在线聊天室',
+          href: '/zh-CN/chat/',
+          icon: 'MessageSquare',
+          color: NAV_ACCENT_LIGHT.purple,
+          colorDark: NAV_ACCENT_DARK.purple,
+        },
       ],
     },
     {
@@ -161,49 +489,198 @@ export function getNavItems(lang: Language): NavItem[] {
       color: NAV_ACCENT_LIGHT.purple,
       colorDark: NAV_ACCENT_DARK.purple,
       items: [
-        { label: 'GenshinUID', href: 'https://github.com/KimigaiiWuyi/GenshinUID', external: true, icon: 'Mountain', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-        { label: 'StarRailUID', href: 'https://github.com/baiqwerdvd/StarRailUID', external: true, icon: 'TrainFront', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-        { label: 'WzryUID', href: 'https://github.com/KimigaiiWuyi/WzryUID', external: true, icon: 'Gamepad2', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-        { label: 'ArknightsUID', href: 'https://github.com/baiqwerdvd/ArknightsUID/', external: true, icon: 'Swords', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-        { label: 'BlueArchiveUID', href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID', external: true, icon: 'GraduationCap', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-        { label: 'MajsoulUID', href: 'https://github.com/KimigaiiWuyi/MajsoulUID', external: true, icon: 'Dice5', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-        { label: 'LOLegendsUID', href: 'https://github.com/KimigaiiWuyi/LOLegendsUID', external: true, icon: 'Joystick', color: NAV_ACCENT_LIGHT.azure, colorDark: NAV_ACCENT_DARK.azure },
-        { label: 'ZZZeroUID', href: 'https://github.com/ZZZure/ZZZeroUID', external: true, icon: 'Zap', color: NAV_ACCENT_LIGHT.teal, colorDark: NAV_ACCENT_DARK.teal },
-        { label: 'CS2UID', href: 'https://github.com/Agnes4m/CS2UID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.violet, colorDark: NAV_ACCENT_DARK.violet },
-        { label: 'DeltaUID', href: 'https://github.com/Agnes4m/DeltaUID', external: true, icon: 'Crosshair', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-        { label: 'VAUID', href: 'https://github.com/Agnes4m/VAUID', external: true, icon: 'Music', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-        { label: '更多插件', href: '/zh-CN/docs/install-plugins/plugins-list/', icon: 'LayoutList', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
+        {
+          label: 'GenshinUID',
+          href: 'https://github.com/KimigaiiWuyi/GenshinUID',
+          external: true,
+          icon: 'Mountain',
+          color: NAV_ACCENT_LIGHT.azure,
+          colorDark: NAV_ACCENT_DARK.azure,
+        },
+        {
+          label: 'StarRailUID',
+          href: 'https://github.com/baiqwerdvd/StarRailUID',
+          external: true,
+          icon: 'TrainFront',
+          color: NAV_ACCENT_LIGHT.teal,
+          colorDark: NAV_ACCENT_DARK.teal,
+        },
+        {
+          label: 'WzryUID',
+          href: 'https://github.com/KimigaiiWuyi/WzryUID',
+          external: true,
+          icon: 'Gamepad2',
+          color: NAV_ACCENT_LIGHT.violet,
+          colorDark: NAV_ACCENT_DARK.violet,
+        },
+        {
+          label: 'ArknightsUID',
+          href: 'https://github.com/baiqwerdvd/ArknightsUID/',
+          external: true,
+          icon: 'Swords',
+          color: NAV_ACCENT_LIGHT.cyan,
+          colorDark: NAV_ACCENT_DARK.cyan,
+        },
+        {
+          label: 'BlueArchiveUID',
+          href: 'https://github.com/KimigaiiWuyi/BlueArchiveUID',
+          external: true,
+          icon: 'GraduationCap',
+          color: NAV_ACCENT_LIGHT.indigo,
+          colorDark: NAV_ACCENT_DARK.indigo,
+        },
+        {
+          label: 'MajsoulUID',
+          href: 'https://github.com/KimigaiiWuyi/MajsoulUID',
+          external: true,
+          icon: 'Dice5',
+          color: NAV_ACCENT_LIGHT.purple,
+          colorDark: NAV_ACCENT_DARK.purple,
+        },
+        {
+          label: 'LOLegendsUID',
+          href: 'https://github.com/KimigaiiWuyi/LOLegendsUID',
+          external: true,
+          icon: 'Joystick',
+          color: NAV_ACCENT_LIGHT.azure,
+          colorDark: NAV_ACCENT_DARK.azure,
+        },
+        {
+          label: 'ZZZeroUID',
+          href: 'https://github.com/ZZZure/ZZZeroUID',
+          external: true,
+          icon: 'Zap',
+          color: NAV_ACCENT_LIGHT.teal,
+          colorDark: NAV_ACCENT_DARK.teal,
+        },
+        {
+          label: 'CS2UID',
+          href: 'https://github.com/Agnes4m/CS2UID',
+          external: true,
+          icon: 'Crosshair',
+          color: NAV_ACCENT_LIGHT.violet,
+          colorDark: NAV_ACCENT_DARK.violet,
+        },
+        {
+          label: 'DeltaUID',
+          href: 'https://github.com/Agnes4m/DeltaUID',
+          external: true,
+          icon: 'Crosshair',
+          color: NAV_ACCENT_LIGHT.cyan,
+          colorDark: NAV_ACCENT_DARK.cyan,
+        },
+        {
+          label: 'VAUID',
+          href: 'https://github.com/Agnes4m/VAUID',
+          external: true,
+          icon: 'Music',
+          color: NAV_ACCENT_LIGHT.indigo,
+          colorDark: NAV_ACCENT_DARK.indigo,
+        },
+        {
+          label: '更多插件',
+          href: '/zh-CN/docs/install-plugins/plugins-list/',
+          icon: 'LayoutList',
+          color: NAV_ACCENT_LIGHT.purple,
+          colorDark: NAV_ACCENT_DARK.purple,
+        },
       ],
     },
-  ]
+  ];
 }
 
-export function getVersionNavItems(version: string, lang: Language): NavSubItem[] {
+export function getVersionNavItems(
+  version: string,
+  lang: Language,
+): NavSubItem[] {
   if (lang === 'en') {
     return [
-      { label: 'Docs Repo', href: 'https://github.com/Genshin-bots/GenshinUID-docs', external: true, icon: 'BookOpen', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-      { label: 'GsCore Repo', href: 'https://github.com/Genshin-bots/gsuid_core', external: true, icon: 'Box', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-      { label: 'QQ Group: Mihomo Group', href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476', external: true, icon: 'MessagesSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-    ]
+      {
+        label: 'Docs Repo',
+        href: 'https://github.com/Genshin-bots/GenshinUID-docs',
+        external: true,
+        icon: 'BookOpen',
+        color: NAV_ACCENT_LIGHT.cyan,
+        colorDark: NAV_ACCENT_DARK.cyan,
+      },
+      {
+        label: 'GsCore Repo',
+        href: 'https://github.com/Genshin-bots/gsuid_core',
+        external: true,
+        icon: 'Box',
+        color: NAV_ACCENT_LIGHT.indigo,
+        colorDark: NAV_ACCENT_DARK.indigo,
+      },
+      {
+        label: 'QQ Group: Mihomo Group',
+        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476',
+        external: true,
+        icon: 'MessagesSquare',
+        color: NAV_ACCENT_LIGHT.purple,
+        colorDark: NAV_ACCENT_DARK.purple,
+      },
+    ];
   }
   if (lang === 'ja') {
     return [
-      { label: 'ドキュメント', href: 'https://github.com/Genshin-bots/GenshinUID-docs', external: true, icon: 'BookOpen', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-      { label: 'GsCore', href: 'https://github.com/Genshin-bots/gsuid_core', external: true, icon: 'Box', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-      { label: 'QQグループ: Mihomo Group', href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476', external: true, icon: 'MessagesSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-    ]
+      {
+        label: 'ドキュメント',
+        href: 'https://github.com/Genshin-bots/GenshinUID-docs',
+        external: true,
+        icon: 'BookOpen',
+        color: NAV_ACCENT_LIGHT.cyan,
+        colorDark: NAV_ACCENT_DARK.cyan,
+      },
+      {
+        label: 'GsCore',
+        href: 'https://github.com/Genshin-bots/gsuid_core',
+        external: true,
+        icon: 'Box',
+        color: NAV_ACCENT_LIGHT.indigo,
+        colorDark: NAV_ACCENT_DARK.indigo,
+      },
+      {
+        label: 'QQグループ: Mihomo Group',
+        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476',
+        external: true,
+        icon: 'MessagesSquare',
+        color: NAV_ACCENT_LIGHT.purple,
+        colorDark: NAV_ACCENT_DARK.purple,
+      },
+    ];
   }
   return [
-    { label: '文档地址', href: 'https://github.com/Genshin-bots/GenshinUID-docs', external: true, icon: 'BookOpen', color: NAV_ACCENT_LIGHT.cyan, colorDark: NAV_ACCENT_DARK.cyan },
-    { label: 'GsCore地址', href: 'https://github.com/Genshin-bots/gsuid_core', external: true, icon: 'Box', color: NAV_ACCENT_LIGHT.indigo, colorDark: NAV_ACCENT_DARK.indigo },
-    { label: 'QQ群: Mihomo Group', href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476', external: true, icon: 'MessagesSquare', color: NAV_ACCENT_LIGHT.purple, colorDark: NAV_ACCENT_DARK.purple },
-  ]
+    {
+      label: '文档地址',
+      href: 'https://github.com/Genshin-bots/GenshinUID-docs',
+      external: true,
+      icon: 'BookOpen',
+      color: NAV_ACCENT_LIGHT.cyan,
+      colorDark: NAV_ACCENT_DARK.cyan,
+    },
+    {
+      label: 'GsCore地址',
+      href: 'https://github.com/Genshin-bots/gsuid_core',
+      external: true,
+      icon: 'Box',
+      color: NAV_ACCENT_LIGHT.indigo,
+      colorDark: NAV_ACCENT_DARK.indigo,
+    },
+    {
+      label: 'QQ群: Mihomo Group',
+      href: 'https://qm.qq.com/cgi-bin/qm/qr?k=d1oNQ1wePPbCkhPbP3vZN-DsXDD0hG61&authKey=0PdxKz%2BMbWgy7kwcF9OB%2B%2BrgOWKuREFG6tgJuWpr%2BzN8gtBTlGR6wDbk6N0W3bL1&noverify=0&group_code=929275476',
+      external: true,
+      icon: 'MessagesSquare',
+      color: NAV_ACCENT_LIGHT.purple,
+      colorDark: NAV_ACCENT_DARK.purple,
+    },
+  ];
 }
 
 export interface LanguageOption {
-  code: Language
-  name: string
-  href: (pathname: string) => string
+  code: Language;
+  name: string;
+  href: (pathname: string) => string;
 }
 
 export function getLanguageOptions(): LanguageOption[] {
@@ -211,24 +688,24 @@ export function getLanguageOptions(): LanguageOption[] {
     {
       code: 'zh-CN',
       name: '简体中文',
-      href: pathname => {
+      href: (pathname) => {
         // 替换 /zh-CN/、/en/、/ja/ 为 /zh-CN/
-        return pathname.replace(/^\/(zh-CN|en|ja)/, '/zh-CN') || '/zh-CN/'
+        return pathname.replace(/^\/(zh-CN|en|ja)/, '/zh-CN') || '/zh-CN/';
       },
     },
     {
       code: 'en',
       name: 'English',
-      href: pathname => {
-        return pathname.replace(/^\/(zh-CN|en|ja)/, '/en') || '/en/'
+      href: (pathname) => {
+        return pathname.replace(/^\/(zh-CN|en|ja)/, '/en') || '/en/';
       },
     },
     {
       code: 'ja',
       name: '日本語',
-      href: pathname => {
-        return pathname.replace(/^\/(zh-CN|en|ja)/, '/ja') || '/ja/'
+      href: (pathname) => {
+        return pathname.replace(/^\/(zh-CN|en|ja)/, '/ja') || '/ja/';
       },
     },
-  ]
+  ];
 }

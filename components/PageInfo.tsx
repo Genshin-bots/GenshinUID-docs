@@ -1,8 +1,8 @@
-import { FileText, Clock } from 'lucide-react'
+import { Clock, FileText } from 'lucide-react';
 
 interface PageInfoProps {
-  readTime: string
-  words: string
+  readTime: string;
+  words: string;
 }
 
 export function PageInfo({ readTime, words }: PageInfoProps) {
@@ -19,5 +19,5 @@ export function PageInfo({ readTime, words }: PageInfoProps) {
         </div>
       </section>
     </div>
-  )
+  );
 }

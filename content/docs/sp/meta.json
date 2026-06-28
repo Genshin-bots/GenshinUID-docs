@@ -1,8 +1,5 @@
 {
   "title": "特殊功能",
   "icon": "Sparkles",
-  "pages": [
-    "chat",
-    "..."
-  ]
+  "pages": ["chat", "..."]
 }

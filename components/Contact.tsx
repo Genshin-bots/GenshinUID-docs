@@ -8,5 +8,5 @@ export function Contact() {
         <p>🐧Mihomo Bot Group (QQ群)：929275476</p>
       </div>
     </>
-  )
+  );
 }

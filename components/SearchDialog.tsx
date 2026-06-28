@@ -1,11 +1,8 @@
-'use client'
+'use client';
 
-import { useMemo } from 'react'
-import { create } from '@orama/orama'
-import { useDocsSearch } from 'fumadocs-core/search/client'
-import { oramaStaticClient } from 'fumadocs-core/search/client/orama-static'
-import { useI18n } from 'fumadocs-ui/contexts/i18n'
-import type { SharedProps } from 'fumadocs-ui/contexts/search'
+import { create } from '@orama/orama';
+import { useDocsSearch } from 'fumadocs-core/search/client';
+import { oramaStaticClient } from 'fumadocs-core/search/client/orama-static';
 import {
   SearchDialog,
   SearchDialogClose,
@@ -15,7 +12,10 @@ import {
   SearchDialogInput,
   SearchDialogList,
   SearchDialogOverlay,
-} from 'fumadocs-ui/components/dialog/search'
+} from 'fumadocs-ui/components/dialog/search';
+import { useI18n } from 'fumadocs-ui/contexts/i18n';
+import type { SharedProps } from 'fumadocs-ui/contexts/search';
+import { useMemo } from 'react';
 
 /**
  * 为 CJK 构建查询用的 Orama 实例：分词器必须与服务端建索引时一致
@@ -23,20 +23,20 @@ import {
  */
 async function initOrama(locale?: string) {
   if (locale === 'zh-CN') {
-    const { createTokenizer } = await import('@orama/tokenizers/mandarin')
+    const { createTokenizer } = await import('@orama/tokenizers/mandarin');
     return create({
       schema: { _: 'string' },
       components: { tokenizer: createTokenizer() },
-    })
+    });
   }
   if (locale === 'ja') {
-    const { createTokenizer } = await import('@orama/tokenizers/japanese')
+    const { createTokenizer } = await import('@orama/tokenizers/japanese');
     return create({
       schema: { _: 'string' },
       components: { tokenizer: createTokenizer() },
-    })
+    });
   }
-  return create({ schema: { _: 'string' }, language: 'english' })
+  return create({ schema: { _: 'string' }, language: 'english' });
 }
 
 /**
@@ -44,7 +44,7 @@ async function initOrama(locale?: string) {
  * 因此按官方推荐自行重建（https://fumadocs.dev/docs/search/orama）。
  */
 export default function CustomSearchDialog(props: SharedProps) {
-  const { locale } = useI18n()
+  const { locale } = useI18n();
 
   const client = useMemo(
     () =>
@@ -54,9 +54,9 @@ export default function CustomSearchDialog(props: SharedProps) {
         initOrama,
       }),
     [locale],
-  )
+  );
 
-  const { search, setSearch, query } = useDocsSearch({ client })
+  const { search, setSearch, query } = useDocsSearch({ client });
 
   return (
     <SearchDialog
@@ -75,5 +75,5 @@ export default function CustomSearchDialog(props: SharedProps) {
         <SearchDialogList items={query.data !== 'empty' ? query.data : null} />
       </SearchDialogContent>
     </SearchDialog>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { ChatInterface } from './ChatInterface'
+import { ChatInterface } from './ChatInterface';
 
 /**
  * /[lang]/chat 独立全页聊天外壳
@@ -17,5 +17,5 @@ export function ChatStandalone() {
     <div className="fd-chat-page-container fd-chat-page-container--standalone not-prose">
       <ChatInterface />
     </div>
-  )
+  );
 }

@@ -22,5 +22,5 @@ export function CopyRight() {
         </a>
       </p>
     </div>
-  )
+  );
 }

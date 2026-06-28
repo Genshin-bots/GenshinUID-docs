@@ -1,17 +1,17 @@
-import defaultMdxComponents from 'fumadocs-ui/mdx'
-import { Callout } from 'fumadocs-ui/components/callout'
-import { Badge } from '@/components/Badge'
-import { Card } from '@/components/Card'
-import { NavCard } from '@/components/NavCard'
-import { DataPanel } from '@/components/DataPanel'
-import { PageInfo } from '@/components/PageInfo'
-import { VideoLink } from '@/components/VideoLink'
-import { CopyRight } from '@/components/CopyRight'
-import { Contact } from '@/components/Contact'
-import { ChatLayout } from '@/components/chat/ChatLayout'
-import { ChatPanel, ChatMessage } from '@/components/ChatPanel'
-import { FaqList } from '@/components/FaqList'
-import type { MDXComponents } from 'mdx/types'
+import { Callout } from 'fumadocs-ui/components/callout';
+import defaultMdxComponents from 'fumadocs-ui/mdx';
+import type { MDXComponents } from 'mdx/types';
+import { Badge } from '@/components/Badge';
+import { Card } from '@/components/Card';
+import { ChatMessage, ChatPanel } from '@/components/ChatPanel';
+import { Contact } from '@/components/Contact';
+import { CopyRight } from '@/components/CopyRight';
+import { ChatLayout } from '@/components/chat/ChatLayout';
+import { DataPanel } from '@/components/DataPanel';
+import { FaqList } from '@/components/FaqList';
+import { NavCard } from '@/components/NavCard';
+import { PageInfo } from '@/components/PageInfo';
+import { VideoLink } from '@/components/VideoLink';
 
 /**
  * MDX 组件映射：将自定义组件注册到 MDX
@@ -37,6 +37,5 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     FaqList,
     Callout,
     ...components,
-  }
+  };
 }
-

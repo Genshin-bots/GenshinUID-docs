@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import type { ReactNode } from 'react'
-import { RootProvider } from 'fumadocs-ui/provider/next'
-import { i18nUI } from '@/lib/layout.shared'
-import type { Language } from '@/lib/i18n'
-import CustomSearchDialog from '@/components/SearchDialog'
+import { RootProvider } from 'fumadocs-ui/provider/next';
+import type { ReactNode } from 'react';
+import CustomSearchDialog from '@/components/SearchDialog';
+import type { Language } from '@/lib/i18n';
+import { i18nUI } from '@/lib/layout.shared';
 
 interface ProvidersProps {
-  lang: Language
-  children: ReactNode
+  lang: Language;
+  children: ReactNode;
 }
 
 /**
@@ -24,5 +24,5 @@ export function Providers({ lang, children }: ProvidersProps) {
     >
       {children}
     </RootProvider>
-  )
+  );
 }

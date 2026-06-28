@@ -11,5 +11,5 @@ export function TitleArcs() {
       <span className="fd-title-arcs__orb fd-title-arcs__orb--2" />
       <span className="fd-title-arcs__orb fd-title-arcs__orb--3" />
     </span>
-  )
+  );
 }

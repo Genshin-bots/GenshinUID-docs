@@ -1,35 +1,40 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import { Copy, RotateCw, MessageSquareText } from 'lucide-react'
-import type { ChatMessage, NodeContent } from './types'
+import { Copy, MessageSquareText, RotateCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { ChatMessage, NodeContent } from './types';
 
 interface ChatMessageItemProps {
-  message: ChatMessage
-  onResend: (text: string) => void
-  onButtonClick: (button: { text: string; data: string; style?: number }) => void
-  onImageClick: (src: string) => void
-  onCopy: (payload: { text?: string; html?: string }) => void
-  onNodeClick: (nodeData: NodeContent[]) => void
+  message: ChatMessage;
+  onResend: (text: string) => void;
+  onButtonClick: (button: {
+    text: string;
+    data: string;
+    style?: number;
+  }) => void;
+  onImageClick: (src: string) => void;
+  onCopy: (payload: { text?: string; html?: string }) => void;
+  onNodeClick: (nodeData: NodeContent[]) => void;
 }
 
 const avatarMap: Record<string, string> = {
-  'Wuyi无疑': 'https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png',
-  'GsCore': 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png',
-}
+  Wuyi无疑: 'https://s2.loli.net/2023/10/05/GHjJNWBP4nezgIU.png',
+  GsCore: 'https://s2.loli.net/2023/03/25/bareSdYcsmRPOyZ.png',
+};
 
 function getNodePreview(nodeData: NodeContent[]): string {
-  if (!nodeData || nodeData.length === 0) return '[聊天记录]'
-  const count = nodeData.length
-  const first = nodeData[0]
-  let preview = `${first.username}: `
-  const firstMsg = first.messages?.[0]
+  if (!nodeData || nodeData.length === 0) return '[聊天记录]';
+  const count = nodeData.length;
+  const first = nodeData[0];
+  let preview = `${first.username}: `;
+  const firstMsg = first.messages?.[0];
   if (firstMsg) {
-    const content = firstMsg.data?.substring(0, 20) || '[消息]'
-    preview += content + (firstMsg.data && firstMsg.data.length > 20 ? '…' : '')
+    const content = firstMsg.data?.substring(0, 20) || '[消息]';
+    preview +=
+      content + (firstMsg.data && firstMsg.data.length > 20 ? '…' : '');
   }
-  if (count > 1) preview += ` 等 ${count} 条消息`
-  return preview
+  if (count > 1) preview += ` 等 ${count} 条消息`;
+  return preview;
 }
 
 export function ChatMessageItem({
@@ -40,37 +45,44 @@ export function ChatMessageItem({
   onCopy,
   onNodeClick,
 }: ChatMessageItemProps) {
-  const [shown, setShown] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [shown, setShown] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            setShown(true)
-            observer.disconnect()
+            setShown(true);
+            observer.disconnect();
           }
         }
       },
       { threshold: 0.1 },
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   if (message.type === 'system') {
     return (
       <div className="fd-system-message">
         <span className="fd-system-pill">{message.text}</span>
       </div>
-    )
+    );
   }
 
   if (message.type === 'node') {
     return (
-      <div ref={ref} className={`fd-message-item fd-message-node ${shown ? 'shown' : ''}`}>
-        <img src={message.sender?.avatar} alt="avatar" className="fd-msg-avatar" />
+      <div
+        ref={ref}
+        className={`fd-message-item fd-message-node ${shown ? 'shown' : ''}`}
+      >
+        <img
+          src={message.sender?.avatar}
+          alt="avatar"
+          className="fd-msg-avatar"
+        />
         <div className="fd-msg-content">
           <div className="fd-sender-name">{message.sender?.nickname}</div>
           <button
@@ -82,19 +94,25 @@ export function ChatMessageItem({
               <span className="fd-node-icon">
                 <MessageSquareText size={16} strokeWidth={2} />
               </span>
-              <span className="fd-node-text">{getNodePreview(message.nodeData || [])}</span>
+              <span className="fd-node-text">
+                {getNodePreview(message.nodeData || [])}
+              </span>
             </div>
             <div className="fd-node-hint">点击查看详情</div>
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  const avatar = message.sender?.avatar || avatarMap[message.sender?.nickname || ''] || ''
+  const avatar =
+    message.sender?.avatar || avatarMap[message.sender?.nickname || ''] || '';
 
   return (
-    <div ref={ref} className={`fd-message-item fd-message-${message.type} ${shown ? 'shown' : ''}`}>
+    <div
+      ref={ref}
+      className={`fd-message-item fd-message-${message.type} ${shown ? 'shown' : ''}`}
+    >
       <img src={avatar} alt="avatar" className="fd-msg-avatar" />
       <div className="fd-msg-content">
         <div className="fd-sender-name">{message.sender?.nickname}</div>
@@ -102,9 +120,12 @@ export function ChatMessageItem({
           <div
             className="fd-msg-bubble"
             onClick={(e) => {
-              const target = e.target as HTMLElement
-              if (target.tagName === 'IMG' && target.classList.contains('chat-image')) {
-                onImageClick((target as HTMLImageElement).src)
+              const target = e.target as HTMLElement;
+              if (
+                target.tagName === 'IMG' &&
+                target.classList.contains('chat-image')
+              ) {
+                onImageClick((target as HTMLImageElement).src);
               }
             }}
             dangerouslySetInnerHTML={{ __html: message.html }}
@@ -148,5 +169,5 @@ export function ChatMessageItem({
         </div>
       )}
     </div>
-  )
+  );
 }

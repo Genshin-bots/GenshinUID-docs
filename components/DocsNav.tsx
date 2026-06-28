@@ -1,30 +1,34 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useSearchContext } from 'fumadocs-ui/contexts/search';
+import { useSidebar } from 'fumadocs-ui/layouts/docs/slots/sidebar';
+import * as LucideIcons from 'lucide-react';
 import {
-  Languages,
-  Moon,
-  Sun,
-  Search,
-  Github,
   ChevronDown,
-  Menu,
-  Package,
+  Github,
+  Languages,
   type LucideIcon,
-} from 'lucide-react'
-import * as LucideIcons from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { useSearchContext } from 'fumadocs-ui/contexts/search'
-import { useSidebar } from 'fumadocs-ui/layouts/docs/slots/sidebar'
-import type { Language } from '@/lib/i18n'
-import { cn } from '@/lib/utils'
-import { getNavItems, getVersionNavItems, getLanguageOptions } from '@/lib/nav-config'
-import packageJson from '@/package.json'
+  Menu,
+  Moon,
+  Package,
+  Search,
+  Sun,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import type { Language } from '@/lib/i18n';
+import {
+  getLanguageOptions,
+  getNavItems,
+  getVersionNavItems,
+} from '@/lib/nav-config';
+import { cn } from '@/lib/utils';
+import packageJson from '@/package.json';
 
 interface DocsNavProps {
-  lang: Language
+  lang: Language;
 }
 
 /**
@@ -42,52 +46,54 @@ interface DocsNavProps {
  *   校验过再写进 nav-config（坑 #19）。
  */
 export function DocsNav({ lang }: DocsNavProps) {
-  const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [openMenu, setOpenMenu] = useState<string | null>(null)
-  const [mounted, setMounted] = useState(false)
-  const navRef = useRef<HTMLDivElement>(null)
-  const { setOpenSearch } = useSearchContext()
-  const { setOpen: setSidebarOpen } = useSidebar()
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
+  const { setOpenSearch } = useSearchContext();
+  const { setOpen: setSidebarOpen } = useSidebar();
 
   // Hydration safety
-  useEffect(() => setMounted(true), [])
+  useEffect(() => setMounted(true), []);
 
   // Click outside closes menus
   useEffect(() => {
-    if (!openMenu) return
+    if (!openMenu) return;
     const onDown = (e: MouseEvent) => {
-      if (!navRef.current?.contains(e.target as Node)) setOpenMenu(null)
-    }
-    document.addEventListener('mousedown', onDown)
-    return () => document.removeEventListener('mousedown', onDown)
-  }, [openMenu])
+      if (!navRef.current?.contains(e.target as Node)) setOpenMenu(null);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [openMenu]);
 
-  const version = packageJson.version
-  const navItems = getNavItems(lang)
-  const versionItems = getVersionNavItems(version, lang)
-  const languageOptions = getLanguageOptions()
-  const isDark = mounted && theme === 'dark'
+  const version = packageJson.version;
+  const navItems = getNavItems(lang);
+  const versionItems = getVersionNavItems(version, lang);
+  const languageOptions = getLanguageOptions();
+  const isDark = mounted && theme === 'dark';
 
-  const toggle = (key: string) => setOpenMenu(openMenu === key ? null : key)
-  const close = () => setOpenMenu(null)
+  const toggle = (key: string) => setOpenMenu(openMenu === key ? null : key);
+  const close = () => setOpenMenu(null);
 
   /**
    * 根据字符串名取 lucide icon。空 / 找不到时返回 null，调用方自行 fallback。
    * 字符串来源是 `nav-config.ts` 的 `icon` 字段，已在 SKILL 文档要求做存在性校验。
    */
   const getIcon = (name?: string): LucideIcon | null => {
-    if (!name) return null
-    const Icon = (LucideIcons as unknown as Record<string, LucideIcon | undefined>)[name]
-    return Icon ?? null
-  }
+    if (!name) return null;
+    const Icon = (
+      LucideIcons as unknown as Record<string, LucideIcon | undefined>
+    )[name];
+    return Icon ?? null;
+  };
 
   /**
    * 浅 / 暗色各一个 oklch 颜色。inline style 直接写进 svg 的 `color` 属性，
    * 优先级高于任何 utility class。
    */
   const pickColor = (color: string, colorDark: string) =>
-    isDark ? colorDark : color
+    isDark ? colorDark : color;
 
   return (
     <header className="glass-header">
@@ -115,13 +121,15 @@ export function DocsNav({ lang }: DocsNavProps) {
             alt=""
             className="h-7 w-7 shrink-0 transition-transform group-hover:scale-105"
           />
-          <span className="hidden sm:inline-block tracking-tight">早柚核心Docs</span>
+          <span className="hidden sm:inline-block tracking-tight">
+            早柚核心Docs
+          </span>
         </Link>
 
         {/* Nav Items */}
         <nav className="hidden md:flex flex-1 items-center justify-center gap-0.5 min-w-0">
           {navItems.map((item) => {
-            const Icon = getIcon(item.icon)
+            const Icon = getIcon(item.icon);
             return (
               <div key={item.label} className="relative">
                 <button
@@ -130,7 +138,8 @@ export function DocsNav({ lang }: DocsNavProps) {
                   className={cn(
                     'nav-trigger flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors',
                     'text-fd-muted-foreground hover:text-fd-foreground hover:bg-fd-accent',
-                    openMenu === item.label && 'bg-fd-accent text-fd-foreground',
+                    openMenu === item.label &&
+                      'bg-fd-accent text-fd-foreground',
                   )}
                 >
                   {Icon && (
@@ -157,7 +166,7 @@ export function DocsNav({ lang }: DocsNavProps) {
                   // 子项 stagger 由 `.nav-link` 的 navLinkEnter 动画 + `--i` 注入驱动。
                   <div className="glass-popover absolute left-0 top-full mt-1.5 min-w-[240px] p-1.5 animate-in fade-in slide-in-from-top-3">
                     {item.items.map((sub, i) => {
-                      const SubIcon = getIcon(sub.icon)
+                      const SubIcon = getIcon(sub.icon);
                       return (
                         <Link
                           key={sub.label}
@@ -175,18 +184,20 @@ export function DocsNav({ lang }: DocsNavProps) {
                           {SubIcon && (
                             <SubIcon
                               className="nav-link__icon size-4 shrink-0"
-                              style={{ color: pickColor(sub.color, sub.colorDark) }}
+                              style={{
+                                color: pickColor(sub.color, sub.colorDark),
+                              }}
                               aria-hidden
                             />
                           )}
                           <span className="flex-1 truncate">{sub.label}</span>
                         </Link>
-                      )
+                      );
                     })}
                   </div>
                 )}
               </div>
-            )
+            );
           })}
 
           {/* Version dropdown */}
@@ -221,7 +232,7 @@ export function DocsNav({ lang }: DocsNavProps) {
               // 三个主按钮的 popover 全部统一为靠左展开（见上面 map 块内的注释）。
               <div className="glass-popover absolute left-0 top-full mt-1.5 min-w-[220px] p-1.5 animate-in fade-in slide-in-from-top-3">
                 {versionItems.map((sub, i) => {
-                  const SubIcon = getIcon(sub.icon)
+                  const SubIcon = getIcon(sub.icon);
                   return (
                     <Link
                       key={sub.label}
@@ -241,7 +252,7 @@ export function DocsNav({ lang }: DocsNavProps) {
                       )}
                       <span className="flex-1 truncate">{sub.label}</span>
                     </Link>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -326,5 +337,5 @@ export function DocsNav({ lang }: DocsNavProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

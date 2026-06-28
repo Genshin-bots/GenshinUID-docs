@@ -1,68 +1,71 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import { source } from '@/lib/source'
-import { i18n, type Language } from '@/lib/i18n'
-import { DocsBody, DocsPage, DocsTitle } from 'fumadocs-ui/page'
-import { getMDXComponents } from '@/components/mdx'
-import { createRelativeLink } from 'fumadocs-ui/mdx'
-import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
-import { DocsArticleContainer } from '@/components/DocsArticleContainer'
-import { TitleArcs } from '@/components/TitleArcs'
-import { MarkdownDescription } from '@/components/MarkdownDescription'
+import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { DocsBody, DocsPage, DocsTitle } from 'fumadocs-ui/page';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { DocsArticleContainer } from '@/components/DocsArticleContainer';
+import { MarkdownDescription } from '@/components/MarkdownDescription';
+import { getMDXComponents } from '@/components/mdx';
+import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
+import { TitleArcs } from '@/components/TitleArcs';
+import { i18n, type Language } from '@/lib/i18n';
+import { source } from '@/lib/source';
 
 interface PageProps {
-  params: Promise<{ lang: string; slug?: string[] }>
+  params: Promise<{ lang: string; slug?: string[] }>;
 }
 
 // output: export 模式下, [[...slug]] 路由必须在 generateStaticParams 列出所有合法 slug,
 // 遇到未列出的 slug 应该直接 404,而不是尝试动态渲染。
 // 不加这一行,任何指向不存在 MDX 的链接都会让 dev server 报:
 //   "Page ... is missing param ... in generateStaticParams()"
-export const dynamicParams = false
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const params: { lang: string; slug: string[] }[] = []
+  const params: { lang: string; slug: string[] }[] = [];
 
   for (const lang of i18n.languages) {
-    const pages = source.getPages(lang)
+    const pages = source.getPages(lang);
     for (const page of pages) {
       params.push({
         lang,
         slug: page.slugs,
-      })
+      });
     }
   }
 
-  return params
+  return params;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { lang, slug } = await params
-  const page = source.getPage(slug ?? [], lang)
-  if (!page) return {}
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { lang, slug } = await params;
+  const page = source.getPage(slug ?? [], lang);
+  if (!page) return {};
 
   return {
     title: page.data.title,
     description: page.data.description,
-  }
+  };
 }
 
 export default async function Page({ params }: PageProps) {
-  const { lang, slug } = await params
+  const { lang, slug } = await params;
 
   // 验证语言
   if (!i18n.languages.includes(lang as Language)) {
-    notFound()
+    notFound();
   }
 
-  const page = source.getPage(slug ?? [], lang)
+  const page = source.getPage(slug ?? [], lang);
   if (!page) {
-    notFound()
+    notFound();
   }
 
-  const MDX = page.data.body
-  const githubUrl = process.env.GITHUB_URL || 'https://github.com/Genshin-bots/GenshinUID-docs'
-  const editUrl = `${githubUrl}/edit/fumadocs/content/docs/${page.path}`
+  const MDX = page.data.body;
+  const githubUrl =
+    process.env.GITHUB_URL || 'https://github.com/Genshin-bots/GenshinUID-docs';
+  const editUrl = `${githubUrl}/edit/fumadocs/content/docs/${page.path}`;
 
   return (
     <DocsPage
@@ -103,5 +106,5 @@ export default async function Page({ params }: PageProps) {
         />
       </DocsBody>
     </DocsPage>
-  )
+  );
 }

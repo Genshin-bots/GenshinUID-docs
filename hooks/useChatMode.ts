@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react';
 
 export function useChatMode(defaultGroupId = '929275476') {
-  const [isGroupMode, setIsGroupMode] = useState(false)
-  const [groupId, setGroupId] = useState<string | null>(defaultGroupId)
+  const [isGroupMode, setIsGroupMode] = useState(false);
+  const [groupId, setGroupId] = useState<string | null>(defaultGroupId);
 
   const toggleMode = useCallback(() => {
-    setIsGroupMode(prev => !prev)
-  }, [])
+    setIsGroupMode((prev) => !prev);
+  }, []);
 
   const getModeParams = useCallback(() => {
     return {
       userType: isGroupMode ? 'group' : 'direct',
       groupId: isGroupMode ? groupId : null,
-    }
-  }, [isGroupMode, groupId])
+    };
+  }, [isGroupMode, groupId]);
 
   return {
     isGroupMode,
@@ -23,5 +23,5 @@ export function useChatMode(defaultGroupId = '929275476') {
     setGroupId,
     toggleMode,
     getModeParams,
-  }
+  };
 }

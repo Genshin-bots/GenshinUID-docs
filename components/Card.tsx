@@ -1,26 +1,26 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Badge } from '@/components/Badge'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/Badge';
 
 interface PluginData {
-  link: string
-  avatar: string
-  cover: string
-  branch: string
-  type: string
-  content: string
-  info: string
-  installMsg: string
-  alias: string[]
+  link: string;
+  avatar: string;
+  cover: string;
+  branch: string;
+  type: string;
+  content: string;
+  info: string;
+  installMsg: string;
+  alias: string[];
 }
 
 interface PluginList {
-  plugins: Record<string, PluginData>
-  fun_plugins: string[]
-  tool_plugins: string[]
-  extra: any
+  plugins: Record<string, PluginData>;
+  fun_plugins: string[];
+  tool_plugins: string[];
+  extra: any;
 }
 
 const DEFAULT_PLUGIN_LIST: PluginList = {
@@ -28,36 +28,47 @@ const DEFAULT_PLUGIN_LIST: PluginList = {
   fun_plugins: [],
   tool_plugins: [],
   extra: null,
-}
+};
 
 function isDeprecated(data: PluginData): boolean {
-  return data.content === '停止维护' || data.type === 'danger'
+  return data.content === '停止维护' || data.type === 'danger';
 }
 
 function sortPlugins(plugins: { name: string; data: PluginData }[]) {
   return plugins.sort((a, b) => {
-    const aDeprecated = isDeprecated(a.data)
-    const bDeprecated = isDeprecated(b.data)
-    if (aDeprecated === bDeprecated) return 0
-    return aDeprecated ? 1 : -1
-  })
+    const aDeprecated = isDeprecated(a.data);
+    const bDeprecated = isDeprecated(b.data);
+    if (aDeprecated === bDeprecated) return 0;
+    return aDeprecated ? 1 : -1;
+  });
 }
 
-function getBadgeType(type: string): 'tip' | 'danger' | 'info' | 'warning' | undefined {
-  if (type === 'tip' || type === 'danger' || type === 'info' || type === 'warning') {
-    return type
+function getBadgeType(
+  type: string,
+): 'tip' | 'danger' | 'info' | 'warning' | undefined {
+  if (
+    type === 'tip' ||
+    type === 'danger' ||
+    type === 'info' ||
+    type === 'warning'
+  ) {
+    return type;
   }
-  return undefined
+  return undefined;
 }
 
 // GitHub 的 https://github.com/user.png URL 在某些情况下会重定向到一个透明的 1x1 图。
 // 用 onError 兜住，失败时显示首字母占位。
 function PluginAvatar({ name, src }: { name: string; src: string }) {
-  const [errored, setErrored] = useState(false)
-  const initial = (name || '?').trim().charAt(0).toUpperCase()
+  const [errored, setErrored] = useState(false);
+  const initial = (name || '?').trim().charAt(0).toUpperCase();
 
   if (errored || !src) {
-    return <div className="fd-plugin-avatar-fallback" aria-hidden>{initial}</div>
+    return (
+      <div className="fd-plugin-avatar-fallback" aria-hidden>
+        {initial}
+      </div>
+    );
   }
 
   return (
@@ -67,16 +78,16 @@ function PluginAvatar({ name, src }: { name: string; src: string }) {
       alt={`${name}'s avatar`}
       onError={() => setErrored(true)}
     />
-  )
+  );
 }
 
 function PluginCard({ name, data }: { name: string; data: PluginData }) {
-  const deprecated = isDeprecated(data)
+  const deprecated = isDeprecated(data);
 
   function goToPage() {
     setTimeout(() => {
-      window.open(data.link, '_blank')
-    }, 140)
+      window.open(data.link, '_blank');
+    }, 140);
   }
 
   return (
@@ -86,7 +97,7 @@ function PluginCard({ name, data }: { name: string; data: PluginData }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') goToPage()
+        if (e.key === 'Enter' || e.key === ' ') goToPage();
       }}
     >
       <div className="fd-plugin-icon">
@@ -106,29 +117,29 @@ function PluginCard({ name, data }: { name: string; data: PluginData }) {
         <ArrowRight className="h-4 w-4" />
       </div>
     </div>
-  )
+  );
 }
 
 export function Card() {
-  const [pluginList, setPluginList] = useState<PluginList>(DEFAULT_PLUGIN_LIST)
+  const [pluginList, setPluginList] = useState<PluginList>(DEFAULT_PLUGIN_LIST);
 
   useEffect(() => {
     fetch('/plugin_list.json')
-      .then(r => r.ok ? r.json() : DEFAULT_PLUGIN_LIST)
+      .then((r) => (r.ok ? r.json() : DEFAULT_PLUGIN_LIST))
       .then(setPluginList)
-      .catch(() => setPluginList(DEFAULT_PLUGIN_LIST))
-  }, [])
+      .catch(() => setPluginList(DEFAULT_PLUGIN_LIST));
+  }, []);
 
   const funPlugins = sortPlugins(
     pluginList.fun_plugins
-      .map(name => ({ name, data: pluginList.plugins[name] }))
-      .filter(item => item.data !== undefined),
-  )
+      .map((name) => ({ name, data: pluginList.plugins[name] }))
+      .filter((item) => item.data !== undefined),
+  );
   const toolPlugins = sortPlugins(
     pluginList.tool_plugins
-      .map(name => ({ name, data: pluginList.plugins[name] }))
-      .filter(item => item.data !== undefined),
-  )
+      .map((name) => ({ name, data: pluginList.plugins[name] }))
+      .filter((item) => item.data !== undefined),
+  );
 
   return (
     <div>
@@ -136,7 +147,7 @@ export function Card() {
         <span className="fd-section-title-text">🛠️ 工具插件</span>
       </h2>
       <div className="fd-plugin-list">
-        {toolPlugins.map(item => (
+        {toolPlugins.map((item) => (
           <PluginCard key={item.name} name={item.name} data={item.data} />
         ))}
       </div>
@@ -145,10 +156,10 @@ export function Card() {
         <span className="fd-section-title-text">🎮 娱乐插件</span>
       </h2>
       <div className="fd-plugin-list">
-        {funPlugins.map(item => (
+        {funPlugins.map((item) => (
           <PluginCard key={item.name} name={item.name} data={item.data} />
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { useDocsPage } from 'fumadocs-ui/layouts/docs/page'
-import { cn } from '@/lib/utils'
-import type { HTMLAttributes, ReactNode } from 'react'
+import { useDocsPage } from 'fumadocs-ui/layouts/docs/page';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
-type Props = HTMLAttributes<HTMLElement> & { children?: ReactNode }
+type Props = HTMLAttributes<HTMLElement> & { children?: ReactNode };
 
 /**
  * 自定义 DocsPage 容器：替代 Fumadocs 默认的 max-w-[900px] 容器，
@@ -15,7 +15,7 @@ type Props = HTMLAttributes<HTMLElement> & { children?: ReactNode }
  *   常用于实时聊天室等需要横跨主列的页面。
  */
 export function DocsArticleContainer({ children, className, ...props }: Props) {
-  const { full } = useDocsPage()
+  const { full } = useDocsPage();
   return (
     <article
       id="nd-page"
@@ -33,5 +33,5 @@ export function DocsArticleContainer({ children, className, ...props }: Props) {
     >
       {children}
     </article>
-  )
+  );
 }

@@ -1,58 +1,60 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { ArrowRight, Star } from 'lucide-react'
-import { HomeLayout } from 'fumadocs-ui/layouts/home'
-import { SidebarProvider } from 'fumadocs-ui/layouts/docs/slots/sidebar'
-import { HomeHero } from '@/components/HomeHero'
-import { HomePager } from '@/components/HomePager'
-import { HomeShowcase } from '@/components/HomeShowcase'
-import { Reveal } from '@/components/Reveal'
-import { Marquee } from '@/components/Marquee'
-import { Contributors, type Contributor } from '@/components/Contributors'
-import { Members } from '@/components/Members'
-import { DocsNav } from '@/components/DocsNav'
-import { i18n, type Language } from '@/lib/i18n'
-import { getHomeContent } from '@/lib/home-content'
+import { SidebarProvider } from 'fumadocs-ui/layouts/docs/slots/sidebar';
+import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { ArrowRight, Star } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { type Contributor, Contributors } from '@/components/Contributors';
+import { DocsNav } from '@/components/DocsNav';
+import { HomeHero } from '@/components/HomeHero';
+import { HomePager } from '@/components/HomePager';
+import { HomeShowcase } from '@/components/HomeShowcase';
+import { Marquee } from '@/components/Marquee';
+import { Members } from '@/components/Members';
+import { Reveal } from '@/components/Reveal';
+import { getHomeContent } from '@/lib/home-content';
+import { i18n, type Language } from '@/lib/i18n';
 
 interface HomeProps {
-  params: Promise<{ lang: string }>
+  params: Promise<{ lang: string }>;
 }
 
-const REPO_URL = 'https://github.com/Genshin-bots/gsuid_core'
+const REPO_URL = 'https://github.com/Genshin-bots/gsuid_core';
 
 /** 构建期预取贡献者，烘焙进静态页面——避免访客侧 GitHub API 限流。失败则返回空数组由客户端兜底。 */
 async function fetchContributors(): Promise<Contributor[]> {
   try {
     const res = await fetch(
       'https://api.github.com/repos/Genshin-bots/gsuid_core/contributors?per_page=100',
-      { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'gsuid-docs' } },
-    )
-    if (!res.ok)
-      return []
-    const data = await res.json()
-    if (!Array.isArray(data))
-      return []
+      {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'gsuid-docs',
+        },
+      },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
     return data.map((c: Contributor) => ({
       login: c.login,
       avatar_url: c.avatar_url,
       html_url: c.html_url,
       contributions: c.contributions,
-    }))
-  }
-  catch {
-    return []
+    }));
+  } catch {
+    return [];
   }
 }
 
 export default async function HomePage({ params }: HomeProps) {
-  const { lang } = await params
+  const { lang } = await params;
 
   if (!i18n.languages.includes(lang as Language)) {
-    notFound()
+    notFound();
   }
 
-  const content = getHomeContent(lang as Language)
-  const contributors = await fetchContributors()
+  const content = getHomeContent(lang as Language);
+  const contributors = await fetchContributors();
 
   return (
     // SidebarProvider 为 DocsNav 中的 useSidebar() 提供上下文；
@@ -95,7 +97,10 @@ export default async function HomePage({ params }: HomeProps) {
         />
 
         {/* Features Section */}
-        <section id="features" className="mx-auto max-w-7xl px-6 features-section home-snap-point">
+        <section
+          id="features"
+          className="mx-auto max-w-7xl px-6 features-section home-snap-point"
+        >
           <Reveal>
             <h2 className="features-section-title">
               {content.featuresTitle ?? '早柚核心开发优势'}
@@ -112,9 +117,19 @@ export default async function HomePage({ params }: HomeProps) {
                   <p>{feature.details}</p>
                   {feature.link && (
                     <Link
-                      href={feature.link.startsWith('http') ? feature.link : `/${lang}${feature.link}`}
-                      target={feature.link.startsWith('http') ? '_blank' : undefined}
-                      rel={feature.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      href={
+                        feature.link.startsWith('http')
+                          ? feature.link
+                          : `/${lang}${feature.link}`
+                      }
+                      target={
+                        feature.link.startsWith('http') ? '_blank' : undefined
+                      }
+                      rel={
+                        feature.link.startsWith('http')
+                          ? 'noopener noreferrer'
+                          : undefined
+                      }
                       className="feature-link"
                     >
                       {feature.linkText || '了解更多'}
@@ -128,7 +143,10 @@ export default async function HomePage({ params }: HomeProps) {
         </section>
 
         {/* Team Section */}
-        <section id="community" className="mx-auto max-w-6xl px-6 section-block home-snap-point">
+        <section
+          id="community"
+          className="mx-auto max-w-6xl px-6 section-block home-snap-point"
+        >
           <Reveal>
             <h2 className="section-title">{content.teamTitle ?? '核心团队'}</h2>
             <Members members={content.teamMembers} />
@@ -169,5 +187,5 @@ export default async function HomePage({ params }: HomeProps) {
         </section>
       </HomeLayout>
     </SidebarProvider>
-  )
+  );
 }

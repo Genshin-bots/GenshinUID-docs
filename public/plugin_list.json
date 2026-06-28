@@ -9,11 +9,7 @@
       "content": "普通",
       "info": "鸣潮签到",
       "installMsg": "",
-      "alias": [
-        "鸣潮签到",
-        "roversign",
-        "rs"
-      ]
+      "alias": ["鸣潮签到", "roversign", "rs"]
     },
     "ScoreEcho": {
       "link": "https://github.com/Loping151/ScoreEcho",
@@ -24,10 +20,7 @@
       "content": "普通",
       "info": "鸣潮声骸评分",
       "installMsg": "",
-      "alias": [
-        "声骸评分",
-        "scoreecho"
-      ]
+      "alias": ["声骸评分", "scoreecho"]
     },
     "TodayEcho": {
       "link": "https://github.com/Loping151/TodayEcho",
@@ -38,10 +31,7 @@
       "content": "普通",
       "info": "鸣潮模拟梭哈声骸，基于XWUID",
       "installMsg": "",
-      "alias": [
-        "todayecho",
-        "模拟梭哈声骸"
-      ]
+      "alias": ["todayecho", "模拟梭哈声骸"]
     },
     "core_plugin_memes": {
       "link": "https://github.com/Loping151/core_plugin_memes",
@@ -52,10 +42,7 @@
       "content": "普通",
       "info": "表情包制作插件, 可连接python版或rust版",
       "installMsg": "",
-      "alias": [
-        "meme",
-        "memes"
-      ]
+      "alias": ["meme", "memes"]
     },
     "StarRailUID": {
       "link": "https://github.com/baiqwerdvd/StarRailUID",
@@ -66,12 +53,7 @@
       "content": "普通",
       "info": "全功能星穹铁道插件",
       "installMsg": "",
-      "alias": [
-        "sruid",
-        "sr",
-        "星铁",
-        "崩铁"
-      ]
+      "alias": ["sruid", "sr", "星铁", "崩铁"]
     },
     "GenshinUID": {
       "link": "https://github.com/KimigaiiWuyi/GenshinUID",
@@ -82,11 +64,7 @@
       "content": "普通",
       "info": "全功能原神插件",
       "installMsg": "",
-      "alias": [
-        "gsuid",
-        "gs",
-        "原神"
-      ]
+      "alias": ["gsuid", "gs", "原神"]
     },
     "mys_qrlogin": {
       "link": "https://github.com/RBAmeto/gsuidcore_mys_qrlogin",
@@ -97,10 +75,7 @@
       "content": "危险",
       "info": "扫码登陆游戏插件",
       "installMsg": "",
-      "alias": [
-        "qrlogin",
-        "扫码登陆"
-      ]
+      "alias": ["qrlogin", "扫码登陆"]
     },
     "honkai_sign": {
       "link": "https://github.com/RBAmeto/gsuidcore_honkai_sign",
@@ -111,10 +86,7 @@
       "content": "普通",
       "info": "崩坏三签到插件",
       "installMsg": "",
-      "alias": [
-        "崩三签到",
-        "bh3_sign"
-      ]
+      "alias": ["崩三签到", "bh3_sign"]
     },
     "maimai_plugin": {
       "link": "https://github.com/Agnes4m/maimai_plugin",
@@ -125,10 +97,7 @@
       "content": "普通",
       "info": "maimai插件",
       "installMsg": "",
-      "alias": [
-        "maimai",
-        "mm"
-      ]
+      "alias": ["maimai", "mm"]
     },
     "WzryUID": {
       "link": "https://github.com/KimigaiiWuyi/WzryUID",
@@ -139,11 +108,7 @@
       "content": "普通",
       "info": "全功能王者荣耀插件",
       "installMsg": "",
-      "alias": [
-        "wzry",
-        "王者",
-        "王者荣耀"
-      ]
+      "alias": ["wzry", "王者", "王者荣耀"]
     },
     "ArknightsUID": {
       "link": "https://github.com/baiqwerdvd/ArknightsUID",
@@ -154,12 +119,7 @@
       "content": "普通",
       "info": "全功能明日方舟插件（WIP）",
       "installMsg": "",
-      "alias": [
-        "明日方舟",
-        "方舟",
-        "arknights",
-        "ark"
-      ]
+      "alias": ["明日方舟", "方舟", "arknights", "ark"]
     },
     "BlueArchiveUID": {
       "link": "https://github.com/KimigaiiWuyi/BlueArchiveUID",
@@ -170,12 +130,7 @@
       "content": "普通",
       "info": "蔚蓝档案插件",
       "installMsg": "",
-      "alias": [
-        "ba",
-        "档案",
-        "蔚蓝档案",
-        "bauid"
-      ]
+      "alias": ["ba", "档案", "蔚蓝档案", "bauid"]
     },
     "MajsoulUID": {
       "link": "https://github.com/KimigaiiWuyi/MajsoulUID",
@@ -186,12 +141,7 @@
       "content": "普通",
       "info": "全功能雀魂查询插件",
       "installMsg": "",
-      "alias": [
-        "雀魂",
-        "majs",
-        "majsuid",
-        "majsoul"
-      ]
+      "alias": ["雀魂", "majs", "majsuid", "majsoul"]
     },
     "LOLegendsUID": {
       "link": "https://github.com/KimigaiiWuyi/LOLegendsUID",
@@ -202,11 +152,7 @@
       "content": "普通",
       "info": "全功能LOL查询插件",
       "installMsg": "",
-      "alias": [
-        "lol",
-        "英雄联盟",
-        "loluid"
-      ]
+      "alias": ["lol", "英雄联盟", "loluid"]
     },
     "CS2UID": {
       "link": "https://github.com/Agnes4m/CS2UID",
@@ -217,10 +163,7 @@
       "content": "普通",
       "info": "全功能CS2查询插件",
       "installMsg": "",
-      "alias": [
-        "csuid",
-        "cs2"
-      ]
+      "alias": ["csuid", "cs2"]
     },
     "ZZZeroUID": {
       "link": "https://github.com/ZZZure/ZZZeroUID",
@@ -231,11 +174,7 @@
       "content": "普通",
       "info": "全功能绝区零查询插件",
       "installMsg": "",
-      "alias": [
-        "zzz",
-        "绝区零",
-        "zzzero"
-      ]
+      "alias": ["zzz", "绝区零", "zzzero"]
     },
     "WutheringWavesUID": {
       "link": "https://github.com/tyql688/WutheringWavesUID",
@@ -257,13 +196,7 @@
       "content": "普通",
       "info": "全功能鸣潮查询插件1127",
       "installMsg": "",
-      "alias": [
-        "wwuid",
-        "ww",
-        "xwuid",
-        "xw",
-        "鸣潮"
-      ]
+      "alias": ["wwuid", "ww", "xwuid", "xw", "鸣潮"]
     },
     "VAUID": {
       "link": "https://github.com/Agnes4m/VAUID",
@@ -274,10 +207,7 @@
       "content": "普通",
       "info": "全功能无畏契约查询插件",
       "installMsg": "",
-      "alias": [
-        "va",
-        "无畏契约"
-      ]
+      "alias": ["va", "无畏契约"]
     },
     "SayuStock": {
       "link": "https://github.com/KimigaiiWuyi/SayuStock",
@@ -288,11 +218,7 @@
       "content": "普通",
       "info": "股票插件, 查询云图&概览等",
       "installMsg": "该插件需要额外依赖, 例如playwright等, 可能需要手动安装依赖至虚拟环境, 是否继续？",
-      "alias": [
-        "stock",
-        "股票",
-        "早柚股票"
-      ]
+      "alias": ["stock", "股票", "早柚股票"]
     },
     "DeltaUID": {
       "link": "https://github.com/Agnes4m/DeltaUID",
@@ -303,11 +229,7 @@
       "content": "普通",
       "info": "三角洲查询插件",
       "installMsg": "",
-      "alias": [
-        "delta",
-        "ss",
-        "三角洲"
-      ]
+      "alias": ["delta", "ss", "三角洲"]
     },
     "DNAUID": {
       "link": "https://github.com/tyql688/DNAUID",
@@ -318,11 +240,7 @@
       "content": "普通",
       "info": "二重螺旋查询插件",
       "installMsg": "",
-      "alias": [
-        "dnauid",
-        "dna",
-        "二重螺旋"
-      ]
+      "alias": ["dnauid", "dna", "二重螺旋"]
     },
     "EndUID": {
       "link": "https://github.com/Loping151/EndUID",
@@ -333,10 +251,7 @@
       "content": "普通",
       "info": "小维的终末地查询插件",
       "installMsg": "",
-      "alias": [
-        "enduid",
-        "终末地"
-      ]
+      "alias": ["enduid", "终末地"]
     },
     "BeyondUID": {
       "link": "https://github.com/baiqwerdvd/BeyondUID",
@@ -347,9 +262,7 @@
       "content": "普通",
       "info": "小白的终末地查询插件",
       "installMsg": "",
-      "alias": [
-        "beyonduid"
-      ]
+      "alias": ["beyonduid"]
     },
     "PsyTest": {
       "link": "https://github.com/KimigaiiWuyi/gsuidcore_psytest",
@@ -360,11 +273,7 @@
       "content": "普通",
       "info": "心理测试集合插件",
       "installMsg": "",
-      "alias": [
-        "心理测试",
-        "心理测试合集",
-        "测试"
-      ]
+      "alias": ["心理测试", "心理测试合集", "测试"]
     },
     "aemeth_ai": {
       "link": "https://github.com/SyameimaruAyame/aemeth_ai",
@@ -375,9 +284,7 @@
       "content": "普通",
       "info": "爱弥斯AI对话插件",
       "installMsg": "",
-      "alias": [
-        "aemeth_ai"
-      ]
+      "alias": ["aemeth_ai"]
     },
     "pokemon": {
       "link": "https://github.com/jiluoQAQ/Pokemon",
@@ -388,11 +295,7 @@
       "content": "普通",
       "info": "宝可梦小游戏插件",
       "installMsg": "",
-      "alias": [
-        "宝可梦",
-        "神奇宝贝",
-        "宠物小精灵"
-      ]
+      "alias": ["宝可梦", "神奇宝贝", "宠物小精灵"]
     },
     "RH_ComfyUI": {
       "link": "https://github.com/KimigaiiWuyi/RH_ComfyUI",
@@ -403,11 +306,7 @@
       "content": "普通",
       "info": "多功能AIG插件, 支持ComfyUI/BLT, 提供绘图、编辑、音乐生成、视频生成等多功能",
       "installMsg": "",
-      "alias": [
-        "RH_ComfyUI",
-        "ComfyUI",
-        "AIGC"
-      ]
+      "alias": ["RH_ComfyUI", "ComfyUI", "AIGC"]
     },
     "RocomUID": {
       "link": "https://github.com/jiluoQAQ/RocomUID",
@@ -418,10 +317,7 @@
       "content": "普通",
       "info": "多功能洛克王国：世界查询插件",
       "installMsg": "",
-      "alias": [
-        "洛克王国",
-        "洛克王国：世界"
-      ]
+      "alias": ["洛克王国", "洛克王国：世界"]
     },
     "NTEUID": {
       "link": "https://github.com/tyql688/NTEUID",
@@ -432,12 +328,7 @@
       "content": "普通",
       "info": "全功能异环插件",
       "installMsg": "",
-      "alias": [
-        "nte",
-        "nteuid",
-        "yh",
-        "异环"
-      ]
+      "alias": ["nte", "nteuid", "yh", "异环"]
     },
     "PGRUID": {
       "link": "https://github.com/Loping151/PGRUID",
@@ -448,10 +339,7 @@
       "content": "普通",
       "info": "全功能战双插件",
       "installMsg": "",
-      "alias": [
-        "pgr",
-        "战双"
-      ]
+      "alias": ["pgr", "战双"]
     },
     "CCUID": {
       "link": "https://github.com/tyql688/CCUID",
@@ -462,10 +350,7 @@
       "content": "普通",
       "info": "把 cli coding agents 装进 gscore",
       "installMsg": "",
-      "alias": [
-        "ccuid",
-        "CCUID"
-      ]
+      "alias": ["ccuid", "CCUID"]
     },
     "BBBUID": {
       "link": "https://github.com/Neroliu/BBBUID",
@@ -476,12 +361,7 @@
       "content": "普通",
       "info": "全功能崩坏3插件",
       "installMsg": "",
-      "alias": [
-        "bbbuid",
-        "BBBUID",
-        "bbb",
-        "BBB"
-      ]
+      "alias": ["bbbuid", "BBBUID", "bbb", "BBB"]
     },
     "gs_kuro_cos": {
       "link": "https://github.com/nnlmc/gs_kuro_cos",
@@ -492,11 +372,7 @@
       "content": "普通",
       "info": "库街区 COS/同人搬运插件",
       "installMsg": "视频功能依赖 ffmpeg 处理媒体文件，请确认运行环境已安装 ffmpeg 后继续。是否安装该插件？",
-      "alias": [
-        "cos",
-        "同人",
-        "库街区"
-      ]
+      "alias": ["cos", "同人", "库街区"]
     },
     "VrChatUID": {
       "link": "https://github.com/Agnes4m/VrChatUID",
@@ -507,9 +383,7 @@
       "content": "普通",
       "info": "VrChat查询插件",
       "installMsg": "",
-      "alias": [
-        "vrc"
-      ]
+      "alias": ["vrc"]
     },
     "TodayWaifu": {
       "link": "https://github.com/nnlmc/TodayWaifu",
@@ -520,21 +394,10 @@
       "content": "普通",
       "info": "鸣潮今日老婆插件，支持抽老婆、抽老公、抢老婆和自定义老婆图片，依赖 XWUID 本地角色图片资源。",
       "installMsg": "",
-      "alias": [
-        "TodayWaifu",
-        "todaywaifu",
-        "今日老婆",
-        "老婆",
-        "jrlp"
-      ]
+      "alias": ["TodayWaifu", "todaywaifu", "今日老婆", "老婆", "jrlp"]
     }
   },
-  "fun_plugins": [
-    "PsyTest",
-    "aemeth_ai",
-    "pokemon",
-    "core_plugin_memes"
-  ],
+  "fun_plugins": ["PsyTest", "aemeth_ai", "pokemon", "core_plugin_memes"],
   "tool_plugins": [
     "SayuStock",
     "DeltaUID",

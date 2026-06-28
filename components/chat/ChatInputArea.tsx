@@ -1,46 +1,46 @@
-'use client'
+'use client';
 
 import {
+  ChevronDown,
+  ChevronUp,
   FileText,
   Image as ImageIcon,
-  Music,
-  Video,
-  Send,
   Loader2,
+  Music,
   RefreshCw,
-  ChevronUp,
-  ChevronDown,
+  Send,
+  Video,
   X,
-} from 'lucide-react'
-import type { ChangeEvent, ClipboardEvent, DragEvent } from 'react'
-import type { ContentItem } from '@/hooks/useFileUpload'
-import type { ConnectionStatus } from '@/hooks/useWebSocket'
+} from 'lucide-react';
+import type { ChangeEvent, ClipboardEvent, DragEvent } from 'react';
+import type { ContentItem } from '@/hooks/useFileUpload';
+import type { ConnectionStatus } from '@/hooks/useWebSocket';
 
 interface ChatInputAreaProps {
-  value: string
-  onChange: (v: string) => void
-  connectionStatus: ConnectionStatus
-  isMarkdownMode: boolean
-  contentItems: ContentItem[]
-  isDragOver: boolean
-  fileInputRef: React.RefObject<HTMLInputElement | null>
-  onSend: () => void
-  onReconnect: () => void
-  onToggleMarkdown: () => void
-  onRemoveContentItem: (index: number) => void
-  onMoveContentItem: (index: number, direction: -1 | 1) => void
-  onTriggerFileUpload: (type: 'image' | 'audio' | 'video') => void
-  onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void
-  onDragOver: (e: DragEvent) => void
-  onDragLeave: (e: DragEvent) => void
-  onDrop: (e: DragEvent) => void
-  onPaste: (e: ClipboardEvent) => void
+  value: string;
+  onChange: (v: string) => void;
+  connectionStatus: ConnectionStatus;
+  isMarkdownMode: boolean;
+  contentItems: ContentItem[];
+  isDragOver: boolean;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onSend: () => void;
+  onReconnect: () => void;
+  onToggleMarkdown: () => void;
+  onRemoveContentItem: (index: number) => void;
+  onMoveContentItem: (index: number, direction: -1 | 1) => void;
+  onTriggerFileUpload: (type: 'image' | 'audio' | 'video') => void;
+  onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
+  onDragOver: (e: DragEvent) => void;
+  onDragLeave: (e: DragEvent) => void;
+  onDrop: (e: DragEvent) => void;
+  onPaste: (e: ClipboardEvent) => void;
 }
 
 function fileTypeIcon(type: ContentItem['type']) {
-  if (type === 'image') return <ImageIcon size={14} strokeWidth={2} />
-  if (type === 'audio') return <Music size={14} strokeWidth={2} />
-  return <Video size={14} strokeWidth={2} />
+  if (type === 'image') return <ImageIcon size={14} strokeWidth={2} />;
+  if (type === 'audio') return <Music size={14} strokeWidth={2} />;
+  return <Video size={14} strokeWidth={2} />;
 }
 
 export function ChatInputArea({
@@ -63,8 +63,9 @@ export function ChatInputArea({
   onDrop,
   onPaste,
 }: ChatInputAreaProps) {
-  const disabled = connectionStatus !== 'connected'
-  const canSend = !disabled && (value.trim().length > 0 || contentItems.length > 0)
+  const disabled = connectionStatus !== 'connected';
+  const canSend =
+    !disabled && (value.trim().length > 0 || contentItems.length > 0);
 
   return (
     <footer className="fd-chat-input-area">
@@ -78,7 +79,11 @@ export function ChatInputArea({
           >
             {connectionStatus === 'connecting' ? (
               <>
-                <Loader2 size={16} strokeWidth={2.4} className="fd-status-spin" />
+                <Loader2
+                  size={16}
+                  strokeWidth={2.4}
+                  className="fd-status-spin"
+                />
                 <span>连接中…</span>
               </>
             ) : (
@@ -100,7 +105,10 @@ export function ChatInputArea({
         {contentItems.length > 0 && (
           <div className="fd-content-preview-area">
             {contentItems.map((item, index) => (
-              <div key={`${item.fileName}-${index}`} className="fd-content-preview-item">
+              <div
+                key={`${item.fileName}-${index}`}
+                className="fd-content-preview-item"
+              >
                 <div className="fd-move-stack">
                   <button
                     type="button"
@@ -130,7 +138,9 @@ export function ChatInputArea({
                   </div>
                 ) : (
                   <div className="fd-preview-file">
-                    <span className="fd-file-icon">{fileTypeIcon(item.type)}</span>
+                    <span className="fd-file-icon">
+                      {fileTypeIcon(item.type)}
+                    </span>
                     <span className="fd-file-name">{item.fileName}</span>
                   </div>
                 )}
@@ -155,11 +165,11 @@ export function ChatInputArea({
             placeholder="输入消息… (Shift+Enter 换行，Enter 发送)"
             className="fd-message-input"
             disabled={disabled}
-            onChange={e => onChange(e.target.value)}
+            onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !isMarkdownMode) {
-                e.preventDefault()
-                onSend()
+                e.preventDefault();
+                onSend();
               }
             }}
             onPaste={onPaste}
@@ -234,5 +244,5 @@ export function ChatInputArea({
         onChange={onFileSelect}
       />
     </footer>
-  )
+  );
 }

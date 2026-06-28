@@ -1,4 +1,4 @@
-import { ChatInterface } from './ChatInterface'
+import { ChatInterface } from './ChatInterface';
 
 /**
  * /sp/chat 页面的外壳：撑满 docs 网格的 main 列高（扣除顶部 fixed Header）。
@@ -12,5 +12,5 @@ export function ChatLayout() {
     <div className="fd-chat-page-container not-prose">
       <ChatInterface />
     </div>
-  )
+  );
 }

@@ -14,8 +14,8 @@
  * 见 plans/interactive-hub-showcase.md §5.1 / §2。
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, rmSync, mkdirSync, cpSync } from 'node:fs';
-import { resolve, dirname, join } from 'node:path';
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -37,19 +37,32 @@ function run(cmdline, cwd) {
   }
 }
 
-// 1) submodule 是否就位
+// 1) submodule 是否就位；缺失则自动拉取最新（master）
 if (!existsSync(join(hubDir, 'package.json'))) {
-  console.error(
-    `[hub] 找不到 hub 项目：${hubDir}\n` +
-      `      请先初始化 submodule：  git submodule update --init --recursive\n` +
-      `      或用环境变量指向本地检出： HUB_DIR=/path/to/gsuid_hub node scripts/hub.mjs ${mode}`,
-  );
-  process.exit(1);
+  if (process.env.HUB_DIR) {
+    // 手动指定了 HUB_DIR 却不可用：无法自动拉取，直接报错。
+    console.error(
+      `[hub] HUB_DIR 指向的目录不是有效的 hub 项目：${hubDir}\n` +
+        `      请检查 HUB_DIR 是否指向 gsuid_hub 的检出根目录。`,
+    );
+    process.exit(1);
+  }
+  console.log('[hub] 未检测到 gsuid_hub submodule，自动拉取最新（master）...');
+  run('git submodule update --init --remote external/gsuid_hub', repoRoot);
+  if (!existsSync(join(hubDir, 'package.json'))) {
+    console.error(
+      `[hub] 自动拉取后仍找不到 hub 项目：${hubDir}\n` +
+        `      请手动执行：  git submodule update --init --remote external/gsuid_hub`,
+    );
+    process.exit(1);
+  }
 }
 
 // 2) 依赖（缺失才装；hub 用 yarn，lockfile 已入库）
 if (!existsSync(join(hubDir, 'node_modules'))) {
-  console.log('[hub] node_modules 缺失，执行 yarn install --frozen-lockfile ...');
+  console.log(
+    '[hub] node_modules 缺失，执行 yarn install --frozen-lockfile ...',
+  );
   run('yarn install --frozen-lockfile', hubDir);
 }
 

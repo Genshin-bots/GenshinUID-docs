@@ -1,4 +1,4 @@
-import type { Language } from '@/lib/i18n'
+import type { Language } from '@/lib/i18n';
 
 /**
  * 内嵌「可交互控制台」(gsuid_hub Demo) 的基址。
@@ -9,123 +9,291 @@ import type { Language } from '@/lib/i18n'
  * embedSrc 用 `index.html` 显式入口（dev 下 next 直接命中静态文件，无目录索引歧义），
  * 并带 `?embed=1` 让 hub 进入「嵌入锁定」模式（侧边栏只展示不可点击）。HashRouter 深链跟在 `#` 后。
  */
-export const HUB_DEMO_BASE = process.env.NEXT_PUBLIC_HUB_BASE || '/hub'
-const hubEmbed = (route: string) => `${HUB_DEMO_BASE}/index.html?embed=1#/${route}`
+export const HUB_DEMO_BASE = process.env.NEXT_PUBLIC_HUB_BASE || '/hub';
+const hubEmbed = (route: string) =>
+  `${HUB_DEMO_BASE}/index.html?embed=1#/${route}`;
 
 interface HeroAction {
-  text: string
-  link: string
-  primary?: boolean
+  text: string;
+  link: string;
+  primary?: boolean;
 }
 
 interface Feature {
-  icon: string
-  title: string
-  details: string
-  link: string
-  linkText?: string
+  icon: string;
+  title: string;
+  details: string;
+  link: string;
+  linkText?: string;
 }
 
 interface TeamMember {
-  name: string
-  title: string
-  avatar: string
-  link: string
+  name: string;
+  title: string;
+  avatar: string;
+  link: string;
 }
 
 interface SupportLink {
-  icon: string
-  label: string
-  href: string
+  icon: string;
+  label: string;
+  href: string;
 }
 
 interface ShowcaseItem {
   /** public 下的图片路径，如 /home/dashboard.png */
-  img: string
-  alt: string
-  eyebrow: string
-  title: string
-  desc: string
-  points: string[]
+  img: string;
+  alt: string;
+  eyebrow: string;
+  title: string;
+  desc: string;
+  points: string[];
   /** 实时演示深链（hub Demo 对应页）。点击截图后挂载 iframe 加载此地址。 */
-  embedSrc?: string
+  embedSrc?: string;
 }
 
 interface Showcase {
-  title: string
-  subtitle: string
+  title: string;
+  subtitle: string;
   /** 截图蒙层「点击体验实时演示」按钮文案 */
-  playLabel: string
+  playLabel: string;
   /** 激活后角标「实时演示」徽章文案 */
-  liveBadge: string
-  items: ShowcaseItem[]
+  liveBadge: string;
+  items: ShowcaseItem[];
 }
 
 interface HomeContent {
   hero: {
-    name: string
-    text: string
-    tagline: string
-    eyebrow?: string
-    actions: HeroAction[]
-  }
-  scrollHint?: string
-  showcase: Showcase
-  featuresTitle?: string
-  features: Feature[]
-  teamTitle?: string
-  teamMembers: TeamMember[]
-  contributorsTitle: string
-  contributorsLabel: string
-  contributorsViewAll: string
-  supportTitle: string
-  supportLinks: SupportLink[]
-  marquee: string[]
+    name: string;
+    text: string;
+    tagline: string;
+    eyebrow?: string;
+    actions: HeroAction[];
+  };
+  scrollHint?: string;
+  showcase: Showcase;
+  featuresTitle?: string;
+  features: Feature[];
+  teamTitle?: string;
+  teamMembers: TeamMember[];
+  contributorsTitle: string;
+  contributorsLabel: string;
+  contributorsViewAll: string;
+  supportTitle: string;
+  supportLinks: SupportLink[];
+  marquee: string[];
 }
 
 /** 平台 / Bot 名称——跨语言通用，用作 hero 下方的大字滚动条 */
 const marqueeTokens: string[] = [
-  'NoneBot2', 'QQ', 'Telegram', 'Discord', 'KOOK', '微信', 'OneBot', '飞书',
-  'Koishi', 'YunzaiBot', 'DoDo', '米游社', 'HoshinoBot', 'QQ频道', 'ZeroBot',
-]
+  'NoneBot2',
+  'QQ',
+  'Telegram',
+  'Discord',
+  'KOOK',
+  '微信',
+  'OneBot',
+  '飞书',
+  'Koishi',
+  'YunzaiBot',
+  'DoDo',
+  '米游社',
+  'HoshinoBot',
+  'QQ频道',
+  'ZeroBot',
+];
 
 const zhFeatures: Feature[] = [
-  { icon: '💻', title: '支持多种平台', details: '适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...', link: '/docs/link-bots/adapter-list/', linkText: '支持平台' },
-  { icon: '🤖', title: '适配多种Bot', details: '适配NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot...', link: '/docs/link-bots/adapter-list/', linkText: '支持Bot' },
-  { icon: '🤝', title: '连接多种协议', details: '通过简单的早柚协议可以分发给OneBotV11、V12、Red等（需Bot支持）', link: '/docs/code-adapter/protocol/', linkText: '早柚协议' },
-  { icon: '🌎', title: '网页控制台', details: '任何插件均可通过简单继承，令插件配置项直接在网页控制台上修改生效', link: '/docs/started/web-console/', linkText: '如何使用' },
-  { icon: '🔌', title: '插件统一', details: '高度统一集成的插件，令你不需要为某种功能装很多插件，或者为了某种功能装重复插件', link: '/docs/install-plugins/plugins-list/', linkText: '插件列表' },
-  { icon: '🗄', title: '统一数据库支持', details: '通过简单的继承重写，可直接适配基础多账号方法、网页控制台增删改查以及更多', link: '/docs/code-plugins/plugins-data-base/', linkText: '简单示例' },
-  { icon: '📄', title: '文档完善', details: '安装、配置、安装插件、编写插件、编写适配器，文档一应俱全', link: '/docs/started/env-check/', linkText: '查阅文档' },
-  { icon: '🚩', title: '拥抱开源', details: 'GsCore和支持GsCore的插件均开源', link: 'https://github.com/Genshin-bots/gsuid_core', linkText: '欢迎 ⭐' },
-]
+  {
+    icon: '💻',
+    title: '支持多种平台',
+    details:
+      '适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: '支持平台',
+  },
+  {
+    icon: '🤖',
+    title: '适配多种Bot',
+    details: '适配NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot...',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: '支持Bot',
+  },
+  {
+    icon: '🤝',
+    title: '连接多种协议',
+    details: '通过简单的早柚协议可以分发给OneBotV11、V12、Red等（需Bot支持）',
+    link: '/docs/code-adapter/protocol/',
+    linkText: '早柚协议',
+  },
+  {
+    icon: '🌎',
+    title: '网页控制台',
+    details: '任何插件均可通过简单继承，令插件配置项直接在网页控制台上修改生效',
+    link: '/docs/started/web-console/',
+    linkText: '如何使用',
+  },
+  {
+    icon: '🔌',
+    title: '插件统一',
+    details:
+      '高度统一集成的插件，令你不需要为某种功能装很多插件，或者为了某种功能装重复插件',
+    link: '/docs/install-plugins/plugins-list/',
+    linkText: '插件列表',
+  },
+  {
+    icon: '🗄',
+    title: '统一数据库支持',
+    details:
+      '通过简单的继承重写，可直接适配基础多账号方法、网页控制台增删改查以及更多',
+    link: '/docs/code-plugins/plugins-data-base/',
+    linkText: '简单示例',
+  },
+  {
+    icon: '📄',
+    title: '文档完善',
+    details: '安装、配置、安装插件、编写插件、编写适配器，文档一应俱全',
+    link: '/docs/started/env-check/',
+    linkText: '查阅文档',
+  },
+  {
+    icon: '🚩',
+    title: '拥抱开源',
+    details: 'GsCore和支持GsCore的插件均开源',
+    link: 'https://github.com/Genshin-bots/gsuid_core',
+    linkText: '欢迎 ⭐',
+  },
+];
 
 const enFeatures: Feature[] = [
-  { icon: '💻', title: 'Multi-platform', details: 'Supports QQ, QQ Guild, WeChat, Telegram, Discord, Feishu, KOOK, DoDo, Miyoushe...', link: '/docs/link-bots/adapter-list/', linkText: 'Platforms' },
-  { icon: '🤖', title: 'Multi-bot', details: 'Compatible with NoneBot2, HoshinoBot, ZeroBot, Koishi, YunzaiBot...', link: '/docs/link-bots/adapter-list/', linkText: 'Bots' },
-  { icon: '🤝', title: 'Sayu Protocol', details: 'Distribute to OneBotV11, V12, Red, etc. via the simple Sayu protocol', link: '/docs/code-adapter/protocol/', linkText: 'Protocol' },
-  { icon: '🌎', title: 'Web Console', details: 'Any plugin can expose its config to the web console with a simple inheritance', link: '/docs/started/web-console/', linkText: 'How to use' },
-  { icon: '🔌', title: 'Unified Plugins', details: 'Highly unified plugins so you do not need many plugins or duplicated ones', link: '/docs/install-plugins/plugins-list/', linkText: 'Plugin list' },
-  { icon: '🗄', title: 'Unified Database', details: 'Inherit to get multi-account methods, web console CRUD and more', link: '/docs/code-plugins/plugins-data-base/', linkText: 'Example' },
-  { icon: '📄', title: 'Complete Docs', details: 'Installation, configuration, plugins, development — all covered', link: '/docs/started/env-check/', linkText: 'Read docs' },
-  { icon: '🚩', title: 'Open Source', details: 'GsCore and supported plugins are open source', link: 'https://github.com/Genshin-bots/gsuid_core', linkText: 'Star ⭐' },
-]
+  {
+    icon: '💻',
+    title: 'Multi-platform',
+    details:
+      'Supports QQ, QQ Guild, WeChat, Telegram, Discord, Feishu, KOOK, DoDo, Miyoushe...',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: 'Platforms',
+  },
+  {
+    icon: '🤖',
+    title: 'Multi-bot',
+    details:
+      'Compatible with NoneBot2, HoshinoBot, ZeroBot, Koishi, YunzaiBot...',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: 'Bots',
+  },
+  {
+    icon: '🤝',
+    title: 'Sayu Protocol',
+    details:
+      'Distribute to OneBotV11, V12, Red, etc. via the simple Sayu protocol',
+    link: '/docs/code-adapter/protocol/',
+    linkText: 'Protocol',
+  },
+  {
+    icon: '🌎',
+    title: 'Web Console',
+    details:
+      'Any plugin can expose its config to the web console with a simple inheritance',
+    link: '/docs/started/web-console/',
+    linkText: 'How to use',
+  },
+  {
+    icon: '🔌',
+    title: 'Unified Plugins',
+    details:
+      'Highly unified plugins so you do not need many plugins or duplicated ones',
+    link: '/docs/install-plugins/plugins-list/',
+    linkText: 'Plugin list',
+  },
+  {
+    icon: '🗄',
+    title: 'Unified Database',
+    details: 'Inherit to get multi-account methods, web console CRUD and more',
+    link: '/docs/code-plugins/plugins-data-base/',
+    linkText: 'Example',
+  },
+  {
+    icon: '📄',
+    title: 'Complete Docs',
+    details: 'Installation, configuration, plugins, development — all covered',
+    link: '/docs/started/env-check/',
+    linkText: 'Read docs',
+  },
+  {
+    icon: '🚩',
+    title: 'Open Source',
+    details: 'GsCore and supported plugins are open source',
+    link: 'https://github.com/Genshin-bots/gsuid_core',
+    linkText: 'Star ⭐',
+  },
+];
 
 const jaFeatures: Feature[] = [
-  { icon: '💻', title: 'マルチプラットフォーム', details: 'QQ、QQギルド、WeChat、Telegram、Discord、Feishu、KOOK、DoDo、米游社...', link: '/docs/link-bots/adapter-list/', linkText: 'プラットフォーム' },
-  { icon: '🤖', title: 'マルチBot', details: 'NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot に対応', link: '/docs/link-bots/adapter-list/', linkText: 'Bot' },
-  { icon: '🤝', title: 'Sayuプロトコル', details: 'Sayuプロトコル経由でOneBotV11、V12、Red等に配信', link: '/docs/code-adapter/protocol/', linkText: 'プロトコル' },
-  { icon: '🌎', title: 'Webコンソール', details: '簡単な継承でプラグイン設定をWebコンソールで管理', link: '/docs/started/web-console/', linkText: '使い方' },
-  { icon: '🔌', title: '統一プラグイン', details: '重複や乱立しない、高度に統合されたプラグイン', link: '/docs/install-plugins/plugins-list/', linkText: '一覧' },
-  { icon: '🗄', title: '統一データベース', details: '継承でマルチアカウントやCRUD機能を即座に獲得', link: '/docs/code-plugins/plugins-data-base/', linkText: '例' },
-  { icon: '📄', title: '完全なドキュメント', details: 'インストール、設定、プラグイン、開発まですべて網羅', link: '/docs/started/env-check/', linkText: '読む' },
-  { icon: '🚩', title: 'オープンソース', details: 'GsCoreおよび対応プラグインはオープンソース', link: 'https://github.com/Genshin-bots/gsuid_core', linkText: 'Star ⭐' },
-]
+  {
+    icon: '💻',
+    title: 'マルチプラットフォーム',
+    details:
+      'QQ、QQギルド、WeChat、Telegram、Discord、Feishu、KOOK、DoDo、米游社...',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: 'プラットフォーム',
+  },
+  {
+    icon: '🤖',
+    title: 'マルチBot',
+    details: 'NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot に対応',
+    link: '/docs/link-bots/adapter-list/',
+    linkText: 'Bot',
+  },
+  {
+    icon: '🤝',
+    title: 'Sayuプロトコル',
+    details: 'Sayuプロトコル経由でOneBotV11、V12、Red等に配信',
+    link: '/docs/code-adapter/protocol/',
+    linkText: 'プロトコル',
+  },
+  {
+    icon: '🌎',
+    title: 'Webコンソール',
+    details: '簡単な継承でプラグイン設定をWebコンソールで管理',
+    link: '/docs/started/web-console/',
+    linkText: '使い方',
+  },
+  {
+    icon: '🔌',
+    title: '統一プラグイン',
+    details: '重複や乱立しない、高度に統合されたプラグイン',
+    link: '/docs/install-plugins/plugins-list/',
+    linkText: '一覧',
+  },
+  {
+    icon: '🗄',
+    title: '統一データベース',
+    details: '継承でマルチアカウントやCRUD機能を即座に獲得',
+    link: '/docs/code-plugins/plugins-data-base/',
+    linkText: '例',
+  },
+  {
+    icon: '📄',
+    title: '完全なドキュメント',
+    details: 'インストール、設定、プラグイン、開発まですべて網羅',
+    link: '/docs/started/env-check/',
+    linkText: '読む',
+  },
+  {
+    icon: '🚩',
+    title: 'オープンソース',
+    details: 'GsCoreおよび対応プラグインはオープンソース',
+    link: 'https://github.com/Genshin-bots/gsuid_core',
+    linkText: 'Star ⭐',
+  },
+];
 
 /** 主页「框架运行效果」视差展示——图片放在 public/home/ 下 */
 const zhShowcase: Showcase = {
   title: '强大，且易于上手',
-  subtitle: '几分钟即可部署上手——统一的接口与可视化控制台，让复杂的功能变得简单。',
+  subtitle:
+    '几分钟即可部署上手——统一的接口与可视化控制台，让复杂的功能变得简单。',
   playLabel: '点击体验实时演示',
   liveBadge: '实时演示',
   items: [
@@ -184,11 +352,12 @@ const zhShowcase: Showcase = {
       points: ['海量表情管理', 'AI 智能配图', '分类检索'],
     },
   ],
-}
+};
 
 const enShowcase: Showcase = {
   title: 'Powerful, yet easy to start',
-  subtitle: 'Up and running in minutes — unified interfaces and a visual console make complex features simple.',
+  subtitle:
+    'Up and running in minutes — unified interfaces and a visual console make complex features simple.',
   playLabel: 'Try the live demo',
   liveBadge: 'Live demo',
   items: [
@@ -199,7 +368,11 @@ const enShowcase: Showcase = {
       eyebrow: 'Analytics',
       title: 'A complete stats module',
       desc: 'A built-in dashboard surfaces DAU / WAU / MAU, command trends and active users at a glance.',
-      points: ['Live key metrics', 'Monthly command stats', 'Multi-dimensional analysis'],
+      points: [
+        'Live key metrics',
+        'Monthly command stats',
+        'Multi-dimensional analysis',
+      ],
     },
     {
       img: '/home/plugins.png',
@@ -208,7 +381,11 @@ const enShowcase: Showcase = {
       eyebrow: 'Plugin Database',
       title: 'A unified plugin database API',
       desc: 'Every plugin shares one database interface and admin panel — full CRUD right from the web console.',
-      points: ['Unified data layer', 'CRUD from the web', 'Multi-account out of the box'],
+      points: [
+        'Unified data layer',
+        'CRUD from the web',
+        'Multi-account out of the box',
+      ],
     },
     {
       img: '/home/plugins_config.png',
@@ -216,7 +393,7 @@ const enShowcase: Showcase = {
       alt: 'Plugin config',
       eyebrow: 'Plugin Config',
       title: 'Unified plugin configuration',
-      desc: 'Inherit once and a plugin\'s settings are managed centrally in the console — edits take effect instantly.',
+      desc: "Inherit once and a plugin's settings are managed centrally in the console — edits take effect instantly.",
       points: ['Central config panel', 'Instant apply', 'Typed config items'],
     },
     {
@@ -235,7 +412,11 @@ const enShowcase: Showcase = {
       eyebrow: 'AI',
       title: 'AI memory graph',
       desc: 'A visual AI memory system distills conversations, relations and knowledge into a graph that grows with use.',
-      points: ['Visual memory graph', 'Long-term context', 'Relationship insights'],
+      points: [
+        'Visual memory graph',
+        'Long-term context',
+        'Relationship insights',
+      ],
     },
     {
       img: '/home/ai-meme.png',
@@ -247,11 +428,12 @@ const enShowcase: Showcase = {
       points: ['Bulk sticker management', 'AI image picks', 'Tag & search'],
     },
   ],
-}
+};
 
 const jaShowcase: Showcase = {
   title: 'パワフル、それでいて簡単',
-  subtitle: '数分でデプロイ完了——統一されたインターフェースと可視化コンソールで、複雑な機能もシンプルに。',
+  subtitle:
+    '数分でデプロイ完了——統一されたインターフェースと可視化コンソールで、複雑な機能もシンプルに。',
   playLabel: 'ライブデモを体験',
   liveBadge: 'ライブデモ',
   items: [
@@ -310,18 +492,41 @@ const jaShowcase: Showcase = {
       points: ['大量スタンプ管理', 'AI画像提案', 'タグ検索'],
     },
   ],
-}
+};
 
 const teamMembers: TeamMember[] = [
-  { name: 'Wuyi', title: 'Author', avatar: 'https://avatars.githubusercontent.com/u/55526518?v=4', link: 'https://github.com/KimigaiiWuyi' },
-  { name: 'baiqwerdvd', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/158065462?v=4', link: 'https://github.com/baiqwerdvd' },
-  { name: 'Agnes4m', title: 'Developer', avatar: 'https://avatars.githubusercontent.com/u/70925546?v=4', link: 'https://github.com/Agnes4m' },
-]
+  {
+    name: 'Wuyi',
+    title: 'Author',
+    avatar: 'https://avatars.githubusercontent.com/u/55526518?v=4',
+    link: 'https://github.com/KimigaiiWuyi',
+  },
+  {
+    name: 'baiqwerdvd',
+    title: 'Developer',
+    avatar: 'https://avatars.githubusercontent.com/u/158065462?v=4',
+    link: 'https://github.com/baiqwerdvd',
+  },
+  {
+    name: 'Agnes4m',
+    title: 'Developer',
+    avatar: 'https://avatars.githubusercontent.com/u/70925546?v=4',
+    link: 'https://github.com/Agnes4m',
+  },
+];
 
 const supportLinks: SupportLink[] = [
-  { icon: '🐛', label: 'GitHub Issues', href: 'https://github.com/Genshin-bots/gsuid_core/issues' },
-  { icon: '🐧', label: 'Mihomo Bot Group', href: 'https://qm.qq.com/q/zLghD5ENva' },
-]
+  {
+    icon: '🐛',
+    label: 'GitHub Issues',
+    href: 'https://github.com/Genshin-bots/gsuid_core/issues',
+  },
+  {
+    icon: '🐧',
+    label: 'Mihomo Bot Group',
+    href: 'https://qm.qq.com/q/zLghD5ENva',
+  },
+];
 
 export function getHomeContent(lang: Language): HomeContent {
   if (lang === 'en') {
@@ -330,9 +535,14 @@ export function getHomeContent(lang: Language): HomeContent {
         name: 'Sayu Core',
         text: 'GsCore',
         eyebrow: 'A modern Python Bot framework',
-        tagline: '💖 One business logic, multiple platforms — write once, run everywhere.',
+        tagline:
+          '💖 One business logic, multiple platforms — write once, run everywhere.',
         actions: [
-          { text: 'Quick Start', link: '/docs/started/install-core/', primary: true },
+          {
+            text: 'Quick Start',
+            link: '/docs/started/install-core/',
+            primary: true,
+          },
           { text: 'Write Plugin', link: '/docs/code-plugins/start/' },
           { text: 'Introduction', link: '/docs/advance/base-info/' },
         ],
@@ -349,7 +559,7 @@ export function getHomeContent(lang: Language): HomeContent {
       supportTitle: 'Get help / support',
       supportLinks,
       marquee: marqueeTokens,
-    }
+    };
   }
 
   if (lang === 'ja') {
@@ -358,9 +568,14 @@ export function getHomeContent(lang: Language): HomeContent {
         name: 'さゆコア',
         text: 'GsCore',
         eyebrow: 'モダンな Python Bot フレームワーク',
-        tagline: '💖 一つのビジネスロジック、複数のプラットフォーム — 一度書けば、どこでも動く。',
+        tagline:
+          '💖 一つのビジネスロジック、複数のプラットフォーム — 一度書けば、どこでも動く。',
         actions: [
-          { text: 'クイックスタート', link: '/docs/started/install-core/', primary: true },
+          {
+            text: 'クイックスタート',
+            link: '/docs/started/install-core/',
+            primary: true,
+          },
           { text: 'プラグイン開発', link: '/docs/code-plugins/start/' },
           { text: 'はじめに', link: '/docs/advance/base-info/' },
         ],
@@ -377,7 +592,7 @@ export function getHomeContent(lang: Language): HomeContent {
       supportTitle: 'ヘルプ / サポート',
       supportLinks,
       marquee: marqueeTokens,
-    }
+    };
   }
 
   // zh-CN (default)
@@ -388,7 +603,11 @@ export function getHomeContent(lang: Language): HomeContent {
       eyebrow: '现代化的 Python Bot 框架',
       tagline: '💖 一套业务逻辑，多个平台支持——一次编写，到处运行。',
       actions: [
-        { text: '快速开始', link: '/docs/started/install-core/', primary: true },
+        {
+          text: '快速开始',
+          link: '/docs/started/install-core/',
+          primary: true,
+        },
         { text: '编写插件', link: '/docs/code-plugins/start/' },
         { text: '简单介绍', link: '/docs/advance/base-info/' },
       ],
@@ -405,5 +624,5 @@ export function getHomeContent(lang: Language): HomeContent {
     supportTitle: '获得帮助/支持',
     supportLinks,
     marquee: marqueeTokens,
-  }
+  };
 }

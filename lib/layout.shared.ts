@@ -1,5 +1,5 @@
 // UI 字符串三语翻译
-import { defineI18nUI } from 'fumadocs-ui/i18n'
+import { defineI18nUI } from 'fumadocs-ui/i18n';
 
 export const i18nUI = defineI18nUI(
   {
@@ -56,14 +56,14 @@ export const i18nUI = defineI18nUI(
       displayName: '日本語',
     },
   },
-)
+);
 
 // 保留旧导出以兼容现有代码
-export const cn = i18nUI
-export const en = i18nUI
-export const ja = i18nUI
+export const cn = i18nUI;
+export const en = i18nUI;
+export const ja = i18nUI;
 export const translations = {
   'zh-CN': i18nUI,
   en: i18nUI,
   ja: i18nUI,
-}
+};

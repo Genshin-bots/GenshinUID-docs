@@ -1,12 +1,12 @@
 interface Member {
-  name: string
-  title: string
-  avatar: string
-  link: string
+  name: string;
+  title: string;
+  avatar: string;
+  link: string;
 }
 
 interface MembersProps {
-  members: Member[]
+  members: Member[];
 }
 
 export function Members({ members }: MembersProps) {
@@ -20,7 +20,7 @@ export function Members({ members }: MembersProps) {
         margin: '2em 0',
       }}
     >
-      {members.map(member => (
+      {members.map((member) => (
         <a
           key={member.name}
           href={member.link}
@@ -52,12 +52,19 @@ export function Members({ members }: MembersProps) {
             }}
             loading="lazy"
           />
-          <div style={{ fontSize: '1.1em', fontWeight: 600 }}>{member.name}</div>
-          <div style={{ fontSize: '0.85em', color: 'var(--color-fd-muted-foreground)' }}>
+          <div style={{ fontSize: '1.1em', fontWeight: 600 }}>
+            {member.name}
+          </div>
+          <div
+            style={{
+              fontSize: '0.85em',
+              color: 'var(--color-fd-muted-foreground)',
+            }}
+          >
             {member.title}
           </div>
         </a>
       ))}
     </div>
-  )
+  );
 }

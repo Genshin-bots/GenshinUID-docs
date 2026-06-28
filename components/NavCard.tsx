@@ -1,21 +1,21 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 
 export interface NavItem {
-  id: string | number
-  text: string
-  desc?: string
-  link: string
+  id: string | number;
+  text: string;
+  desc?: string;
+  link: string;
 }
 
 interface NavCardProps {
-  navData: NavItem[]
-  className?: string
+  navData: NavItem[];
+  className?: string;
 }
 
 export function NavCard({ navData, className }: NavCardProps) {
   return (
     <div className={cn('grid auto-rows-auto grid-cols-2 gap-3', className)}>
-      {navData.map(item => (
+      {navData.map((item) => (
         <a
           key={item.id}
           href={item.link}
@@ -34,5 +34,5 @@ export function NavCard({ navData, className }: NavCardProps) {
         </a>
       ))}
     </div>
-  )
+  );
 }

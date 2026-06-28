@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { Loader2, X, Users, User, Link2 } from 'lucide-react'
-import type { ConnectionStatus } from '@/hooks/useWebSocket'
+import { Link2, Loader2, User, Users, X } from 'lucide-react';
+import type { ConnectionStatus } from '@/hooks/useWebSocket';
 
 interface ChatHeaderProps {
-  wsUrl: string
-  setWsUrl: (url: string) => void
-  connectionStatus: ConnectionStatus
-  isGroupMode: boolean
-  groupId: string | null
-  onToggleMode: () => void
-  onCancelConnection: () => void
+  wsUrl: string;
+  setWsUrl: (url: string) => void;
+  connectionStatus: ConnectionStatus;
+  isGroupMode: boolean;
+  groupId: string | null;
+  onToggleMode: () => void;
+  onCancelConnection: () => void;
 }
 
 const STATUS_TEXT: Record<ConnectionStatus, string> = {
@@ -18,7 +18,7 @@ const STATUS_TEXT: Record<ConnectionStatus, string> = {
   connected: '已连接',
   disconnected: '未连接',
   error: '连接错误',
-}
+};
 
 export function ChatHeader({
   wsUrl,
@@ -41,12 +41,16 @@ export function ChatHeader({
           placeholder="输入 WebSocket URL..."
           className="fd-url-input"
           disabled={connectionStatus === 'connecting'}
-          onChange={e => setWsUrl(e.target.value)}
+          onChange={(e) => setWsUrl(e.target.value)}
           aria-label="WebSocket URL"
         />
       </div>
 
-      <div className="fd-mode-toggle-wrapper" role="group" aria-label="聊天模式">
+      <div
+        className="fd-mode-toggle-wrapper"
+        role="group"
+        aria-label="聊天模式"
+      >
         <span
           className={`fd-mode-label ${!isGroupMode ? 'active' : ''}`}
           onClick={isGroupMode ? onToggleMode : undefined}
@@ -54,8 +58,8 @@ export function ChatHeader({
           tabIndex={isGroupMode ? 0 : -1}
           onKeyDown={(e) => {
             if (isGroupMode && (e.key === 'Enter' || e.key === ' ')) {
-              e.preventDefault()
-              onToggleMode()
+              e.preventDefault();
+              onToggleMode();
             }
           }}
         >
@@ -79,8 +83,8 @@ export function ChatHeader({
           tabIndex={!isGroupMode ? 0 : -1}
           onKeyDown={(e) => {
             if (!isGroupMode && (e.key === 'Enter' || e.key === ' ')) {
-              e.preventDefault()
-              onToggleMode()
+              e.preventDefault();
+              onToggleMode();
             }
           }}
         >
@@ -113,5 +117,5 @@ export function ChatHeader({
         )}
       </div>
     </header>
-  )
+  );
 }

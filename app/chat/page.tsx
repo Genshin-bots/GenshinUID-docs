@@ -8,7 +8,7 @@
  *   动态 redirect），同时附一个 `<a>` 链接做兜底（meta refresh 被禁用时仍能跳转）。
  * · 静态导出后产物是 `out/chat/index.html`，由 build 期间的 static GET 自动收集。
  */
-export const dynamic = 'force-static'
+export const dynamic = 'force-static';
 
 export default function ChatRootRedirect() {
   return (
@@ -18,14 +18,22 @@ export default function ChatRootRedirect() {
         <meta httpEquiv="refresh" content="0; url=/zh-CN/chat/" />
         <title>正在跳转到在线聊天室…</title>
       </head>
-      <body style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem', textAlign: 'center' }}>
-        <p>正在跳转到 <a href="/zh-CN/chat/">在线聊天室</a>…</p>
+      <body
+        style={{
+          fontFamily: 'system-ui, sans-serif',
+          padding: '2rem',
+          textAlign: 'center',
+        }}
+      >
+        <p>
+          正在跳转到 <a href="/zh-CN/chat/">在线聊天室</a>…
+        </p>
       </body>
     </html>
-  )
+  );
 }
 
 export const metadata = {
   title: '正在跳转到在线聊天室…',
   robots: { index: false, follow: false },
-}
+};

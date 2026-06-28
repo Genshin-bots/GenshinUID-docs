@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import Script from 'next/script'
+import Script from 'next/script';
 
 export function Analytics() {
-  const websiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
-  const endpoint = process.env.NEXT_PUBLIC_UMAMI_ENDPOINT
+  const websiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const endpoint = process.env.NEXT_PUBLIC_UMAMI_ENDPOINT;
 
   if (!websiteId || !endpoint) {
-    return null
+    return null;
   }
 
   return (
@@ -18,5 +18,5 @@ export function Analytics() {
       src={endpoint}
       strategy="afterInteractive"
     />
-  )
+  );
 }

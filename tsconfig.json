@@ -2,14 +2,8 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "esnext",
-    "types": [
-      "node"
-    ],
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "types": ["node"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "strict": true,
@@ -33,27 +27,13 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/components/*": [
-        "./components/*"
-      ],
-      "@/lib/*": [
-        "./lib/*"
-      ],
-      "@/hooks/*": [
-        "./hooks/*"
-      ],
-      "@/content/*": [
-        "./content/*"
-      ],
-      "@/package.json": [
-        "./package.json"
-      ],
-      "collections/*": [
-        ".source/*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/content/*": ["./content/*"],
+      "@/package.json": ["./package.json"],
+      "collections/*": [".source/*"]
     }
   },
   "include": [

@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { FC } from 'react';
 
 /**
  * 文档页副标题：把字符串里的「轻量 Markdown」渲染成 React 节点。
@@ -15,13 +15,15 @@ import type { FC } from 'react'
  * 如果是空字符串 / undefined，直接返回 null（与 DocsDescription 行为一致），
  * 让 border-bottom 与 margin 不会多出一行空白。
  */
-export const MarkdownDescription: FC<{ children?: string }> = ({ children }) => {
-  if (!children) return null
+export const MarkdownDescription: FC<{ children?: string }> = ({
+  children,
+}) => {
+  if (!children) return null;
 
-  const nodes = parseInline(children)
+  const nodes = parseInline(children);
 
-  return <p className="fd-doc-description">{nodes}</p>
-}
+  return <p className="fd-doc-description">{nodes}</p>;
+};
 
 /**
  * 把字符串切成 React 节点数组。
@@ -29,19 +31,19 @@ export const MarkdownDescription: FC<{ children?: string }> = ({ children }) => 
  * 剩下的纯文本段落再按 **...** 切成 <strong>。
  */
 function parseInline(input: string): React.ReactNode[] {
-  const result: React.ReactNode[] = []
+  const result: React.ReactNode[] = [];
   // 匹配 [text](url) ，url 不含空白 / ')'
-  const linkRe = /\[([^\]\n]+)\]\(([^)\s]+)\)/g
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  let key = 0
+  const linkRe = /\[([^\]\n]+)\]\(([^)\s]+)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
 
   while ((match = linkRe.exec(input)) !== null) {
     if (match.index > lastIndex) {
-      pushBold(result, input.slice(lastIndex, match.index), key++)
+      pushBold(result, input.slice(lastIndex, match.index), key++);
     }
-    const [, text, href] = match
-    const isExternal = /^https?:\/\//i.test(href)
+    const [, text, href] = match;
+    const isExternal = /^https?:\/\//i.test(href);
     result.push(
       <a
         key={`l-${key++}`}
@@ -52,15 +54,15 @@ function parseInline(input: string): React.ReactNode[] {
       >
         {text}
       </a>,
-    )
-    lastIndex = match.index + match[0].length
+    );
+    lastIndex = match.index + match[0].length;
   }
 
   if (lastIndex < input.length) {
-    pushBold(result, input.slice(lastIndex), key++)
+    pushBold(result, input.slice(lastIndex), key++);
   }
 
-  return result
+  return result;
 }
 
 function pushBold(
@@ -69,19 +71,19 @@ function pushBold(
   baseKey: number,
 ): void {
   // 把 **text** 切出来当 <strong>，其余当纯文本
-  const re = /\*\*([^\*\n]+)\*\*/g
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  let key = 0
+  const re = /\*\*([^*\n]+)\*\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
 
   while ((match = re.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      result.push(text.slice(lastIndex, match.index))
+      result.push(text.slice(lastIndex, match.index));
     }
-    result.push(<strong key={`b-${baseKey}-${key++}`}>{match[1]}</strong>)
-    lastIndex = match.index + match[0].length
+    result.push(<strong key={`b-${baseKey}-${key++}`}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
   }
   if (lastIndex < text.length) {
-    result.push(text.slice(lastIndex))
+    result.push(text.slice(lastIndex));
   }
 }

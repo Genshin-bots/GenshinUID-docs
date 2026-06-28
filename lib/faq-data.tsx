@@ -1,5 +1,5 @@
-import { Callout } from 'fumadocs-ui/components/callout'
-import type { FaqItem } from '@/components/FaqList'
+import { Callout } from 'fumadocs-ui/components/callout';
+import type { FaqItem } from '@/components/FaqList';
 
 /**
  * 常见问题数据
@@ -21,7 +21,7 @@ if (ask == true) {
   msg = cookie
 } else {
   msg = 'Cancel'
-}`
+}`;
 
 // 添加 Stoken：user.mihoyo.com 控制台代码
 const stokenCode = `var cookie = document.cookie;
@@ -31,7 +31,7 @@ if (ask == true) {
   msg = cookie
 } else {
   msg = 'Cancel'
-}`
+}`;
 
 export const faqItems: FaqItem[] = [
   {
@@ -85,8 +85,8 @@ export const faqItems: FaqItem[] = [
     tag: 'danger',
     a: (
       <>
-        米游社采取全域验证码校验，需要手动上米游社解除验证码风控
-        （我的 → 我的角色）。<strong>目前暂无公开解决方法。</strong>
+        米游社采取全域验证码校验，需要手动上米游社解除验证码风控 （我的 →
+        我的角色）。<strong>目前暂无公开解决方法。</strong>
       </>
     ),
   },
@@ -104,7 +104,8 @@ export const faqItems: FaqItem[] = [
     tag: 'tip',
     a: (
       <>
-        使用 <code>core 重启</code> 重新加载帮助图（大概率是由于更新后不重启导致的）。
+        使用 <code>core 重启</code>{' '}
+        重新加载帮助图（大概率是由于更新后不重启导致的）。
       </>
     ),
   },
@@ -162,7 +163,8 @@ export const faqItems: FaqItem[] = [
         </p>
         <p>
           视环境使用 <code>poetry run pip install greenlet</code> 或者{' '}
-          <code>pip install greenlet</code>。安装 <code>msvc-runtime</code> 同理。
+          <code>pip install greenlet</code>。安装 <code>msvc-runtime</code>{' '}
+          同理。
         </p>
       </>
     ),
@@ -210,16 +212,14 @@ export const faqItems: FaqItem[] = [
         <ol>
           <li>
             复制上面全部代码，打开{' '}
-            <a
-              href="http://user.mihoyo.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="http://user.mihoyo.com/" target="_blank" rel="noreferrer">
               user.mihoyo.com
             </a>
             ；
           </li>
-          <li>在页面上右键检查或 <code>Ctrl+Shift+i</code>；</li>
+          <li>
+            在页面上右键检查或 <code>Ctrl+Shift+i</code>；
+          </li>
           <li>
             选择控制台（Console），粘贴，回车，在弹出的窗口点确认
             （点完自动复制）；
@@ -255,8 +255,9 @@ export const faqItems: FaqItem[] = [
     tag: 'tip',
     a: (
       <>
-        在 <code>gsuid_core/data/config.json</code> 中，调整 IP 和 PORT 后重启 core。
+        在 <code>gsuid_core/data/config.json</code> 中，调整 IP 和 PORT 后重启
+        core。
       </>
     ),
   },
-]
+];

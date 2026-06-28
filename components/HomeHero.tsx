@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { useEffect, useRef } from 'react'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 
 interface HeroAction {
-  text: string
-  link: string
-  primary?: boolean
+  text: string;
+  link: string;
+  primary?: boolean;
 }
 
 interface HomeHeroProps {
-  lang: string
-  eyebrow: string
-  name: string
-  text: string
-  tagline: string
-  actions: HeroAction[]
-  scrollHint: string
+  lang: string;
+  eyebrow: string;
+  name: string;
+  text: string;
+  tagline: string;
+  actions: HeroAction[];
+  scrollHint: string;
 }
 
 /**
@@ -32,42 +32,49 @@ interface HomeHeroProps {
  *
  * 鼠标视差始终开启（不因 prefers-reduced-motion 关闭）。
  */
-export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHint }: HomeHeroProps) {
-  const ref = useRef<HTMLElement>(null)
+export function HomeHero({
+  lang,
+  eyebrow,
+  name,
+  text,
+  tagline,
+  actions,
+  scrollHint,
+}: HomeHeroProps) {
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const el = ref.current
-    if (!el)
-      return
+    const el = ref.current;
+    if (!el) return;
 
     // —— 鼠标视差（带缓动惯性）——
     // 只写 --mx / --my，纯 transform 走 GPU 合成层，不触发 layout/paint，
     // 配合 scroll-snap 也只是静止时仍在做 5% lerp 的轻量位移。
-    let targetX = 0
-    let targetY = 0
-    let curX = 0
-    let curY = 0
-    let mouseRaf = 0
+    let targetX = 0;
+    let targetY = 0;
+    let curX = 0;
+    let curY = 0;
+    let mouseRaf = 0;
     const onMove = (e: MouseEvent) => {
-      targetX = (e.clientX / window.innerWidth - 0.5) * 2
-      targetY = (e.clientY / window.innerHeight - 0.5) * 2
-    }
+      targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+    };
     const tick = () => {
-      curX += (targetX - curX) * 0.05
-      curY += (targetY - curY) * 0.05
-      el.style.setProperty('--mx', curX.toFixed(4))
-      el.style.setProperty('--my', curY.toFixed(4))
-      mouseRaf = requestAnimationFrame(tick)
-    }
+      curX += (targetX - curX) * 0.05;
+      curY += (targetY - curY) * 0.05;
+      el.style.setProperty('--mx', curX.toFixed(4));
+      el.style.setProperty('--my', curY.toFixed(4));
+      mouseRaf = requestAnimationFrame(tick);
+    };
 
-    mouseRaf = requestAnimationFrame(tick)
-    window.addEventListener('mousemove', onMove, { passive: true })
+    mouseRaf = requestAnimationFrame(tick);
+    window.addEventListener('mousemove', onMove, { passive: true });
 
     return () => {
-      window.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(mouseRaf)
-    }
-  }, [])
+      window.removeEventListener('mousemove', onMove);
+      cancelAnimationFrame(mouseRaf);
+    };
+  }, []);
 
   return (
     <section ref={ref} className="hero-px home-snap-point">
@@ -106,8 +113,8 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
 
         <div className="hero-px__actions">
           {actions.map((action) => {
-            const isExternal = action.link.startsWith('http')
-            const className = action.primary ? 'btn-primary' : 'btn-ghost'
+            const isExternal = action.link.startsWith('http');
+            const className = action.primary ? 'btn-primary' : 'btn-ghost';
             if (isExternal) {
               return (
                 <a
@@ -120,14 +127,18 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
                   {action.text}
                   <ArrowRight className="size-4" />
                 </a>
-              )
+              );
             }
             return (
-              <Link key={action.text} href={`/${lang}${action.link}`} className={className}>
+              <Link
+                key={action.text}
+                href={`/${lang}${action.link}`}
+                className={className}
+              >
                 {action.text}
                 <ArrowRight className="size-4" />
               </Link>
-            )
+            );
           })}
         </div>
       </div>
@@ -140,5 +151,5 @@ export function HomeHero({ lang, eyebrow, name, text, tagline, actions, scrollHi
         </div>
       </div>
     </section>
-  )
+  );
 }

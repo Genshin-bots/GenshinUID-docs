@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
-export type BadgeType = 'info' | 'tip' | 'warning' | 'danger'
+export type BadgeType = 'info' | 'tip' | 'warning' | 'danger';
 
 interface BadgeProps {
-  text?: string
-  type?: BadgeType
-  children?: ReactNode
+  text?: string;
+  type?: BadgeType;
+  children?: ReactNode;
 }
 
 export function Badge({ text, type = 'tip', children }: BadgeProps) {
@@ -14,5 +14,5 @@ export function Badge({ text, type = 'tip', children }: BadgeProps) {
     <span className={cn('fd-badge', `fd-badge-${type}`)}>
       {children ?? text}
     </span>
-  )
+  );
 }

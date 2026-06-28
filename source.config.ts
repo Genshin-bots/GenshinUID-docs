@@ -1,9 +1,9 @@
-import { defineConfig, defineDocs } from 'fumadocs-mdx/config'
-import remarkCjkFriendly from 'remark-cjk-friendly'
+import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
+import remarkCjkFriendly from 'remark-cjk-friendly';
 
 export const docs = defineDocs({
   dir: 'content/docs',
-})
+});
 
 export default defineConfig({
   mdxOptions: {
@@ -12,4 +12,4 @@ export default defineConfig({
     // remark-cjk-friendly 把 CJK 字符当作可参与 flanking 的字符，修复中文加粗/斜体。
     remarkPlugins: (v) => [...v, remarkCjkFriendly],
   },
-})
+});
