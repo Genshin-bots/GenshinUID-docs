@@ -1,0 +1,3 @@
+[submodule "external/gsuid_hub"]
+	path = external/gsuid_hub
+	url = https://github.com/Genshin-bots/gsuid_hub.git

@@ -17,6 +17,9 @@ jobs:
         with:
           ref: fumadocs
           fetch-depth: 0
+          # 拉取 external/gsuid_hub submodule —— 主页内嵌「可交互控制台」Demo 的源码。
+          # pnpm build 会在 submodule 内 yarn build:demo 并把产物烤进 public/hub/。
+          submodules: recursive
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

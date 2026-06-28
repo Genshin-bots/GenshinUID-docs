@@ -1416,17 +1416,24 @@ body {
    双向 .is-in 切换：进入视口模糊淡入上浮，离开视口反向 → 来回滚不丢动效。 */
 .showcase-panel {
   --accent: oklch(0.63 0.19 250);
-  /* 截图向外侧冲出视口的位移量（被 .home-showcase 的 overflow-x:clip 裁掉） */
-  --bleed: clamp(3rem, 11vw, 14rem);
+  /* 内嵌的是「可交互的实时控制台」而非装饰截图 —— 不能向外冲出视口被裁掉
+     （会切掉侧边栏 / 右侧内容，见用户反馈「无论左右都被裁切」）。故 bleed=0，
+     整个 iframe 完整落在内容区内。 */
+  --bleed: 0px;
   display: grid;
-  /* 文案窄列贴页面内侧，截图占据剩余空间并向外侧冲出。默认：文案左、截图右 */
-  grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
+  /* 文案窄列贴页面内侧，截图占据剩余空间。文案列收窄、左右留白与列间距收紧，
+     把更多宽度让给右侧「实时控制台」框 —— 框更大、内嵌内容也随之展示得更大。 */
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
   align-items: center;
-  column-gap: clamp(2rem, 4vw, 5rem);
-  /* 仅内侧留页面边距；外侧不留，交给截图冲出边缘 */
-  padding-inline: clamp(1.25rem, 5vw, 6rem);
+  column-gap: clamp(1.5rem, 3vw, 3.25rem);
+  padding-inline: clamp(1rem, 3.5vw, 3.5rem);
   /* 「一页一页」：每个面板给足近一屏的高度并垂直居中，滚动时像翻页一样逐屏呈现 */
   min-height: 88vh;
+  /* 性能关键：离屏面板整屏跳过渲染（含内嵌 iframe + 辉光 + 截图框）。首页是 rAF「硬翻页」，
+     每帧重绘——只渲染视口内的 1~2 屏，翻页才不卡。contain-intrinsic-size 给离屏面板一个
+     稳定占位高度，保证 HomePager 的 offsetTop 测量与滚动条不跳。 */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 88vh;
   /* 初始态：模糊 + 下沉 + 轻微缩小 + 透明。
      进入视口由 JS 加 .is-in 触发下方过渡；离开时 .is-in 被移除，过渡反向。 */
   opacity: 0;
@@ -1452,7 +1459,7 @@ body {
 /* 交错（data-side='right'）：调换列宽 + order，让截图落到左列并向左冲出视口。
    关键——必须同时「调换列宽模板」+「order 调换顺序」，否则截图会落进窄列被压小。 */
 .showcase-panel[data-side='right'] {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 27rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
 }
 .showcase-panel[data-side='right'] .showcase-copy {
   order: 2;
@@ -1549,8 +1556,9 @@ body {
     color-mix(in oklch, var(--accent) 52%, transparent),
     transparent 70%
   );
-  filter: blur(80px);
-  opacity: 0.9;
+  /* 大半径模糊很贵；离屏面板已被 content-visibility 跳过，这里再把模糊收一点减轻在屏开销 */
+  filter: blur(56px);
+  opacity: 0.85;
 }
 /* 截图框：静态位置，由 .is-in 的 1s transform 过渡整体淡入上浮 */
 .showcase-shot__frame {
@@ -1582,10 +1590,10 @@ body {
 .showcase-shot__bar i:first-child {
   background: color-mix(in oklch, var(--accent) 70%, transparent);
 }
-/* 媒体区：固定 16:9 比例（贴合源图 ≈1.78~1.95）→ 所有面板尺寸统一。 */
+/* 媒体区：16:10 比例，与内嵌 iframe 的逻辑视口（1200×750）一致 → 缩放后正好铺满。 */
 .showcase-shot__media {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1200 / 750;
   overflow: hidden;
 }
 /* 图片直接铺满媒体框，object-fit:cover + object-position:top center
@@ -1598,6 +1606,88 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: top center;
+}
+
+/* ── 截图「活化」：默认内嵌的实时演示 iframe（桌面逻辑视口 1200×750 等比缩放）───── */
+.showcase-embed {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-fd-card);
+  /* 隔离合成层，避免内嵌 iframe 的重绘外溢到外层文档 */
+  contain: layout paint;
+}
+/* 性能：面板不在视口内时（无 .is-in），跳过内嵌 iframe 的绘制/合成。
+ * 首页是 rAF 缓动「硬翻页」，每帧都会重绘——若 6 个重型 SPA iframe 同时合成会卡顿。
+ * content-visibility:hidden 保留 iframe 已加载状态（不重载），仅停止离屏绘制，
+ * 让翻页时只有当前面板的 iframe 参与合成（修「滚动不流畅」）。 */
+.showcase-panel:not(.is-in) .showcase-embed {
+  content-visibility: hidden;
+}
+/* iframe 以桌面逻辑尺寸渲染（保证出现侧边栏 + 完整布局），再整体缩放进缩略框。
+   宽高 LOGICAL_W/H 由组件内联 style 给（1440×900），这里只负责缩放与定位。 */
+.showcase-embed__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  display: block;
+  transform: scale(var(--embed-scale, 1));
+  transform-origin: top left;
+}
+/* 加载占位：轻量骨架（替代旧截图占位）。静态磨砂底 + 居中转圈，iframe onLoad 后淡出。
+   不用图片 → 省去大图解码/合成；只有视口内的那一个在转，离屏面板被 content-visibility 跳过。 */
+.showcase-shot__skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(120% 80% at 50% 0%,
+      color-mix(in oklch, var(--accent) 10%, var(--color-fd-card)) 0%,
+      var(--color-fd-card) 60%);
+  transition: opacity 0.4s ease;
+}
+.showcase-shot__skeleton[data-loaded='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+.showcase-shot__spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in oklch, var(--color-fd-muted-foreground) 25%, transparent);
+  border-top-color: var(--accent);
+  animation: showcase-spin 0.8s linear infinite;
+}
+@keyframes showcase-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase-shot__spinner { animation: none; }
+}
+
+/* 内嵌后右下角的「● 实时演示」徽章 */
+.showcase-shot__live {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: white;
+  background: color-mix(in oklch, var(--accent) 78%, black 8%);
+  box-shadow: 0 4px 14px -4px color-mix(in oklch, var(--accent) 70%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 
 @media (max-width: 900px) {

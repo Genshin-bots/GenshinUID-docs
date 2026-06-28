@@ -69,6 +69,8 @@
     "**/dist/**",
     "**/out/**",
     "**/.next/**",
-    "scripts"
+    "scripts",
+    "external",
+    "public/hub"
   ]
 }

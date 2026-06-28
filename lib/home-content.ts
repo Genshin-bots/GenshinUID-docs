@@ -1,5 +1,17 @@
 import type { Language } from '@/lib/i18n'
 
+/**
+ * 内嵌「可交互控制台」(gsuid_hub Demo) 的基址。
+ * **始终同源** `/hub`：hub Demo 产物由 scripts/hub.mjs 烤进 public/hub/，开发(next dev)与
+ * 生产(output:export) 都由 docs 自身托管 —— 不再依赖任何独立端口/服务，杜绝「localhost 拒绝连接」。
+ * （仍可用 NEXT_PUBLIC_HUB_BASE 覆盖，一般无需。）
+ *
+ * embedSrc 用 `index.html` 显式入口（dev 下 next 直接命中静态文件，无目录索引歧义），
+ * 并带 `?embed=1` 让 hub 进入「嵌入锁定」模式（侧边栏只展示不可点击）。HashRouter 深链跟在 `#` 后。
+ */
+export const HUB_DEMO_BASE = process.env.NEXT_PUBLIC_HUB_BASE || '/hub'
+const hubEmbed = (route: string) => `${HUB_DEMO_BASE}/index.html?embed=1#/${route}`
+
 interface HeroAction {
   text: string
   link: string
@@ -35,11 +47,17 @@ interface ShowcaseItem {
   title: string
   desc: string
   points: string[]
+  /** 实时演示深链（hub Demo 对应页）。点击截图后挂载 iframe 加载此地址。 */
+  embedSrc?: string
 }
 
 interface Showcase {
   title: string
   subtitle: string
+  /** 截图蒙层「点击体验实时演示」按钮文案 */
+  playLabel: string
+  /** 激活后角标「实时演示」徽章文案 */
+  liveBadge: string
   items: ShowcaseItem[]
 }
 
@@ -108,9 +126,12 @@ const jaFeatures: Feature[] = [
 const zhShowcase: Showcase = {
   title: '强大，且易于上手',
   subtitle: '几分钟即可部署上手——统一的接口与可视化控制台，让复杂的功能变得简单。',
+  playLabel: '点击体验实时演示',
+  liveBadge: '实时演示',
   items: [
     {
       img: '/home/dashboard.png',
+      embedSrc: hubEmbed('dashboard'),
       alt: '数据看板',
       eyebrow: '数据统计',
       title: '完善的统计模块',
@@ -119,6 +140,7 @@ const zhShowcase: Showcase = {
     },
     {
       img: '/home/plugins.png',
+      embedSrc: hubEmbed('database'),
       alt: '插件数据库',
       eyebrow: '插件数据库',
       title: '统一的插件数据库接口',
@@ -127,6 +149,7 @@ const zhShowcase: Showcase = {
     },
     {
       img: '/home/plugins_config.png',
+      embedSrc: hubEmbed('plugins'),
       alt: '插件配置',
       eyebrow: '插件配置',
       title: '统一的插件配置管理',
@@ -135,6 +158,7 @@ const zhShowcase: Showcase = {
     },
     {
       img: '/home/theme.png',
+      embedSrc: hubEmbed('themes'),
       alt: '主题设置',
       eyebrow: '个性主题',
       title: '丰富的主题功能',
@@ -143,6 +167,7 @@ const zhShowcase: Showcase = {
     },
     {
       img: '/home/ai-memory.png',
+      embedSrc: hubEmbed('ai-memory'),
       alt: 'AI 记忆图谱',
       eyebrow: 'AI 能力',
       title: 'AI 记忆图谱',
@@ -151,6 +176,7 @@ const zhShowcase: Showcase = {
     },
     {
       img: '/home/ai-meme.png',
+      embedSrc: hubEmbed('ai-meme'),
       alt: '表情管理',
       eyebrow: 'AI 能力',
       title: '智能表情包',
@@ -163,9 +189,12 @@ const zhShowcase: Showcase = {
 const enShowcase: Showcase = {
   title: 'Powerful, yet easy to start',
   subtitle: 'Up and running in minutes — unified interfaces and a visual console make complex features simple.',
+  playLabel: 'Try the live demo',
+  liveBadge: 'Live demo',
   items: [
     {
       img: '/home/dashboard.png',
+      embedSrc: hubEmbed('dashboard'),
       alt: 'Dashboard',
       eyebrow: 'Analytics',
       title: 'A complete stats module',
@@ -174,6 +203,7 @@ const enShowcase: Showcase = {
     },
     {
       img: '/home/plugins.png',
+      embedSrc: hubEmbed('database'),
       alt: 'Plugin database',
       eyebrow: 'Plugin Database',
       title: 'A unified plugin database API',
@@ -182,6 +212,7 @@ const enShowcase: Showcase = {
     },
     {
       img: '/home/plugins_config.png',
+      embedSrc: hubEmbed('plugins'),
       alt: 'Plugin config',
       eyebrow: 'Plugin Config',
       title: 'Unified plugin configuration',
@@ -190,6 +221,7 @@ const enShowcase: Showcase = {
     },
     {
       img: '/home/theme.png',
+      embedSrc: hubEmbed('themes'),
       alt: 'Theme settings',
       eyebrow: 'Theming',
       title: 'Rich theming',
@@ -198,6 +230,7 @@ const enShowcase: Showcase = {
     },
     {
       img: '/home/ai-memory.png',
+      embedSrc: hubEmbed('ai-memory'),
       alt: 'AI memory graph',
       eyebrow: 'AI',
       title: 'AI memory graph',
@@ -206,6 +239,7 @@ const enShowcase: Showcase = {
     },
     {
       img: '/home/ai-meme.png',
+      embedSrc: hubEmbed('ai-meme'),
       alt: 'Sticker management',
       eyebrow: 'AI',
       title: 'Smart stickers',
@@ -218,9 +252,12 @@ const enShowcase: Showcase = {
 const jaShowcase: Showcase = {
   title: 'パワフル、それでいて簡単',
   subtitle: '数分でデプロイ完了——統一されたインターフェースと可視化コンソールで、複雑な機能もシンプルに。',
+  playLabel: 'ライブデモを体験',
+  liveBadge: 'ライブデモ',
   items: [
     {
       img: '/home/dashboard.png',
+      embedSrc: hubEmbed('dashboard'),
       alt: 'ダッシュボード',
       eyebrow: '統計',
       title: '充実した統計モジュール',
@@ -229,6 +266,7 @@ const jaShowcase: Showcase = {
     },
     {
       img: '/home/plugins.png',
+      embedSrc: hubEmbed('database'),
       alt: 'プラグインデータベース',
       eyebrow: 'プラグインDB',
       title: '統一プラグインDB API',
@@ -237,6 +275,7 @@ const jaShowcase: Showcase = {
     },
     {
       img: '/home/plugins_config.png',
+      embedSrc: hubEmbed('plugins'),
       alt: 'プラグイン設定',
       eyebrow: 'プラグイン設定',
       title: '統一プラグイン設定管理',
@@ -245,6 +284,7 @@ const jaShowcase: Showcase = {
     },
     {
       img: '/home/theme.png',
+      embedSrc: hubEmbed('themes'),
       alt: 'テーマ設定',
       eyebrow: 'テーマ',
       title: '豊富なテーマ機能',
@@ -253,6 +293,7 @@ const jaShowcase: Showcase = {
     },
     {
       img: '/home/ai-memory.png',
+      embedSrc: hubEmbed('ai-memory'),
       alt: 'AI 記憶グラフ',
       eyebrow: 'AI',
       title: 'AI 記憶グラフ',
@@ -261,6 +302,7 @@ const jaShowcase: Showcase = {
     },
     {
       img: '/home/ai-meme.png',
+      embedSrc: hubEmbed('ai-meme'),
       alt: 'スタンプ管理',
       eyebrow: 'AI',
       title: 'スマートスタンプ',

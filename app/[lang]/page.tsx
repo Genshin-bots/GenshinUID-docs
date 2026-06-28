@@ -90,6 +90,7 @@ export default async function HomePage({ params }: HomeProps) {
         <HomeShowcase
           title={content.showcase.title}
           subtitle={content.showcase.subtitle}
+          liveBadge={content.showcase.liveBadge}
           items={content.showcase.items}
         />
 
