@@ -55,13 +55,29 @@ export function HomeHero({
     let curX = 0;
     let curY = 0;
     let mouseRaf = 0;
+    /** 翻页期间（html 上挂 `.home-scrolling`）停止 rAF 与写 CSS 变量——
+     *  滚轮事件在防跳过的 700ms lock 里每帧都在争主线程，再叠一个 60fps 的视差 rAF
+     *  会让 wheel → scrollTo 之间的帧率掉到肉眼可感的卡顿。停下后若鼠标已移动，下次 tick 自动恢复。 */
+    let isPaused = false;
     const onMove = (e: MouseEvent) => {
       targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       targetY = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     const tick = () => {
-      curX += (targetX - curX) * 0.05;
-      curY += (targetY - curY) * 0.05;
+      if (document.documentElement.classList.contains('home-scrolling')) {
+        isPaused = true;
+        mouseRaf = requestAnimationFrame(tick);
+        return;
+      }
+      // 从暂停中恢复：把当前位置直接跳到目标，避免 lerp 从 0 平滑过渡产生「跳回原位」的违和感
+      if (isPaused) {
+        isPaused = false;
+        curX = targetX;
+        curY = targetY;
+      } else {
+        curX += (targetX - curX) * 0.05;
+        curY += (targetY - curY) * 0.05;
+      }
       el.style.setProperty('--mx', curX.toFixed(4));
       el.style.setProperty('--my', curY.toFixed(4));
       mouseRaf = requestAnimationFrame(tick);

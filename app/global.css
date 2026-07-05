@@ -468,6 +468,34 @@ body {
   background: var(--fd-glass-bg-strong);
 }
 
+/* 翻页时同时暂停首页那些「每帧都重绘」的装饰层，让 wheel 触发的滚动能稳定跑到 60fps。
+   这些动画跑在自己的合成层上、平时不影响性能，但和硬翻页 rAF 抢 GPU 时会导致翻
+   页途中掉帧。停下后由 transition / 重新挂载的事件恢复，无需手动管。 */
+.home-scrolling .marquee__track {
+  animation-play-state: paused;
+}
+.home-scrolling .hero-px__orb {
+  /* 把 blur 临时关掉：blur(64px) 在 40rem×40rem 的圆上是滚动掉帧的常见来源 */
+  filter: none;
+  opacity: 0.25;
+}
+.home-scrolling .hero-px__eyes,
+.home-scrolling .hero-px__grid,
+.home-scrolling .hero-px__orb {
+  /* 关掉鼠标视差的 transform 写入：rAF 中每帧 setProperty 也会和翻页抢主线程 */
+  transform: none !important;
+}
+.home-scrolling .hero-px__mouse span {
+  /* 暂停鼠标滚轮的小指示器动画 */
+  animation-play-state: paused;
+}
+.home-scrolling .showcase-panel,
+.home-scrolling .showcase-shot::before {
+  /* 翻页途中暂停滤镜 / 模糊扩散，免去每帧重算大区域 backdrop；
+     入场动画已经在 rAF 中走完，关掉不影响视觉效果 */
+  filter: none;
+}
+
 /* ==========================================================================
    Sidebar 暗色磨砂玻璃 + 紧凑舒适
    ========================================================================== */
@@ -874,12 +902,15 @@ body {
   transform: translate3d(calc(var(--mx) * -10px), calc(var(--my) * -10px), 0);
 }
 
-/* 极光光球：每层不同的鼠标 / 滚动系数 → 视差 */
+/* 极光光球：每层不同的鼠标 / 滚动系数 → 视差。
+   `filter: blur()` 在超大圆上是滚动掉帧的常见来源（高斯模糊每帧重算整张图层），
+   64px → 36px：保持柔光感，但 blur 卷积开销降一档；硬翻页时由 .home-scrolling
+   进一步临时关掉（见下方）。 */
 .hero-px__orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(64px);
-  opacity: 0.5;
+  filter: blur(36px);
+  opacity: 0.55;
   will-change: transform;
 }
 .hero-px__orb--1 {
@@ -1254,12 +1285,14 @@ body {
   align-items: center;
   gap: 2.75rem;
   white-space: nowrap;
-  font-size: clamp(1.875rem, 5vw, 4rem);
+  /* 字号可被父级 .marquee__row 上的 `--marquee-size` 局部覆盖：
+     标题页里用更小的字号，避免压过 h2 大字标题。 */
+  font-size: var(--marquee-size, clamp(1.875rem, 5vw, 4rem));
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1.25px
+  -webkit-text-stroke: var(--marquee-stroke, 1.25px)
     color-mix(in oklch, var(--color-fd-foreground) 26%, transparent);
   transition:
     color 0.3s ease,
@@ -1268,7 +1301,7 @@ body {
 .marquee__item::after {
   content: "✦";
   -webkit-text-stroke: 0;
-  font-size: 0.42em;
+  font-size: var(--marquee-icon-size, 0.42em);
   color: var(--color-fd-primary);
   opacity: 0.65;
 }
@@ -1434,6 +1467,69 @@ body {
   padding-inline: clamp(1.25rem, 5vw, 3rem);
   text-align: center;
 }
+/* 标题页（同时是 `.home-snap-point`）：单独留满一屏并垂直居中，
+   让 HomePager 滚到此处时真的停一屏，而不是被下方 88vh 的面板跳过。
+   视觉上满屏居中，与下方各面板的翻页节奏一致。 */
+.home-showcase__head.home-snap-point {
+  /* 真正撑满一屏：减去 HomePager 已经在算的 SCROLL_PADDING_TOP(56px) 顶栏后，
+     再加一点上下 padding 让标题看起来更"留呼吸"。 */
+  min-height: calc(100vh - 56px);
+  min-height: calc(100svh - 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 取消向下的边距，让 pager 滚到 head.offsetTop 时整个视口都被它占满，
+     下一屏（第一个 showcase panel）紧接其后开始。 */
+  margin-bottom: 0;
+  /* 标题前后给一点点呼吸，免得文字紧贴视口顶/底 */
+  padding-block: clamp(2rem, 6vh, 4rem);
+  /* 父级 .home-showcase 有 top padding（4-7rem）会把 head 往下推，导致滚到 head 时
+     视口顶部有 ~64-112px 空白，标题看起来不到一屏。给个反向 margin-top 把 head
+     重新拉到 section 顶部 —— head 的高度由 min-height 决定，下面的 panel 间距
+     由 list 的 gap 决定，section 的 padding-top 对 head 的视觉影响即被消除。 */
+  margin-top: calc(clamp(4rem, 8vw, 7rem) * -1);
+}
+
+/* 标题文字在滚动条之间居中：包成一个独立 block，让 flex 把它的周围空隙均匀分配 */
+.home-showcase__head-copy {
+  text-align: center;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+  margin-block: clamp(1.5rem, 4vh, 3rem);
+}
+
+/* 标题页里嵌入的滚动条：脱离原 .marquee 全宽容器，自己撑满 head 的可视宽度，
+   两侧仍走原渐隐 mask 让 QQ / Discord … 等大字干净收尾。上下两行分别加上
+   一段上下 padding，让大字离标题文字留出呼吸（标题字号约 60px + 副标题 ~20px，
+   gap 不能小）。 */
+.home-showcase__marquee {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-block: clamp(0.6rem, 1.6vh, 1rem);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+}
+.home-showcase__marquee .marquee__row {
+  /* 在标题页里 marquee 的字号略小，避免压过 h2 大字标题 */
+  --marquee-size: clamp(1.2rem, 2.6vw, 2rem);
+  --marquee-stroke: 1px;
+  --marquee-icon-size: 0.42em;
+}
 .home-showcase__title {
   font-size: clamp(2.25rem, 5vw, 3.75rem);
   font-weight: 800;
@@ -1486,21 +1582,19 @@ body {
      稳定占位高度，保证 HomePager 的 offsetTop 测量与滚动条不跳。 */
   content-visibility: auto;
   contain-intrinsic-size: auto 88vh;
-  /* 初始态：模糊 + 下沉 + 轻微缩小 + 透明。
-     进入视口由 JS 加 .is-in 触发下方过渡；离开时 .is-in 被移除，过渡反向。 */
+  /* 初始态：下沉 + 轻微缩小 + 透明（撤掉原来的 `filter: blur(14px)` —— blur 是
+     滚动卡顿大户，每帧都在超大区域里跑高斯模糊；改用「更深的 translateY + 透明度
+     对比」保留动感但零滤镜开销，翻页帧率直接升一档）。 */
   opacity: 0;
-  transform: translateY(56px) scale(0.985);
-  filter: blur(14px);
+  transform: translateY(72px) scale(0.985);
   transition:
     opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, filter;
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 .showcase-panel.is-in {
   opacity: 1;
   transform: none;
-  filter: none;
   /* 入场完成即卸掉 will-change，避免长期占用合成层 */
   will-change: auto;
 }

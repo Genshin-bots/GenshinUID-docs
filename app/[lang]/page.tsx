@@ -8,7 +8,6 @@ import { DocsNav } from '@/components/DocsNav';
 import { HomeHero } from '@/components/HomeHero';
 import { HomePager } from '@/components/HomePager';
 import { HomeShowcase } from '@/components/HomeShowcase';
-import { Marquee } from '@/components/Marquee';
 import { Members } from '@/components/Members';
 import { Reveal } from '@/components/Reveal';
 import { getHomeContent } from '@/lib/home-content';
@@ -85,15 +84,13 @@ export default async function HomePage({ params }: HomeProps) {
           scrollHint={content.scrollHint ?? '向下滚动 · 探索更多'}
         />
 
-        {/* 大字滚动条 · 平台 / Bot 生态 */}
-        <Marquee items={content.marquee} />
-
-        {/* 框架运行效果 · 视差展示 */}
+        {/* 框架运行效果 · 视差展示 + 标题上下大字滚动条 */}
         <HomeShowcase
           title={content.showcase.title}
           subtitle={content.showcase.subtitle}
           liveBadge={content.showcase.liveBadge}
           items={content.showcase.items}
+          marqueeItems={content.marquee}
         />
 
         {/* Features Section */}

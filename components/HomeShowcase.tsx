@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { MarqueeRow } from '@/components/Marquee';
 
 interface ShowcaseItem {
   img: string;
@@ -21,6 +22,8 @@ interface HomeShowcaseProps {
   items: ShowcaseItem[];
   /** 内嵌后右下角徽章文案（i18n，缺省中文）。 */
   liveBadge?: string;
+  /** 标题页上下两侧滚动展示的「平台 / Bot」大字 token 列表 */
+  marqueeItems?: string[];
 }
 
 /** 内嵌「桌面站缩略图」的两个关键参数：
@@ -73,6 +76,35 @@ function EmbedFrame({
       '*',
     );
   }, [active, loaded]);
+
+  // 强制每次挂载都从「干净的初始状态」启动：
+  //   · 主页内嵌的 6 个 iframe 都同源（/hub/...），正常情况下会共享 localStorage /
+  //     sessionStorage，用户上一次手动改的皮肤/主题等会被持久化并跨刷新「阴魂不散」。
+  //     这里在 iframe onLoad 后主动 clear 掉它的 storage（same-origin 允许
+  //     iframe.contentWindow.localStorage 直接访问），让访客看到的永远是 demo 的
+  //     默认配置 + Mock 提供的网络数据，不会被旧的本地状态污染。
+  //   · **不要在 src 上拼 `_=<nonce>`**：那样会让 iframe 的 URL 与 embedSrc 不一致，
+  //     6 个 iframe 的「面板挂载节奏」也是 IntersectionObserver 触发卸载/重挂，每次
+  //     panel 重挂时 URL 里再加不同 nonce 会把同一 iframe 反复销毁重建，反而会触发
+  //     主页的「demo SPA 重启」、「hash 路由被视作新 URL」等意外（曾导致首次进入
+  //     6 个面板全显 hub 的 NotFound 页 —— 404 / Oops! Page not found）。
+  //   · 真正复位 iframe 状态靠 HomeShowcase 自己 IntersectionObserver 的
+  //     mounted/unmounted 调度：滚出视口 1.2s 后卸掉，再次滚回会重新挂载、重新
+  //     触发 onLoad → 清 storage → 自然落到 Mock 的默认配置上。
+  // docs 自身不使用 localStorage / sessionStorage，所以从父页面 clear 与
+  // iframe 是同一份 storage 也不会误伤其它功能。
+  const handleIframeLoad = () => {
+    setLoaded(true);
+    try {
+      const win = frameRef.current?.contentWindow;
+      if (!win) return;
+      win.localStorage?.clear();
+      win.sessionStorage?.clear();
+    } catch {
+      // ignore — 同源策略等异常情况，放弃 reset，不影响主流程
+    }
+  };
+
   // 逻辑视口尺寸：随容器宽度反推（保持 TARGET_SCALE 固定显示比例）
   const [dims, setDims] = useState({ w: 1600, h: Math.round(1600 / RATIO) });
 
@@ -118,7 +150,7 @@ function EmbedFrame({
         title={item.alt}
         loading="lazy"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        onLoad={() => setLoaded(true)}
+        onLoad={handleIframeLoad}
       />
       <span className="showcase-shot__live">● {liveBadge ?? '实时演示'}</span>
     </div>
@@ -142,6 +174,7 @@ export function HomeShowcase({
   subtitle,
   items,
   liveBadge,
+  marqueeItems,
 }: HomeShowcaseProps) {
   const rootRef = useRef<HTMLElement>(null);
   // 已挂载实时 iframe 的面板下标。一旦加入不再移除（保持挂载，避免来回滚动重载）。
@@ -244,9 +277,26 @@ export function HomeShowcase({
 
   return (
     <section ref={rootRef} id="showcase" className="home-showcase">
-      <div className="home-showcase__head">
-        <h2 className="home-showcase__title">{title}</h2>
-        <p className="home-showcase__subtitle">{subtitle}</p>
+      {/* 「强大，且易于上手」标题页 —— 单独作为 PPT 一页，让 HomePager 滚到此处时
+         真的停一屏。`.home-snap-point` 由父级 HomePager 用作「页」选择器
+         （见 components/HomePager.tsx）。把原来放在 Hero 与 Showcase 之间的
+         大字滚动条（QQ / Discord / Telegram …）拆成两行嵌入到标题上下，
+         既保住了「多平台支持」的视觉传达，又让翻页节奏里「标题页」真正成一页。 */}
+      <div className="home-showcase__head home-snap-point">
+        {marqueeItems && marqueeItems.length > 0 && (
+          <div className="home-showcase__marquee">
+            <MarqueeRow items={marqueeItems} rowKey="head-top" />
+          </div>
+        )}
+        <div className="home-showcase__head-copy">
+          <h2 className="home-showcase__title">{title}</h2>
+          <p className="home-showcase__subtitle">{subtitle}</p>
+        </div>
+        {marqueeItems && marqueeItems.length > 0 && (
+          <div className="home-showcase__marquee">
+            <MarqueeRow items={marqueeItems} rowKey="head-bottom" reverse />
+          </div>
+        )}
       </div>
 
       <div className="home-showcase__list">
