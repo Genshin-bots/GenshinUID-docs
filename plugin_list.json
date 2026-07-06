@@ -527,13 +527,32 @@
         "老婆",
         "jrlp"
       ]
+    },
+    "ChisaEating": {
+      "link": "https://github.com/MimoKit/ChisaEating",
+      "avatar": "https://github.com/MimoKit.png",
+      "cover": "https://raw.githubusercontent.com/MimoKit/ChisaEating/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "千小妹还在吃，跨次元随机干饭与食物推荐插件",
+      "installMsg": "",
+      "alias": [
+        "ChisaEating",
+        "千小妹还在吃",
+        "干饭",
+        "吃什么",
+        "吃啥",
+        "美食"
+      ]
     }
   },
   "fun_plugins": [
     "PsyTest",
     "aemeth_ai",
     "pokemon",
-    "core_plugin_memes"
+    "core_plugin_memes",
+    "ChisaEating"
   ],
   "tool_plugins": [
     "SayuStock",
