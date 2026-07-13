@@ -545,6 +545,19 @@
         "吃啥",
         "美食"
       ]
+    },
+    "SteamUID": {
+      "link": "https://github.com/sssysy/steamUID",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/SteamUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多功能 Steam 插件, 支持订阅游戏降价提醒 / 账号成就和游戏状态变化推送等",
+      "installMsg": "",
+      "alias": [
+        "steam"
+      ]
     }
   },
   "fun_plugins": [
@@ -586,7 +599,8 @@
     "BBBUID",
     "gs_kuro_cos",
     "VrChatUID",
-    "TodayWaifu"
+    "TodayWaifu",
+    "SteamUID"
   ],
   "extra": {}
 }
