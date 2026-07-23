@@ -48,17 +48,19 @@ return {
 
 | 组件 | 文件 | 用途 | 样式钩子 |
 |------|------|------|---------|
-| `HomeHero` | `components/HomeHero.tsx` | 首页首屏：渐变标题 + 鼠标视差光球 + scrollHint | `.hero-px`, `.hero-px__*` |
-| `Marquee` | `components/Marquee.tsx` | 大字无限滚动条（haoqi 式大胆排版），两行反向滚动 | `.marquee`, `.marquee__*` |
-| `HomeShowcase` | `components/HomeShowcase.tsx` | 「框架运行效果」展示区：左右交错超大截图面板，逐屏「一页一页」 | `.home-showcase`, `.showcase-panel`, `.showcase-shot*` |
-| `HomePager` | `components/HomePager.tsx` | 首页 PPT 式硬翻页控制器（接管 wheel/keydown/touch，一滚一页） | 渲染 `null`，仅 JS 拦截 |
-| `Reveal` | `components/Reveal.tsx` | 通用滚动入场（IntersectionObserver 触发 `.reveal--in`，模糊淡入上浮） | `.reveal`, `.reveal--in` |
+| `HomeHero` | `components/HomeHero.tsx` | 首页首屏：渐变标题 + **全程**鼠标视差（`--mx/--my`，mousemove 同步 + rAF）；眼睛背景 | `.hero-px`, `.hero-px__*` |
+| `Marquee` / `MarqueeRow` | `components/Marquee.tsx` | 大字无限滚动。默认 CSS；**`alwaysRun`** 时 rAF（Showcase 标题横幅） | `.marquee`, `.marquee__*`, `.marquee__row--always` |
+| `HomeShowcase` | `components/HomeShowcase.tsx` | 标题页 + 6 满屏面板；**会话常驻** iframe；`.showcase-fade` 错落入场；`homepager:goto/done` | `.home-showcase`, `.showcase-panel`, `.showcase-fade`, `.showcase-panel-embed*` |
+| `HomePager` | `components/HomePager.tsx` | PPT 硬翻页（远距可变时长）；`home-scrolling`；双 rAF 收尾；**portal 右下角回顶** | `.home-back-top` |
+| `FeatureIcon` | `components/FeatureIcon.tsx` | Features 卡片 lucide 图标（键 → 组件） | `.feature-card__icon` |
+| `Reveal` | `components/Reveal.tsx` | 通用滚动入场（IO → `.reveal--in`；features 等） | `.reveal`, `.reveal--in` |
 
 这些组件 **只在首页使用**，由 `app/[lang]/page.tsx` 直接 import 渲染，**不进 MDX 注册表**。
 如果以后想给 MDX 文档页用某个首页组件，把它加进 `components/mdx.tsx` 即可。
 
-> **完整 PPT 翻页设计**（为什么不用 scroll-snap、动画时序与入场曲线对齐、键盘 / 触屏交互）见
-> [九、首页 PPT 式硬翻页](./09-home-ppt-pager.md)。
+> **完整 PPT 翻页 + 真实控制台 + 回顶 / Features 图标 / 性能边界**见 [九](./09-home-ppt-pager.md)。
+> 文案与深链：`lib/home-content.ts`（`hubEmbed` / `embedSrc` / `liveBadge` / `backToTop` / feature icon 键）。
+> **禁止**再引入手绘 `HubMock` 或 `gsuid_hub` submodule。
 
 ## 3.3 重点：ChatPanel / ChatMessage（静态聊天示例）
 

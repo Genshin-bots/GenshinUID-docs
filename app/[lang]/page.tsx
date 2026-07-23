@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { type Contributor, Contributors } from '@/components/Contributors';
 import { DocsNav } from '@/components/DocsNav';
+import { FeatureIcon } from '@/components/FeatureIcon';
 import { HomeHero } from '@/components/HomeHero';
 import { HomePager } from '@/components/HomePager';
 import { HomeShowcase } from '@/components/HomeShowcase';
@@ -70,8 +71,8 @@ export default async function HomePage({ params }: HomeProps) {
         i18n={false}
         className="fd-default-layout home-page"
       >
-        {/* 首页 PPT 式硬翻页控制器：接管 wheel/keydown/touch，一滚一页 */}
-        <HomePager />
+        {/* 首页 PPT 式硬翻页控制器：接管 wheel/keydown/touch，一滚一页；含回顶钮 */}
+        <HomePager backToTopLabel={content.backToTop ?? '回到顶部'} />
 
         {/* Hero Section · 视差滚动 / 滚动驱动动画 */}
         <HomeHero
@@ -107,10 +108,10 @@ export default async function HomePage({ params }: HomeProps) {
             {content.features.map((feature, i) => (
               <Reveal key={feature.title} delay={i * 70}>
                 <div className="feature-card">
-                  <div className="icon" aria-hidden>
-                    {feature.icon}
+                  <div className="feature-card__icon" aria-hidden>
+                    <FeatureIcon name={feature.icon} />
                   </div>
-                  <h3>{feature.title}</h3>
+                  <h3 className="feature-card__title">{feature.title}</h3>
                   <p>{feature.details}</p>
                   {feature.link && (
                     <Link

@@ -26,9 +26,8 @@ interface HomeHeroProps {
  * 之前实现：onScroll rAF 把 --sy / --p 写入 CSS，content 随滚动上浮缩放淡出。
  * 问题：和无极滚动 + 滚动驱动 transform 叠加会引发超大截图区域的合成层抖动，
  *        而且与「逐页 snap」的目标相违背。
- * 现在：取消滚动驱动的 rAF；只保留鼠标视差的 rAF（缓动跟随光标，纯位移，绝不
- *        触碰 filter / 大面积重绘），让 Hero 在被 snap 锁住时表现稳定。
- *        「随滚动淡出」改为由 scroll-snap 自然过渡——离开视口就交给下一页接管。
+ * 现在：取消滚动驱动的 rAF；只保留鼠标视差的 rAF（缓动跟随光标，纯位移）。
+ * 翻页（home-scrolling）期间仍持续更新 --mx/--my，避免回顶时背景「卡一下再跟手」。
  *
  * 鼠标视差始终开启（不因 prefers-reduced-motion 关闭）。
  */
@@ -47,39 +46,49 @@ export function HomeHero({
     const el = ref.current;
     if (!el) return;
 
-    // —— 鼠标视差（带缓动惯性）——
-    // 只写 --mx / --my，纯 transform 走 GPU 合成层，不触发 layout/paint，
-    // 配合 scroll-snap 也只是静止时仍在做 5% lerp 的轻量位移。
+    // —— 鼠标视差 ——
+    // mousemove 同步推进一段 + rAF 补帧；回顶主线程尖峰时仍能在下次移动立刻跟手，
+    // 不依赖「动画结束后 rAF 才恢复」的一帧空窗。
     let targetX = 0;
     let targetY = 0;
     let curX = 0;
     let curY = 0;
     let mouseRaf = 0;
-    /** 翻页期间（html 上挂 `.home-scrolling`）停止 rAF 与写 CSS 变量——
-     *  滚轮事件在防跳过的 700ms lock 里每帧都在争主线程，再叠一个 60fps 的视差 rAF
-     *  会让 wheel → scrollTo 之间的帧率掉到肉眼可感的卡顿。停下后若鼠标已移动，下次 tick 自动恢复。 */
-    let isPaused = false;
+    let lastMx = '';
+    let lastMy = '';
+    let running = true;
+
+    const write = () => {
+      const mx = curX.toFixed(4);
+      const my = curY.toFixed(4);
+      if (mx !== lastMx) {
+        lastMx = mx;
+        el.style.setProperty('--mx', mx);
+      }
+      if (my !== lastMy) {
+        lastMy = my;
+        el.style.setProperty('--my', my);
+      }
+    };
+
+    const stepToward = (k: number) => {
+      curX += (targetX - curX) * k;
+      curY += (targetY - curY) * k;
+      if (Math.abs(targetX - curX) < 0.0008) curX = targetX;
+      if (Math.abs(targetY - curY) < 0.0008) curY = targetY;
+      write();
+    };
+
     const onMove = (e: MouseEvent) => {
       targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+      // 同步跟一截，避免 rAF 被长任务挤掉时「背景假死」
+      stepToward(0.35);
     };
+
     const tick = () => {
-      if (document.documentElement.classList.contains('home-scrolling')) {
-        isPaused = true;
-        mouseRaf = requestAnimationFrame(tick);
-        return;
-      }
-      // 从暂停中恢复：把当前位置直接跳到目标，避免 lerp 从 0 平滑过渡产生「跳回原位」的违和感
-      if (isPaused) {
-        isPaused = false;
-        curX = targetX;
-        curY = targetY;
-      } else {
-        curX += (targetX - curX) * 0.05;
-        curY += (targetY - curY) * 0.05;
-      }
-      el.style.setProperty('--mx', curX.toFixed(4));
-      el.style.setProperty('--my', curY.toFixed(4));
+      if (!running) return;
+      stepToward(0.14);
       mouseRaf = requestAnimationFrame(tick);
     };
 
@@ -87,6 +96,7 @@ export function HomeHero({
     window.addEventListener('mousemove', onMove, { passive: true });
 
     return () => {
+      running = false;
       window.removeEventListener('mousemove', onMove);
       cancelAnimationFrame(mouseRaf);
     };

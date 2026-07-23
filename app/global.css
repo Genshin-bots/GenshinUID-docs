@@ -459,41 +459,47 @@ body {
   box-shadow: 0 1px 0 0 color-mix(in oklch, white 4%, transparent) inset;
 }
 
-/* 翻页动画进行中（HomePager 在 <html> 上加 .home-scrolling）：临时关掉顶栏的
-   backdrop-filter——大面积模糊每帧重算是「滚动卡顿」的主因。改用更不透明的纯色底
-   补偿失去的模糊，0.2s 过渡让切换平滑、肉眼几乎无感；停下即恢复磨砂玻璃。 */
-.home-scrolling .glass-header {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: var(--fd-glass-bg-strong);
-}
-
-/* 翻页时同时暂停首页那些「每帧都重绘」的装饰层，让 wheel 触发的滚动能稳定跑到 60fps。
-   这些动画跑在自己的合成层上、平时不影响性能，但和硬翻页 rAF 抢 GPU 时会导致翻
-   页途中掉帧。停下后由 transition / 重新挂载的事件恢复，无需手动管。 */
+/*
+ * 翻页中减负（禁止 display:none iframe）。
+ * 注意：不要在此开关 glass-header 的 backdrop-filter——回顶瞬间重开 18px 磨砂
+ * 会整页重绘，Hero 背景会「卡一下」。Header 保持始终同款 blur。
+ * Hero 视差 transform / orb blur 也保持不动，避免姿态跳变。
+ */
+/* 全站 marquee 翻页时可暂停；标题页横幅除外 */
 .home-scrolling .marquee__track {
-  animation-play-state: paused;
+  animation-play-state: paused !important;
 }
-.home-scrolling .hero-px__orb {
-  /* 把 blur 临时关掉：blur(64px) 在 40rem×40rem 的圆上是滚动掉帧的常见来源 */
-  filter: none;
-  opacity: 0.25;
-}
-.home-scrolling .hero-px__eyes,
-.home-scrolling .hero-px__grid,
-.home-scrolling .hero-px__orb {
-  /* 关掉鼠标视差的 transform 写入：rAF 中每帧 setProperty 也会和翻页抢主线程 */
-  transform: none !important;
+.home-scrolling .home-showcase__marquee .marquee__track {
+  animation-play-state: running !important;
 }
 .home-scrolling .hero-px__mouse span {
-  /* 暂停鼠标滚轮的小指示器动画 */
-  animation-play-state: paused;
+  animation-play-state: paused !important;
 }
-.home-scrolling .showcase-panel,
 .home-scrolling .showcase-shot::before {
-  /* 翻页途中暂停滤镜 / 模糊扩散，免去每帧重算大区域 backdrop；
-     入场动画已经在 rAF 中走完，关掉不影响视觉效果 */
-  filter: none;
+  display: none !important;
+}
+/* 防白屏：iframe 永不 display:none；只禁点 */
+.home-scrolling .showcase-panel-embed__frame {
+  pointer-events: none !important;
+}
+/* 大 shot 关 blur 减负；opacity/位移过渡仍在。回顶后 filter 恢复会开销，
+   但由 HomePager 在滚动结束后再延迟卸 home-scrolling，避开落点同一帧。 */
+.home-scrolling .showcase-shot.showcase-fade {
+  filter: none !important;
+}
+.home-scrolling .reveal {
+  filter: none !important;
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.home-scrolling
+  .home-page
+  .marquee__track:not(.home-showcase__marquee .marquee__track) {
+  animation-play-state: paused !important;
+}
+.home-scrolling .home-showcase__marquee .marquee__track {
+  animation-play-state: running !important;
 }
 
 /* ==========================================================================
@@ -902,10 +908,8 @@ body {
   transform: translate3d(calc(var(--mx) * -10px), calc(var(--my) * -10px), 0);
 }
 
-/* 极光光球：每层不同的鼠标 / 滚动系数 → 视差。
-   `filter: blur()` 在超大圆上是滚动掉帧的常见来源（高斯模糊每帧重算整张图层），
-   64px → 36px：保持柔光感，但 blur 卷积开销降一档；硬翻页时由 .home-scrolling
-   进一步临时关掉（见下方）。 */
+/* 极光光球：每层不同的鼠标系数 → 视差。
+   blur 控制在 36px；翻页时不再临时 filter:none（回顶会闪/卡）。 */
 .hero-px__orb {
   position: absolute;
   border-radius: 50%;
@@ -1226,9 +1230,12 @@ body {
 /* 让被 .reveal 包裹的 feature 卡片仍然撑满网格单元 */
 .features-grid > .reveal {
   display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
 }
 .features-grid > .reveal > .feature-card {
   width: 100%;
+  min-width: 0;
 }
 
 /* 注意：.reveal 的「模糊入场」应需求始终开启，不被 prefers-reduced-motion /
@@ -1530,6 +1537,11 @@ body {
   --marquee-stroke: 1px;
   --marquee-icon-size: 0.42em;
 }
+/* alwaysRun 行由 rAF 驱动，关掉 CSS animation 避免双轨 */
+.home-showcase__marquee .marquee__row--always .marquee__track {
+  animation: none !important;
+  will-change: transform;
+}
 .home-showcase__title {
   font-size: clamp(2.25rem, 5vw, 3.75rem);
   font-weight: 800;
@@ -1556,47 +1568,51 @@ body {
 .home-showcase__list {
   display: flex;
   flex-direction: column;
-  /* min-height 已给足翻页节奏，面板间距收敛即可（内容垂直居中本就留白） */
-  gap: clamp(2rem, 5vw, 4rem);
+  /* 页间零缝，硬翻页不夹空隙、不露邻页一角 */
+  gap: 0;
 }
 
-/* 单个面板：冲出视口边缘的超大截图 + 文案，左右交错。
-   双向 .is-in 切换：进入视口模糊淡入上浮，离开视口反向 → 来回滚不丢动效。 */
+/* 单个面板：左右交错「文案 + live frame」。
+   面板本体不透明度始终 1（保证 iframe 可预加载）；
+   子块 .showcase-fade 做与 .reveal 同款的双向模糊渐显。 */
 .showcase-panel {
   --accent: oklch(0.63 0.19 250);
-  /* 内嵌的是「可交互的实时控制台」而非装饰截图 —— 不能向外冲出视口被裁掉
-     （会切掉侧边栏 / 右侧内容，见用户反馈「无论左右都被裁切」）。故 bleed=0，
-     整个 iframe 完整落在内容区内。 */
   --bleed: 0px;
   display: grid;
-  /* 文案窄列贴页面内侧，截图占据剩余空间。文案列收窄、左右留白与列间距收紧，
-     把更多宽度让给右侧「实时控制台」框 —— 框更大、内嵌内容也随之展示得更大。 */
   grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
   align-items: center;
   column-gap: clamp(1.5rem, 3vw, 3.25rem);
   padding-inline: clamp(1rem, 3.5vw, 3.5rem);
-  /* 「一页一页」：每个面板给足近一屏的高度并垂直居中，滚动时像翻页一样逐屏呈现 */
-  min-height: 88vh;
-  /* 性能关键：离屏面板整屏跳过渲染（含内嵌 iframe + 辉光 + 截图框）。首页是 rAF「硬翻页」，
-     每帧重绘——只渲染视口内的 1~2 屏，翻页才不卡。contain-intrinsic-size 给离屏面板一个
-     稳定占位高度，保证 HomePager 的 offsetTop 测量与滚动条不跳。 */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 88vh;
-  /* 初始态：下沉 + 轻微缩小 + 透明（撤掉原来的 `filter: blur(14px)` —— blur 是
-     滚动卡顿大户，每帧都在超大区域里跑高斯模糊；改用「更深的 translateY + 透明度
-     对比」保留动感但零滤镜开销，翻页帧率直接升一档）。 */
-  opacity: 0;
-  transform: translateY(72px) scale(0.985);
-  transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  /* 严格一屏（扣顶栏 56px），避免 88vh 露出上下页约 12% 一角 */
+  min-height: calc(100svh - 56px);
+  min-height: calc(100dvh - 56px);
+  box-sizing: border-box;
 }
-.showcase-panel.is-in {
+
+/* 错落入场：opacity + 位移始终；blur 仅在非翻页时启用（见上方 .home-scrolling） */
+.showcase-fade {
+  --stagger: 0;
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition:
+    opacity 1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0ms;
+}
+.showcase-panel.is-in .showcase-fade,
+.home-showcase__head.is-in .showcase-fade {
   opacity: 1;
   transform: none;
-  /* 入场完成即卸掉 will-change，避免长期占用合成层 */
-  will-change: auto;
+  filter: blur(0);
+  transition-delay: calc(var(--stagger, 0) * 95ms);
+}
+/* 勾选 li 本身是 flex 行，fade 时保持布局 */
+.showcase-points > .showcase-fade {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 /* 默认（data-side='left'）：截图在右列，向右冲出视口 */
 .showcase-shot {
@@ -1702,21 +1718,21 @@ body {
   position: relative;
   isolation: isolate;
 }
-/* 背后大块同色辉光：静态大块色团，仅做纵深感，不再随滚动 translateY */
+/* 背后辉光：用大径向渐变代替 blur（blur 是滚动掉帧大户） */
 .showcase-shot::before {
   content: "";
   position: absolute;
-  inset: -22% -16% -26%;
+  inset: -18% -12% -20%;
   z-index: -1;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at 50% 45%,
-    color-mix(in oklch, var(--accent) 52%, transparent),
-    transparent 70%
+    color-mix(in oklch, var(--accent) 42%, transparent),
+    transparent 68%
   );
-  /* 大半径模糊很贵；离屏面板已被 content-visibility 跳过，这里再把模糊收一点减轻在屏开销 */
-  filter: blur(56px);
-  opacity: 0.85;
+  opacity: 0.75;
+  /* 无 filter:blur — 纯合成便宜 */
+  pointer-events: none;
 }
 /* 截图框：静态位置，由 .is-in 的 1s transform 过渡整体淡入上浮 */
 .showcase-shot__frame {
@@ -1752,77 +1768,29 @@ body {
 .showcase-shot__bar i:first-child {
   background: color-mix(in oklch, var(--accent) 70%, transparent);
 }
-/* 媒体区：16:10 比例，与内嵌 iframe 的逻辑视口（1200×750）一致 → 缩放后正好铺满。 */
+/* 媒体区：16:10；底色贴近 hub，避免未 painted 时刺眼白屏 */
 .showcase-shot__media {
   position: relative;
   aspect-ratio: 1200 / 750;
   overflow: hidden;
+  background: #eef1f6;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
 }
-/* 图片直接铺满媒体框，object-fit:cover + object-position:top center
-   保留顶部对齐。原「上下各多 36px 靠 --p 平移」的视差已移除
-   —— 那是「来回滚图片抽搐」的根源（每帧重排 + 合成层抢占）。 */
-.showcase-shot__media img {
+.showcase-shot__placeholder {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-}
-
-/* ── 截图「活化」：默认内嵌的实时演示 iframe（桌面逻辑视口 1200×750 等比缩放）───── */
-.showcase-embed {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: var(--color-fd-card);
-  /* 隔离合成层，避免内嵌 iframe 的重绘外溢到外层文档 */
-  contain: layout paint;
-}
-/* 性能：面板不在视口内时（无 .is-in），跳过内嵌 iframe 的绘制/合成。
- * 首页是 rAF 缓动「硬翻页」，每帧都会重绘——若 6 个重型 SPA iframe 同时合成会卡顿。
- * content-visibility:hidden 保留 iframe 已加载状态（不重载），仅停止离屏绘制，
- * 让翻页时只有当前面板的 iframe 参与合成（修「滚动不流畅」）。 */
-.showcase-panel:not(.is-in) .showcase-embed {
-  content-visibility: hidden;
-}
-/* iframe 以桌面逻辑尺寸渲染（保证出现侧边栏 + 完整布局），再整体缩放进缩略框。
-   宽高 LOGICAL_W/H 由组件内联 style 给（1440×900），这里只负责缩放与定位。 */
-.showcase-embed__frame {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: 0;
-  display: block;
-  transform: scale(var(--embed-scale, 1));
-  transform-origin: top left;
-}
-/* 加载占位：轻量骨架（替代旧截图占位）。静态磨砂底 + 居中转圈，iframe onLoad 后淡出。
-   不用图片 → 省去大图解码/合成；只有视口内的那一个在转，离屏面板被 content-visibility 跳过。 */
-.showcase-shot__skeleton {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    120% 80% at 50% 0%,
-    color-mix(in oklch, var(--accent) 10%, var(--color-fd-card)) 0%,
-    var(--color-fd-card) 60%
-  );
-  transition: opacity 0.4s ease;
-}
-.showcase-shot__skeleton[data-loaded="true"] {
-  opacity: 0;
-  pointer-events: none;
+  background: #eef1f6;
 }
 .showcase-shot__spinner {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   border: 3px solid
-    color-mix(in oklch, var(--color-fd-muted-foreground) 25%, transparent);
+    color-mix(in oklch, var(--color-fd-muted-foreground) 22%, transparent);
   border-top-color: var(--accent);
   animation: showcase-spin 0.8s linear infinite;
 }
@@ -1835,6 +1803,49 @@ body {
   .showcase-shot__spinner {
     animation: none;
   }
+}
+
+/* ── 每屏独立 iframe：--embed-scale / --embed-ox / --embed-oy 由 JS 写入 ─ */
+.showcase-panel-embed {
+  --embed-scale: 1;
+  --embed-ox: 0px;
+  --embed-oy: 0px;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #f4f6fb;
+  contain: layout paint;
+  /* 阻止内嵌滚动触底后链到外层 HomePager */
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+}
+.showcase-panel-embed__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  display: block;
+  width: 1440px;
+  height: 900px;
+  max-width: none;
+  /* 先平移再 scale：contain 后水平/垂直居中，避免只贴顶显得偏上 */
+  transform-origin: top left;
+  background: #eef1f6;
+  /* 未 hydrate 不露空壳；一旦 painted 保持 opacity:1，翻页也不拆层 */
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  backface-visibility: hidden;
+  transform: translate3d(var(--embed-ox, 0px), var(--embed-oy, 0px), 0)
+    scale(var(--embed-scale, 1));
+}
+.showcase-panel-embed[data-painted="true"] .showcase-panel-embed__frame {
+  opacity: 1;
+}
+/* 翻页中仅禁点，不改 opacity（防闪白） */
+.showcase-panel-embed[data-scrolling="true"] .showcase-panel-embed__frame {
+  pointer-events: none;
 }
 
 /* 内嵌后右下角的「● 实时演示」徽章 */
@@ -1865,11 +1876,9 @@ body {
     grid-template-columns: 1fr;
     column-gap: 0;
     gap: 1.75rem;
-    /* 移动端竖排内容本就高，取消近一屏的强制高度，避免上下出现大片空白 */
     min-height: auto;
     padding-inline: clamp(1rem, 5vw, 1.5rem);
   }
-  /* 移动端取消「冲出视口」：截图回到容器内，并统一放到文案上方 */
   .showcase-shot,
   .showcase-panel[data-side="right"] .showcase-shot {
     margin-inline: 0;
@@ -1930,8 +1939,11 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.75rem;
+  /* 强制内容贴左，避免继承/网格把 icon 顶到视觉中轴 */
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.65rem;
+  padding: 1.35rem 1.5rem 1.5rem;
   border: 1px solid var(--fd-border-soft);
   border-radius: 16px;
   background: color-mix(in oklch, var(--color-fd-card) 80%, transparent);
@@ -1948,18 +1960,18 @@ body {
     box-shadow 0.3s ease;
 }
 
-/* 编辑感大号序号 */
+/* 编辑感大号序号 —— 右上角 */
 .feature-card::after {
   content: counter(feat, decimal-leading-zero);
   position: absolute;
   top: 0.85rem;
-  right: 1.2rem;
+  right: 1.1rem;
   font-size: 2.5rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: color-mix(in oklch, var(--color-fd-foreground) 7%, transparent);
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   transition: color 0.3s ease;
 }
@@ -1978,7 +1990,8 @@ body {
   );
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: -1;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .feature-card:hover {
@@ -1997,41 +2010,76 @@ body {
   opacity: 1;
 }
 
-.feature-card .icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 12px;
-  font-size: 1.625rem;
-  background: linear-gradient(
-    135deg,
-    color-mix(in oklch, var(--color-fd-primary) 14%, transparent),
-    color-mix(in oklch, var(--color-fd-primary) 5%, transparent)
+/*
+ * 左上角大图标：文档流第一项 + 自身贴左。
+ * 不用 absolute（历史上易被缓存旧规则 / 父级 transform 搞乱观感）。
+ */
+.feature-card > .feature-card__icon {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  justify-self: start;
+  display: block;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin: 0 0 0.15rem;
+  padding: 0;
+  line-height: 0;
+  color: var(--color-fd-primary);
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  transition:
+    color 0.25s ease,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.feature-card > .feature-card__icon .feature-card__icon-svg,
+.feature-card > .feature-card__icon svg {
+  display: block;
+  width: 2.15rem !important;
+  height: 2.15rem !important;
+  stroke-width: 1.5;
+}
+.feature-card:hover > .feature-card__icon {
+  color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 78%,
+    var(--color-fd-accent-3, white) 22%
   );
-  border: 1px solid
-    color-mix(in oklch, var(--color-fd-primary) 18%, transparent);
-  margin-bottom: 0.25rem;
+  transform: translateY(-1px);
 }
 
-.feature-card h3 {
+.feature-card > .feature-card__title,
+.feature-card > h3 {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
   font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0;
+  text-align: left;
   color: var(--color-fd-foreground);
 }
 
-.feature-card p {
+.feature-card > p {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
   color: var(--color-fd-muted-foreground);
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0;
+  text-align: left;
 }
 
-.feature-card a.feature-link {
+.feature-card > a.feature-link {
+  position: relative;
+  z-index: 1;
   margin-top: auto;
+  align-self: flex-start;
   color: var(--color-fd-primary);
   font-size: 0.875rem;
   font-weight: 500;
@@ -2041,7 +2089,7 @@ body {
   gap: 0.25rem;
   transition: gap 0.2s ease;
 }
-.feature-card a.feature-link:hover {
+.feature-card > a.feature-link:hover {
   gap: 0.5rem;
   text-decoration: none;
 }
@@ -5729,4 +5777,108 @@ html:has(.home-page) {
   /* 顶部 header（h-14 = 56px）已由脚本里 SCROLL_PADDING_TOP 处理，
      这里只保留键盘 PageDown 兜底用的 scroll-padding，不再启用 scroll-snap。 */
   scroll-padding-top: 4.5rem;
+}
+
+/* 离开首屏后右下角「回到顶部」—— portal 到 body，与 HomePager 同套 animateScrollTo */
+.home-back-top {
+  position: fixed;
+  /* 显式清掉 left，避免祖先或旧规则残留把钮钉在左下 */
+  top: auto;
+  left: auto !important;
+  right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+  bottom: max(1.15rem, env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.85rem 0.55rem 0.65rem;
+  border: 1px solid var(--fd-border-soft);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-fd-foreground);
+  background: var(--fd-glass-bg-strong);
+  box-shadow: var(--fd-glass-shadow);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.96);
+  transition:
+    opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.28s,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.home-back-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+.home-back-top:hover {
+  background: color-mix(
+    in oklch,
+    var(--fd-glass-bg-strong) 70%,
+    var(--color-fd-primary) 12%
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--fd-border-soft) 50%,
+    var(--color-fd-primary) 40%
+  );
+  box-shadow:
+    var(--fd-glass-shadow),
+    0 0 0 1px color-mix(in oklch, var(--color-fd-primary) 18%, transparent);
+}
+.home-back-top:active {
+  transform: scale(0.97);
+}
+.home-back-top:focus-visible {
+  outline: 2px solid var(--color-fd-primary);
+  outline-offset: 3px;
+}
+.home-back-top__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  stroke-width: 2.25;
+}
+.home-back-top__label {
+  line-height: 1;
+  white-space: nowrap;
+}
+/* 翻页中略减存在感，仍可点（打断当前动画回顶） */
+.home-scrolling .home-back-top.is-visible {
+  opacity: 0.72;
+}
+@media (max-width: 640px) {
+  .home-back-top {
+    /* 窄屏：图标为主，文案可藏以免挡内容 */
+    padding: 0.65rem;
+  }
+  .home-back-top__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-back-top {
+    transition:
+      opacity 0.15s ease,
+      visibility 0.15s;
+    transform: none;
+  }
 }

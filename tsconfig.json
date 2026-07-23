@@ -50,7 +50,6 @@
     "**/out/**",
     "**/.next/**",
     "scripts",
-    "external",
     "public/hub"
   ]
 }

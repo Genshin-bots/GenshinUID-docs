@@ -52,8 +52,14 @@ GenshinUID-docs/
 ├── assets/                   # ★ 构建期资源（不会被部署到 out/）
 │   └── fonts/MiSansVF.ttf    #   正文字体源文件（20MB，可变字体 wght 150~700）
 │                              #   喂给 scripts/font-slice.mjs 切到 public/font/MiSans-VF/
-├── public/font/              # → out/font/ 的静态字体（含 VF woff2 切片 + FiraCode）
-│   └── MiSans-VF/            #   font.css（97 @font-face）+ MiSansVF.{1..97}.woff2
+├── public/
+│   ├── font/                 # → out/font/ 的静态字体（含 VF woff2 切片 + FiraCode）
+│   │   └── MiSans-VF/        #   font.css（97 @font-face）+ MiSansVF.{1..97}.woff2
+│   ├── hub/                  # ★ 主页控制台 Demo SPA 静态产物（同源 /hub/，入库，无 submodule）
+│   │   ├── index.html        #   HashRouter + ?embed=1 嵌入锁定
+│   │   ├── assets/           #   js/css 打包（hash 文件名）
+│   │   └── demo-memes/ …     #   演示资源
+│   └── home/                 #   首页静态图（如 eyes.png）
 ├── scripts/
 │   ├── font-slice.mjs        # 重新生成 VF 切片的脚本（详见 dev_docs §8）
 │   └── postbuild.mjs         # 构建后复制 CNAME 等
@@ -68,6 +74,10 @@ GenshinUID-docs/
 > **字体资源分两个地方**：源 `.ttf` 在 `assets/fonts/`（**不进 out/**），
 > 切片 `.woff2` + `font.css` 在 `public/font/MiSans-VF/`（**进 out/**）。
 > 别把源 ttf 误放到 public/，会无意义地膨胀部署体积。详见 [§8](./08-font-slice.md) / 坑 #15。
+>
+> **主页控制台**：**不要**再挂 `external/gsuid_hub` submodule，也**不要**在
+> `pnpm dev` / `pnpm build` 里编译 hub。产物固定在 `public/hub/`，随仓库发布。
+> 首页组件见 `HomePager` / `HomeShowcase` / `Marquee`，完整说明 [九](./09-home-ppt-pager.md)。
 
 ## 1.3 一个文档页面是怎么来的
 
@@ -101,16 +111,20 @@ GenshinUID-docs/
 
 ```bash
 pnpm install
-pnpm dev          # 本地开发（:3000）
-pnpm build        # 生产构建 → out/（含 postbuild：复制 CNAME）
+pnpm dev          # 本地开发（:3000）—— 纯 Next，不编 hub
+pnpm build        # 生产构建 → out/（postbuild 复制 CNAME；public/hub/ 原样进 out/hub/）
 pnpm typecheck    # tsc --noEmit
 ```
 
-- **静态预览**：`out/` 是纯静态。用 `python -m http.server` 或 `npx serve out` 起一个静态服务器看效果
+- **静态预览**：`out/` 是纯静态。用 `python -m http.server` 或 `npx serve out` / `pnpm serve` 起静态服务器
   （`trailingSlash` 目录会回退到 `index.html`）。
 - **部署**：GitHub Pages，根域名（`out/CNAME`）。`pnpm build` 后把 `out/` 发布即可。
-- **截图自查**（CI 无界面时）：可用本机 Chrome `--headless=new --screenshot=...` 对静态服务器截图，
-  暗色模式可写一个 `localStorage.setItem('theme','dark')` 的中转页再跳转。
+  CI **无需** submodule / 额外 yarn：主页控制台 Demo 已入库 `public/hub/`。
+- **截图自查**（CI 无界面时）：可用本机 Chrome `--headless=new --screenshot=...` 对静态服务器截图。
 
 > **构建坑**：若有静态服务器正占着 `out/`，`pnpm build` 末尾会 `EBUSY: rmdir 'out'` 失败
 > （页面其实已生成）。先关掉占用进程再构建。见 [七、坑 #6](./07-pitfalls.md)。
+>
+> **主页控制台**：`public/hub/` = 真实 Demo SPA；`HomeShowcase` 用**多 iframe 会话常驻**内嵌。
+> 更新演示 = 在上游 `yarn build:demo` 后覆盖 `public/hub/`。
+> 详见 [九](./09-home-ppt-pager.md)（§9.8 产物 / §9.5 挂载 / §9.4 回顶与收尾 / 坑 #36–#43）。

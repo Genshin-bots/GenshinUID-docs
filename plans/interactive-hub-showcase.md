@@ -1,15 +1,14 @@
 # 主页截图「活化」方案与落地：可交互的 gsuid_hub 演示
 
-> 状态：✅ 已实施（含 v1 → v8 八轮迭代）
-> 涉及项目：`GenshinUID-docs`（本仓库，Next.js 静态站）+ `gsuid_hub`（Vite + React SPA 控制台）
-> 目标读者：同时掌控两个仓库的维护者
-
-> **最终形态（与早期"二选一"不同，已拍板）**：采用**单仓库 + 单命令 + 单次部署**——
-> `gsuid_hub` 作为 **git submodule** 挂到 docs 的 `external/gsuid_hub`，docs 构建时把 hub 的
-> **Demo 静态产物**烤进 `public/hub/`，最终 `next build`（`output:'export'`）一并导出到 `out/hub/`，
-> **整站只发一次 GitHub Pages**（docs 在 `/`，可交互控制台在 `/hub/`）。
-> 本地用**一条命令**（`pnpm dev`）把 hub Demo 烤进 `public/hub/`，再由 `next dev` **同源**托管。
-> 即原 §4.1 的「方式②」为唯一选型，「方式①跨域独立部署」仅作历史备选保留说明。
+> 状态：⚠️ **历史方案文档** — v1 → v8 描述 iframe + **submodule 构建时烤产物**。
+> **当前形态（2026-07）**：仍用 **真实 Demo SPA iframe**（完全复刻原控制台），但产物
+> **固定入库** `public/hub/`，**已删除** `external/gsuid_hub` submodule 与 `scripts/hub.mjs`。
+> 另有会话常驻 iframe / 防白屏 / 错落入场 / alwaysRun 横幅等，**一律以**
+> `dev_docs/references/09-home-ppt-pager.md`（整章）+ `dev_docs/references/07-pitfalls.md` 坑 #36–#40 为准。
+> 本文档只保留 Mock/API 对照与早期迭代记录；更新演示 = 上游 `yarn build:demo` 后覆盖 `public/hub/`。
+>
+> 涉及项目：`GenshinUID-docs`（本仓库）+ 历史上的 `gsuid_hub` Demo 构建
+> 目标读者：同时了解控制台与文档站的维护者
 
 ---
 

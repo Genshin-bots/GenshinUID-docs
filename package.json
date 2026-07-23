@@ -4,11 +4,8 @@
   "version": "0.2.1",
   "private": true,
   "scripts": {
-    "dev": "node scripts/hub.mjs build && next dev --port 3000",
-    "dev:docs": "next dev --port 3000",
-    "build": "node scripts/hub.mjs build && next build",
-    "build:docs": "next build",
-    "build:hub": "node scripts/hub.mjs build",
+    "dev": "next dev --port 3000",
+    "build": "next build",
     "start": "next start",
     "serve": "npx serve out",
     "format": "biome format --write .",

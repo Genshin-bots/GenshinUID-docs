@@ -1,13 +1,11 @@
 import type { Language } from '@/lib/i18n';
 
 /**
- * 内嵌「可交互控制台」(gsuid_hub Demo) 的基址。
- * **始终同源** `/hub`：hub Demo 产物由 scripts/hub.mjs 烤进 public/hub/，开发(next dev)与
- * 生产(output:export) 都由 docs 自身托管 —— 不再依赖任何独立端口/服务，杜绝「localhost 拒绝连接」。
- * （仍可用 NEXT_PUBLIC_HUB_BASE 覆盖，一般无需。）
+ * 内嵌「可交互控制台」Demo 的基址。
+ * **始终同源** `/hub`：完整 Demo SPA 静态产物固定入库于 public/hub/（含 Mock、演示资源）。
+ * 不再依赖 gsuid_hub submodule / 构建时编译。（仍可用 NEXT_PUBLIC_HUB_BASE 覆盖，一般无需。）
  *
- * embedSrc 用 `index.html` 显式入口（dev 下 next 直接命中静态文件，无目录索引歧义），
- * 并带 `?embed=1` 让 hub 进入「嵌入锁定」模式（侧边栏只展示不可点击）。HashRouter 深链跟在 `#` 后。
+ * embedSrc 用 index.html 显式入口 + ?embed=1（嵌入锁定）+ HashRouter 深链。
  */
 export const HUB_DEMO_BASE = process.env.NEXT_PUBLIC_HUB_BASE || '/hub';
 const hubEmbed = (route: string) =>
@@ -20,6 +18,10 @@ interface HeroAction {
 }
 
 interface Feature {
+  /**
+   * lucide 图标键（见 components/FeatureIcon.tsx），非 emoji。
+   * platforms | bots | protocol | console | plugins | database | docs | opensource
+   */
   icon: string;
   title: string;
   details: string;
@@ -71,6 +73,8 @@ interface HomeContent {
     actions: HeroAction[];
   };
   scrollHint?: string;
+  /** 离开首屏后右下角「回到顶部」文案 */
+  backToTop?: string;
   showcase: Showcase;
   featuresTitle?: string;
   features: Feature[];
@@ -105,7 +109,7 @@ const marqueeTokens: string[] = [
 
 const zhFeatures: Feature[] = [
   {
-    icon: '💻',
+    icon: 'platforms',
     title: '支持多种平台',
     details:
       '适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...',
@@ -113,28 +117,28 @@ const zhFeatures: Feature[] = [
     linkText: '支持平台',
   },
   {
-    icon: '🤖',
+    icon: 'bots',
     title: '适配多种Bot',
     details: '适配NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot...',
     link: '/docs/link-bots/adapter-list/',
     linkText: '支持Bot',
   },
   {
-    icon: '🤝',
+    icon: 'protocol',
     title: '连接多种协议',
     details: '通过简单的早柚协议可以分发给OneBotV11、V12、Red等（需Bot支持）',
     link: '/docs/code-adapter/protocol/',
     linkText: '早柚协议',
   },
   {
-    icon: '🌎',
+    icon: 'console',
     title: '网页控制台',
     details: '任何插件均可通过简单继承，令插件配置项直接在网页控制台上修改生效',
     link: '/docs/started/web-console/',
     linkText: '如何使用',
   },
   {
-    icon: '🔌',
+    icon: 'plugins',
     title: '插件统一',
     details:
       '高度统一集成的插件，令你不需要为某种功能装很多插件，或者为了某种功能装重复插件',
@@ -142,7 +146,7 @@ const zhFeatures: Feature[] = [
     linkText: '插件列表',
   },
   {
-    icon: '🗄',
+    icon: 'database',
     title: '统一数据库支持',
     details:
       '通过简单的继承重写，可直接适配基础多账号方法、网页控制台增删改查以及更多',
@@ -150,24 +154,24 @@ const zhFeatures: Feature[] = [
     linkText: '简单示例',
   },
   {
-    icon: '📄',
+    icon: 'docs',
     title: '文档完善',
     details: '安装、配置、安装插件、编写插件、编写适配器，文档一应俱全',
     link: '/docs/started/env-check/',
     linkText: '查阅文档',
   },
   {
-    icon: '🚩',
+    icon: 'opensource',
     title: '拥抱开源',
     details: 'GsCore和支持GsCore的插件均开源',
     link: 'https://github.com/Genshin-bots/gsuid_core',
-    linkText: '欢迎 ⭐',
+    linkText: '欢迎 Star',
   },
 ];
 
 const enFeatures: Feature[] = [
   {
-    icon: '💻',
+    icon: 'platforms',
     title: 'Multi-platform',
     details:
       'Supports QQ, QQ Guild, WeChat, Telegram, Discord, Feishu, KOOK, DoDo, Miyoushe...',
@@ -175,7 +179,7 @@ const enFeatures: Feature[] = [
     linkText: 'Platforms',
   },
   {
-    icon: '🤖',
+    icon: 'bots',
     title: 'Multi-bot',
     details:
       'Compatible with NoneBot2, HoshinoBot, ZeroBot, Koishi, YunzaiBot...',
@@ -183,7 +187,7 @@ const enFeatures: Feature[] = [
     linkText: 'Bots',
   },
   {
-    icon: '🤝',
+    icon: 'protocol',
     title: 'Sayu Protocol',
     details:
       'Distribute to OneBotV11, V12, Red, etc. via the simple Sayu protocol',
@@ -191,7 +195,7 @@ const enFeatures: Feature[] = [
     linkText: 'Protocol',
   },
   {
-    icon: '🌎',
+    icon: 'console',
     title: 'Web Console',
     details:
       'Any plugin can expose its config to the web console with a simple inheritance',
@@ -199,7 +203,7 @@ const enFeatures: Feature[] = [
     linkText: 'How to use',
   },
   {
-    icon: '🔌',
+    icon: 'plugins',
     title: 'Unified Plugins',
     details:
       'Highly unified plugins so you do not need many plugins or duplicated ones',
@@ -207,31 +211,31 @@ const enFeatures: Feature[] = [
     linkText: 'Plugin list',
   },
   {
-    icon: '🗄',
+    icon: 'database',
     title: 'Unified Database',
     details: 'Inherit to get multi-account methods, web console CRUD and more',
     link: '/docs/code-plugins/plugins-data-base/',
     linkText: 'Example',
   },
   {
-    icon: '📄',
+    icon: 'docs',
     title: 'Complete Docs',
     details: 'Installation, configuration, plugins, development — all covered',
     link: '/docs/started/env-check/',
     linkText: 'Read docs',
   },
   {
-    icon: '🚩',
+    icon: 'opensource',
     title: 'Open Source',
     details: 'GsCore and supported plugins are open source',
     link: 'https://github.com/Genshin-bots/gsuid_core',
-    linkText: 'Star ⭐',
+    linkText: 'Star on GitHub',
   },
 ];
 
 const jaFeatures: Feature[] = [
   {
-    icon: '💻',
+    icon: 'platforms',
     title: 'マルチプラットフォーム',
     details:
       'QQ、QQギルド、WeChat、Telegram、Discord、Feishu、KOOK、DoDo、米游社...',
@@ -239,53 +243,53 @@ const jaFeatures: Feature[] = [
     linkText: 'プラットフォーム',
   },
   {
-    icon: '🤖',
+    icon: 'bots',
     title: 'マルチBot',
     details: 'NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot に対応',
     link: '/docs/link-bots/adapter-list/',
     linkText: 'Bot',
   },
   {
-    icon: '🤝',
+    icon: 'protocol',
     title: 'Sayuプロトコル',
     details: 'Sayuプロトコル経由でOneBotV11、V12、Red等に配信',
     link: '/docs/code-adapter/protocol/',
     linkText: 'プロトコル',
   },
   {
-    icon: '🌎',
+    icon: 'console',
     title: 'Webコンソール',
     details: '簡単な継承でプラグイン設定をWebコンソールで管理',
     link: '/docs/started/web-console/',
     linkText: '使い方',
   },
   {
-    icon: '🔌',
+    icon: 'plugins',
     title: '統一プラグイン',
     details: '重複や乱立しない、高度に統合されたプラグイン',
     link: '/docs/install-plugins/plugins-list/',
     linkText: '一覧',
   },
   {
-    icon: '🗄',
+    icon: 'database',
     title: '統一データベース',
     details: '継承でマルチアカウントやCRUD機能を即座に獲得',
     link: '/docs/code-plugins/plugins-data-base/',
     linkText: '例',
   },
   {
-    icon: '📄',
+    icon: 'docs',
     title: '完全なドキュメント',
     details: 'インストール、設定、プラグイン、開発まですべて網羅',
     link: '/docs/started/env-check/',
     linkText: '読む',
   },
   {
-    icon: '🚩',
+    icon: 'opensource',
     title: 'オープンソース',
     details: 'GsCoreおよび対応プラグインはオープンソース',
     link: 'https://github.com/Genshin-bots/gsuid_core',
-    linkText: 'Star ⭐',
+    linkText: 'Star on GitHub',
   },
 ];
 
@@ -548,6 +552,7 @@ export function getHomeContent(lang: Language): HomeContent {
         ],
       },
       scrollHint: 'Scroll to explore',
+      backToTop: 'Back to top',
       showcase: enShowcase,
       featuresTitle: 'Why GsCore',
       features: enFeatures,
@@ -581,6 +586,7 @@ export function getHomeContent(lang: Language): HomeContent {
         ],
       },
       scrollHint: 'スクロールして探索',
+      backToTop: 'トップへ戻る',
       showcase: jaShowcase,
       featuresTitle: 'GsCore を選ぶ理由',
       features: jaFeatures,
@@ -613,6 +619,7 @@ export function getHomeContent(lang: Language): HomeContent {
       ],
     },
     scrollHint: '向下滚动 · 探索更多',
+    backToTop: '回到顶部',
     showcase: zhShowcase,
     featuresTitle: '早柚核心开发优势',
     features: zhFeatures,

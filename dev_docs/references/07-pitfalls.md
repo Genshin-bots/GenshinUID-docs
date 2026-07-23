@@ -838,3 +838,99 @@ ${'>'.repeat(3)} Python 3.x.x`}</code></pre>
   - **强制按顺序走的「混合步骤」**（如"装好插件 → 重启 → 验证"）→ 还是 CheckItem。
 - **关联**：本项目 `install-core.mdx` 第四小节（配置 GsCore）已经按这条规则重构成
   PkgManager + 内部用有序列表 `<ol>` 走子步骤。
+
+## 坑 #36：首页控制台 iframe 每次滚回白屏约 1s
+
+- **现象**：Showcase 某屏已经显示过真实控制台，再滚走再滚回，媒体框空/灰约 1 秒才恢复。
+- **根因（曾反复踩）**：
+  1. 为「省内存 / 提帧率」在远处面板 **卸载 iframe** 或 `display:none` / `content-visibility: hidden`；
+  2. 浏览器丢弃已 paint 的层，回滚时 SPA 重新 hydrate / 重绘；
+  3. 与「延迟到滚到才 mount」叠加时，用户体感是「停多久都要等」。
+- **正解（现行）**：
+  - `mounted: Set` **只增不减**，会话内 iframe 挂上后永不卸；
+  - 首项立即挂，其余 `400 + i*450` ms 错峰挂；
+  - 翻页中 iframe **只** `pointer-events: none`，**不改 opacity、不隐藏**；
+  - `painted` 状态只升不降；
+  - 资源 `modulepreload` / `preload` 预热 `HUB_ASSETS`。
+- **红线**：不要为了「接近 120fps」再引入卸载 / 藏 frame 方案，除非产品接受白屏。
+- **关联**：[九 §9.1 / §9.5](./09-home-ppt-pager.md)。
+
+## 坑 #37：面板 `88vh` / 非零 gap 会露出邻页一角
+
+- **现象**：硬翻页停稳后，视口上下仍能看到下一页约 10% 内容，不像 PPT。
+- **根因**：`min-height: 88vh` 或 list `gap` 非 0，视口高度大于面板+间距。
+- **正解**：
+  - `.showcase-panel` / 标题 head：`min-height: calc(100svh - 56px)`（兼 `100dvh`）；
+  - `.home-showcase__list { gap: 0 }`；
+  - head 用负 `margin-top` 抵消 section 的 top padding，保证吸附时真满一屏。
+- **关联**：[九 §9.7](./09-home-ppt-pager.md)。
+
+## 坑 #38：Showcase 标题横幅在翻页或回屏后停转
+
+- **现象**：「强大，且易于上手」上下大字 marquee 不动，或滚回来才像卡死。
+- **根因**：
+  1. `.home-scrolling .marquee__track { animation-play-state: paused }` 冻 CSS 动画；
+  2. 浏览器对屏外 CSS 动画节流，回屏时仍暂停。
+- **正解**：标题页用 `<MarqueeRow alwaysRun />`——rAF 写 `translate3d`，与 CSS 动画脱钩；
+  并给 `.home-showcase__marquee` 保留 running 覆盖。其它 marquee 仍可 CSS + 翻页暂停。
+- **关联**：`components/Marquee.tsx` / [九 §9.6](./09-home-ppt-pager.md)。
+
+## 坑 #39：iframe 内列表滚到底把外层 HomePager 带走（滚动链）
+
+- **现象**：在控制台 Demo 里滚侧栏 / 表格，触底后整页开始 PPT 翻页。
+- **根因**：默认 overscroll chaining：内层滚不动 → 事件传到外层 window wheel。
+- **正解（多层）**：
+  1. 外层 `.showcase-panel-embed` / frame：`overscroll-behavior: contain|none`；
+  2. iframe load 后 `sealIframeOverscroll` 注入样式到 hub 的 `html/body` 与常见 scroll viewport；
+  3. `HomePager` 对 `iframe` / `.showcase-panel-embed` 目标 **不** `preventDefault` 抢滚轮
+     （框内交给 iframe；密封负责不链出去）。
+- **关联**：`HomeShowcase.sealIframeOverscroll` / [九 §9.5](./09-home-ppt-pager.md)。
+
+## 坑 #40：手绘 HubMock / 恢复 submodule 会破坏产品约束
+
+- **现象**：为「轻量」在文档站内用 React 画抽象控制台，或重新 `git submodule add gsuid_hub`。
+- **根因**：与「**完全复刻**真实控制台」的产品要求冲突；submodule 带回 CI yarn / 克隆负担。
+- **正解**：
+  - 画面 **只** 来自 `public/hub/` 真实 Demo SPA；
+  - 无 `.gitmodules`、无 `external/gsuid_hub`、无 `scripts/hub.mjs`；
+  - `pnpm dev` / `pnpm build` / CI 都不编 hub。
+- **更新 UI**：上游 `yarn build:demo` → 覆盖 `public/hub/` → 核对 `HUB_ASSETS`。
+- **关联**：[九 §9.8](./09-home-ppt-pager.md) / `plans/interactive-hub-showcase.md`（历史）。
+
+## 坑 #41：滚回首屏 Hero 背景「卡一下」才跟鼠标
+
+- **现象**：点回顶 / 向上硬翻到 Hero 后，背景光球/眼睛先僵住，再突然跟上鼠标。
+- **根因（叠加）**：
+  1. `.home-scrolling` 结束瞬间重开 **顶栏 `backdrop-filter`**（整页重绘尖峰）；
+  2. 翻页中 CSS 强制 Hero `transform: none` / orb `filter: none`，卸 class 后姿态与 blur 跳变；
+  3. JS 在翻页中停写 `--mx/--my`，结束后再跳到目标；
+  4. `MutationObserver` → `setPageScrolling` → **6 个 iframe 同帧 React 重渲**；
+  5. 回顶时对 showcase 批量 `is-in` 进出 + blur 过渡；
+  6. 落点与卸 `home-scrolling` / 发 `done` / `setState` 挤在同一帧。
+- **正解（现行）**：
+  - **不要**在 `.home-scrolling` 里开关 `.glass-header` 的 backdrop-filter；
+  - **不要**对 Hero 层 `transform: none` / orb `filter: none`；
+  - Hero 视差全程写 `--mx/--my`（`mousemove` 同步推进 + rAF 补帧）；
+  - `postMessage` 直接读 `html.home-scrolling`，**禁止** `pageScrolling` 状态驱动重渲；
+  - `finishScroll`：**双 rAF** 后再卸 class + `homepager:done`；`setActiveIdx` 再延一帧；
+  - 回顶（`scrollY < 48`）只清 showcase `is-in`，不批量重开入场；
+  - 远距动画 `ANIM_MS_BASE + f(dist)` 封顶 900ms。
+- **红线**：别为「翻页减负」把顶栏 blur / Hero 姿态整段关掉——回顶代价大于翻页收益。
+- **关联**：[九 §9.4 / §9.7 / §9.9](./09-home-ppt-pager.md)。
+
+## 坑 #42：回顶钮写了 `right` 仍贴在左下
+
+- **现象**：`.home-back-top { right: 1rem }` 视觉上仍在左下角。
+- **根因**：按钮挂在 `HomeLayout` 内时，祖先 `transform` / `filter` 会让 `position: fixed` 相对错误包含块。
+- **正解**：`createPortal(button, document.body)` + CSS 显式 `left: auto !important; right: … !important`。
+- **关联**：[九 §9.4](./09-home-ppt-pager.md)。
+
+## 坑 #43：Features 图标用泛名 `.icon` / 矩形底 / emoji 难对齐设计
+
+- **现象**：开发优势卡片图标像居中中上、或带廉价 emoji / 方块底。
+- **根因**：泛 class `.icon` 易被覆盖；大 `padding-top` + absolute 未生效时像「中上」；emoji 不可控。
+- **正解**：
+  - lucide 键映射 `FeatureIcon`；
+  - 专用 class **`feature-card__icon`** + 卡片 `align-items: flex-start` + `text-align: left`；
+  - 图标文档流第一项贴左，**无**矩形背景。
+- **关联**：[九 §9.9.1](./09-home-ppt-pager.md)。

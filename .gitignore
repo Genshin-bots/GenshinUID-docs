@@ -30,9 +30,7 @@ out
 .next
 .source
 
-# 内嵌 hub「可交互控制台」的构建产物（由 scripts/hub.mjs 生成，不入库）
-/public/hub
-/external/gsuid_hub/dist-demo
+# 主页控制台 Demo SPA 产物固定在 public/hub/（已入库，不再从 submodule 构建）
 
 # TypeScript incremental build cache
 *.tsbuildinfo

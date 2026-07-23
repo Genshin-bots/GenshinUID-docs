@@ -45,9 +45,9 @@ description: >
 | 四 | 怎么写文档（frontmatter、标题 / description、提示框、聊天示例、徽章、CJK 加粗 / 大括号注意、leaf icon 多元化脚本） | [references/04-writing-mdx.md](./references/04-writing-mdx.md) |
 | 五 | i18n 多语言（语言配置、导航栏 nav-config、首页 home-content、UI 文案、如何加一门语言） | [references/05-i18n.md](./references/05-i18n.md) |
 | 六 | 搜索（静态 Orama 索引、中文 / 日文分词、自定义搜索弹窗、为什么默认搜不到中文） | [references/06-search.md](./references/06-search.md) |
-| 七 | 已知坑与注意事项（全宽 Header、CJK 加粗、MDX 大括号、搜索分词、description 误填、构建 EBUSY、sidebar DOM 迁移、inline code / pre 字体链、banner 重排、lucide icons map 陷阱、**MDX JSX 表达式不解析 markdown**、**`>>>` 被解析为 JSX 闭合标签**、**Turbopack dev CSS 缓存不刷新**、**Callout 玻璃样式容器作用域**、**JSX 标题组件会让 TOC 丢失**、**`not-prose` 容器内的 ol/ul 数字消失**、**Client Component 不能传函数 prop**、**CheckItem 别用来承载二选一**） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
+| 七 | 已知坑（…、首页 iframe 白屏 / 邻页露边 / 横幅 / 滚动链 / **回顶卡顿** 等见坑 #36–#43） | [references/07-pitfalls.md](./references/07-pitfalls.md) |
 | 八 | 字体切片（MiSans VF + unicode-range，源文件位置、重新生成、VF 轴校验） | [references/08-font-slice.md](./references/08-font-slice.md) |
-| 九 | 首页 PPT 式硬翻页（`HomePager` rAF 缓动 + `HomeShowcase` 入场动画的设计要点） | [references/09-home-ppt-pager.md](./references/09-home-ppt-pager.md) |
+| 九 | 首页 PPT 硬翻页 + 控制台内嵌 + 回顶 + Features 图标 + 回顶性能（`HomePager` / `HomeShowcase` / `HomeHero` / `public/hub/`） | [references/09-home-ppt-pager.md](./references/09-home-ppt-pager.md) |
 | 十 | 实时聊天室路由（`/chat` 独立全页路由 vs `/sp/chat` 文档内嵌、HomeLayout 复用、ChatInterface 与 ChatLayout / ChatStandalone 关系、WebSocket 状态机、滚动策略） | [references/10-chat-route.md](./references/10-chat-route.md) |
 
 ## 推荐阅读顺序
@@ -59,6 +59,7 @@ description: >
 5. **搜索相关**：看 [六、搜索](./references/06-search.md)。
 6. **任何"奇怪现象"先翻** [七、已知坑](./references/07-pitfalls.md)，大概率已经记录。
 7. **调整字体 / 重新切片**：看 [八、字体切片](./references/08-font-slice.md)；关键注意项见坑 #15。
+8. **改首页翻页 / 控制台 / 回顶 / Features 图标**：看 [九](./references/09-home-ppt-pager.md)；白屏与回顶卡顿见坑 #36–#43。
 
 ## 最关键的几条（先记住）
 
@@ -71,8 +72,19 @@ description: >
 >   不是 4 套静态字重。CSS 写 `font-weight: 600` 浏览器会沿 wght 轴插值，不需要切换字体文件。
 >   **inline code / pre 也走 MiSans VF**（inline code 把 MiSans VF 提到 mono 之前；pre 块直接用 MiSans VF 并关闭 `liga/clig/calt`）。
 >   见 [八](./references/08-font-slice.md) / 坑 #15 / 坑 #17。
-> - **首页是 PPT 式硬翻页**（`HomePager` 接管 wheel/keydown/touch，一滚 = 一页）。
->   CSS 里**不要**再启用 `scroll-snap-*`（会和脚本抢主）。见 [九](./references/09-home-ppt-pager.md)。
+> - **首页是 PPT 式硬翻页**（`HomePager` 接管 wheel/keydown/touch；邻页约 520ms，远距回顶可至 900ms）。
+>   CSS 里**不要**再启用 `scroll-snap-*`。落点用**双 rAF** 再卸 `home-scrolling`。见 [九](./references/09-home-ppt-pager.md)。
+> - **主页控制台 = 真实 Demo SPA**（`public/hub/` 入库，同源 iframe），与原控制台完全一致。
+>   **无** `gsuid_hub` submodule、**无** 构建期烤 hub、**禁止**手绘 HubMock。
+>   更新演示 = 上游 `yarn build:demo` 后覆盖 `public/hub/`（并核对 `HUB_ASSETS` hash）。
+> - **防白屏铁律**：iframe 会话内挂上后**永不卸载**；翻页**禁止** `display:none` /
+>   `content-visibility:hidden` 藏 frame。见 [九 §9.5](./references/09-home-ppt-pager.md) / 坑 #36。
+> - **入场与翻页协作**：`homepager:goto` 时纯 DOM 打 `.is-in`（禁止滚动中 setState）；
+>   文案 `--stagger` 错落；live 框与 title 同为 stagger 2。标题横幅用 `MarqueeRow alwaysRun`（rAF）。
+> - **回顶 / 性能红线**：**不要**在 `.home-scrolling` 开关顶栏 `backdrop-filter` 或 Hero `transform/filter`；
+>   **不要**用 `pageScrolling` React state 重渲 6 iframe。回顶钮 **portal 到 body** + 物理 `right`。
+>   Features 用 lucide 键 + `.feature-card__icon`（无 emoji 方底）。见坑 #41–#43 / [九 §9.4 §9.9](./references/09-home-ppt-pager.md)。
+> - **性能三角**：6 重 SPA + 满 blur + 120fps **无法同时 100%**；当前承诺是「不白屏 + 动画可见 + 卡顿明显减轻」。见 [九 §9.1](./references/09-home-ppt-pager.md)。
 > - **侧边栏在 fumadocs v16 之后已经不用 `<ul>/<li>`**——整个树是 `<div data-radix-scroll-area-viewport>` 内的一组 `<div data-state="open/closed">`。
 >   想给 folder icon 着色或定位"页"位置，先看坑 #16 再写 selector。
 > - **lucide-react 的 `icons` map 不等于 `lucide-react` 命名导出**。`Home` / `Train` 等少数 icon

@@ -2,17 +2,16 @@
 
 import { Check } from 'lucide-react';
 import type { CSSProperties } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MarqueeRow } from '@/components/Marquee';
 
 interface ShowcaseItem {
-  img: string;
+  img?: string;
   alt: string;
   eyebrow: string;
   title: string;
   desc: string;
   points: string[];
-  /** 实时演示深链（hub Demo 对应页）。有值时该面板默认内嵌实时 iframe。 */
   embedSrc?: string;
 }
 
@@ -20,154 +19,220 @@ interface HomeShowcaseProps {
   title: string;
   subtitle: string;
   items: ShowcaseItem[];
-  /** 内嵌后右下角徽章文案（i18n，缺省中文）。 */
   liveBadge?: string;
-  /** 标题页上下两侧滚动展示的「平台 / Bot」大字 token 列表 */
   marqueeItems?: string[];
 }
 
-/** 内嵌「桌面站缩略图」的两个关键参数：
- *  - TARGET_SCALE：iframe 在面板里的**固定**显示比例。固定比例（而非固定逻辑宽度）能让内嵌
- *    控制台在任何视口宽度下都呈现**一致的、足够小**的尺寸——逻辑视口随容器宽度反推
- *    （logicalW = 容器宽 / TARGET_SCALE），宽屏上 hub 渲染得更宽、元素相对更小，避免
- *    「在宽屏上几乎 1:1、UI 过大压缩空间」（修用户反馈「缩放还是太大」）。
- *  - RATIO：逻辑视口宽高比，必须与 .showcase-shot__media 的 aspect-ratio 一致（16:10）。 */
-const TARGET_SCALE = 0.75;
-const RATIO = 1.6;
-/** 逻辑视口宽度的钳制区间：
- *  - 下限 MIN：容器窄时（小屏/窄列）若按比例反推出 <768 的逻辑宽，hub 会切到移动布局、侧边栏收起。
- *    钳到 MIN 后改用 scale=容器宽/MIN（比 TARGET 略小）→ 始终保住桌面布局 + 侧边栏。
- *  - 上限 MAX：超宽屏避免反推出巨大 iframe（合成层显存随面积线性增长），钳到 MAX → scale 略大。 */
-const MIN_LOGICAL_W = 1100;
-const MAX_LOGICAL_W = 2400;
-/** 滚入视口后延迟挂载 iframe 的毫秒数：盖过 HomePager 的 700ms 翻页动画，
- *  让 ~3.3MB 的重型 SPA 在**滚动停下后**才加载，不在翻页途中阻塞主线程（修「滚动卡顿」）。
- *  若用户在延迟内又翻走，挂载会被取消——快速划过的页面根本不加载。 */
-const MOUNT_DELAY_MS = 500;
-/** 离屏后延迟卸载 iframe 的毫秒数：只保留视口附近(当前±1)的重型 SPA 处于挂载态，
- *  远处面板卸载以省下合成层显存与后台动画开销（修「滚动卡顿」）。延迟够久以免
- *  「划过又划回」时刚卸载又重挂载造成抖动；资源已被浏览器缓存，重挂载很快。 */
-const UNMOUNT_DELAY_MS = 1200;
+const LOGICAL_W = 1440;
+const LOGICAL_H = 900;
+const HEADER = 56;
 
-/**
- * 单个内嵌面板：把 hub Demo 以「容器宽 / 固定比例」反推的逻辑尺寸渲染，再等比缩放进缩略框。
- *  - ResizeObserver 实时测量容器宽度，反推逻辑视口宽高写入 iframe（缩放比例固定 = TARGET_SCALE）。
- *  - iframe 加载完成前显示截图 poster 作为占位，加载完淡出。
- */
-function EmbedFrame({
-  item,
+const HUB_ASSETS = [
+  '/hub/index.html',
+  '/hub/assets/js/index-sSz73b-v.js',
+  '/hub/assets/js/react-vendor-XgWShXRK.js',
+  '/hub/assets/js/ui-vendor-BKwDBpoa.js',
+  '/hub/assets/js/chart-vendor-Do6V0fNF.js',
+  '/hub/assets/js/virtual-twUirrML.js',
+  '/hub/assets/index-DolPpznn.css',
+] as const;
+
+function hubSrc(embedSrc?: string): string {
+  if (!embedSrc) return '/hub/index.html?embed=1#/dashboard';
+  if (embedSrc.includes('index.html')) return embedSrc;
+  const i = embedSrc.indexOf('#');
+  const hash = i >= 0 ? embedSrc.slice(i) : `#/${embedSrc}`;
+  return `/hub/index.html?embed=1${hash}`;
+}
+
+function prefetchHubAssets() {
+  if (typeof document === 'undefined') return;
+  for (const href of HUB_ASSETS) {
+    if (document.head.querySelector(`link[data-hub-warm="${href}"]`)) continue;
+    const link = document.createElement('link');
+    link.dataset.hubWarm = href;
+    if (href.endsWith('.js')) {
+      link.rel = 'modulepreload';
+      link.crossOrigin = 'anonymous';
+    } else if (href.endsWith('.css')) {
+      link.rel = 'preload';
+      link.as = 'style';
+    } else {
+      link.rel = 'prefetch';
+    }
+    link.href = href;
+    document.head.appendChild(link);
+  }
+}
+
+function isHubPainted(iframe: HTMLIFrameElement): boolean {
+  try {
+    const doc = iframe.contentDocument;
+    if (!doc || doc.readyState !== 'complete') return false;
+    const root = doc.getElementById('root');
+    return Boolean(root && root.childElementCount > 0);
+  } catch {
+    return false;
+  }
+}
+
+function sealIframeOverscroll(iframe: HTMLIFrameElement) {
+  try {
+    const doc = iframe.contentDocument;
+    if (!doc?.head || doc.getElementById('gshub-overscroll-seal')) return;
+    const style = doc.createElement('style');
+    style.id = 'gshub-overscroll-seal';
+    style.textContent = `
+      html, body { overscroll-behavior: none !important; overscroll-behavior-y: none !important; }
+      [data-radix-scroll-area-viewport], [data-slot="scroll-area-viewport"],
+      .overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll {
+        overscroll-behavior: contain !important; overscroll-behavior-y: contain !important;
+      }
+    `;
+    doc.head.appendChild(style);
+    doc.documentElement.style.overscrollBehavior = 'none';
+    doc.body?.style.setProperty('overscroll-behavior', 'none');
+  } catch {
+    // ignore
+  }
+}
+
+function PanelEmbed({
+  src,
+  alt,
   liveBadge,
   active,
 }: {
-  item: ShowcaseItem;
+  src: string;
+  alt: string;
   liveBadge?: string;
-  /** 面板当前是否在视口内。离屏时通知 iframe 暂停其内部动画（见下方 postMessage）。 */
   active: boolean;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const [loaded, setLoaded] = useState(false);
-
-  // 把「是否在视口」同步给 iframe：hub(demo) 据此暂停离屏面板的 CSS 动画 / 力导图，
-  // 避免离屏 SPA 的动画抢主线程拖累在屏面板的滚动。loaded 变化时也补发一次，确保初值同步。
-  useEffect(() => {
-    frameRef.current?.contentWindow?.postMessage(
-      { source: 'gshub-docs', type: 'embed-visibility', visible: active },
-      '*',
-    );
-  }, [active, loaded]);
-
-  // 强制每次挂载都从「干净的初始状态」启动：
-  //   · 主页内嵌的 6 个 iframe 都同源（/hub/...），正常情况下会共享 localStorage /
-  //     sessionStorage，用户上一次手动改的皮肤/主题等会被持久化并跨刷新「阴魂不散」。
-  //     这里在 iframe onLoad 后主动 clear 掉它的 storage（same-origin 允许
-  //     iframe.contentWindow.localStorage 直接访问），让访客看到的永远是 demo 的
-  //     默认配置 + Mock 提供的网络数据，不会被旧的本地状态污染。
-  //   · **不要在 src 上拼 `_=<nonce>`**：那样会让 iframe 的 URL 与 embedSrc 不一致，
-  //     6 个 iframe 的「面板挂载节奏」也是 IntersectionObserver 触发卸载/重挂，每次
-  //     panel 重挂时 URL 里再加不同 nonce 会把同一 iframe 反复销毁重建，反而会触发
-  //     主页的「demo SPA 重启」、「hash 路由被视作新 URL」等意外（曾导致首次进入
-  //     6 个面板全显 hub 的 NotFound 页 —— 404 / Oops! Page not found）。
-  //   · 真正复位 iframe 状态靠 HomeShowcase 自己 IntersectionObserver 的
-  //     mounted/unmounted 调度：滚出视口 1.2s 后卸掉，再次滚回会重新挂载、重新
-  //     触发 onLoad → 清 storage → 自然落到 Mock 的默认配置上。
-  // docs 自身不使用 localStorage / sessionStorage，所以从父页面 clear 与
-  // iframe 是同一份 storage 也不会误伤其它功能。
-  const handleIframeLoad = () => {
-    setLoaded(true);
-    try {
-      const win = frameRef.current?.contentWindow;
-      if (!win) return;
-      win.localStorage?.clear();
-      win.sessionStorage?.clear();
-    } catch {
-      // ignore — 同源策略等异常情况，放弃 reset，不影响主流程
-    }
-  };
-
-  // 逻辑视口尺寸：随容器宽度反推（保持 TARGET_SCALE 固定显示比例）
-  const [dims, setDims] = useState({ w: 1600, h: Math.round(1600 / RATIO) });
+  const [painted, setPainted] = useState(false);
 
   useEffect(() => {
     const box = boxRef.current;
     if (!box) return;
     const apply = () => {
-      const boxW = box.clientWidth;
-      if (boxW <= 0) return;
-      // 先按目标比例反推逻辑宽，再钳到 [MIN, MAX]；钳制时用实际 scale=容器宽/逻辑宽 保证铺满。
-      let logicalW = Math.round(boxW / TARGET_SCALE);
-      logicalW = Math.max(MIN_LOGICAL_W, Math.min(MAX_LOGICAL_W, logicalW));
-      const scale = boxW / logicalW;
-      setDims({ w: logicalW, h: Math.round(logicalW / RATIO) });
+      const w = box.clientWidth;
+      const h = box.clientHeight;
+      if (w <= 0 || h <= 0) return;
+      // contain 缩放后居中：top-left origin 会在剩余高度上留白 → 视觉偏上
+      const scale = Math.min(w / LOGICAL_W, h / LOGICAL_H);
+      const ox = (w - LOGICAL_W * scale) / 2;
+      const oy = (h - LOGICAL_H * scale) / 2;
       box.style.setProperty('--embed-scale', String(scale));
+      box.style.setProperty('--embed-ox', `${ox}px`);
+      box.style.setProperty('--embed-oy', `${oy}px`);
     };
     apply();
+    // 只在尺寸变化时测，翻页中不额外 setState
     const ro = new ResizeObserver(apply);
     ro.observe(box);
     return () => ro.disconnect();
   }, []);
 
+  useEffect(() => {
+    // 注意：不在此把 painted 设回 false —— 同实例永不白屏
+    const iframe = frameRef.current;
+    if (!iframe) return;
+    let done = painted;
+    const mark = () => {
+      if (done) return;
+      sealIframeOverscroll(iframe);
+      if (!isHubPainted(iframe)) return;
+      done = true;
+      setPainted(true);
+    };
+    const onLoad = () => {
+      sealIframeOverscroll(iframe);
+      window.setTimeout(mark, 30);
+      window.setTimeout(mark, 150);
+      window.setTimeout(mark, 400);
+      window.setTimeout(() => {
+        if (!done) {
+          done = true;
+          setPainted(true);
+          sealIframeOverscroll(iframe);
+        }
+      }, 2000);
+    };
+    iframe.addEventListener('load', onLoad);
+    const poll = window.setInterval(mark, 200);
+    const stop = window.setTimeout(() => window.clearInterval(poll), 10000);
+    try {
+      if (iframe.contentDocument?.readyState === 'complete') onLoad();
+    } catch {
+      // ignore
+    }
+    return () => {
+      iframe.removeEventListener('load', onLoad);
+      window.clearInterval(poll);
+      window.clearTimeout(stop);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- painted 只升不降
+  }, [src]);
+
+  // 翻页时暂停 hub 内部动画：直接读 html.home-scrolling，**不**经 React setState
+  // （旧 MutationObserver → pageScrolling 会在回顶瞬间重渲 6 个 iframe，主线程尖峰）
+  useEffect(() => {
+    const iframe = frameRef.current;
+    if (!iframe) return;
+    const post = () => {
+      const scrolling =
+        document.documentElement.classList.contains('home-scrolling');
+      iframe.contentWindow?.postMessage(
+        {
+          source: 'gshub-docs',
+          type: 'embed-visibility',
+          visible: painted && active && !scrolling,
+        },
+        '*',
+      );
+    };
+    post();
+    const mo = new MutationObserver(post);
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    window.addEventListener('homepager:done', post);
+    return () => {
+      mo.disconnect();
+      window.removeEventListener('homepager:done', post);
+    };
+  }, [active, painted]);
+
   return (
     <div
       ref={boxRef}
-      className="showcase-embed"
-      style={{ '--embed-scale': TARGET_SCALE } as CSSProperties}
+      className="showcase-panel-embed"
+      data-active={active ? 'true' : 'false'}
+      data-painted={painted ? 'true' : 'false'}
     >
-      {/* 加载占位：轻量骨架（不再用旧截图），iframe onLoad 后淡出。
-          去掉截图占位还顺带省了 6 张大图的解码/合成开销，利于滚动流畅。 */}
-      <div
-        className="showcase-shot__skeleton"
-        data-loaded={loaded ? 'true' : 'false'}
-        aria-hidden
-      >
-        <span className="showcase-shot__spinner" />
-      </div>
       <iframe
         ref={frameRef}
-        className="showcase-embed__frame"
-        style={{ width: dims.w, height: dims.h }}
-        src={item.embedSrc}
-        title={item.alt}
-        loading="lazy"
+        className="showcase-panel-embed__frame"
+        src={src}
+        title={alt}
+        loading="eager"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        onLoad={handleIframeLoad}
+        tabIndex={active ? 0 : -1}
       />
-      <span className="showcase-shot__live">● {liveBadge ?? '实时演示'}</span>
+      {painted && active && (
+        <span className="showcase-shot__live">● {liveBadge ?? '实时演示'}</span>
+      )}
     </div>
   );
 }
 
 /**
- * 主页「框架运行效果」展示区——左右交错的超大面板，PPT 式逐屏呈现。
- *
- * 入场动效：IntersectionObserver 双向触发 .is-in，CSS 过渡（opacity + transform + filter）一次成像。
- *
- * 截图「活化」（默认内嵌，无需点击）：
- *  - 每个面板**滚入视口即自动挂载** hub Demo 的实时 iframe（深链到对应页，`?embed=1` 锁定侧边栏），
- *    访客直接就能在框内点击交互——不再需要先点「开始演示」。
- *  - 首屏不一次性挂 6 个重型 SPA：用 IntersectionObserver 懒挂载，进过视口的面板才加载，
- *    且加载后保持挂载（来回滚动不重载、不闪）。未挂载前显示截图 poster。
- *  - iframe 以 1440px 桌面逻辑宽度渲染再等比缩放，从而**完整展示含侧边栏的页面**（解决缩放/侧边栏问题）。
+ * 可承诺：
+ *  - 不白屏：iframe 一旦挂上会话内永不卸载；翻页不用 display:none
+ *  - 动画：goto 时 is-in + 错落；翻页中保留 opacity/位移（blur 翻页中关掉防掉帧，停后仍有）
+ *  - 卡顿：只能「明显减轻」，无法在「6 个重 SPA + 满 blur + 满帧滚动」上三者同时 100%
  */
 export function HomeShowcase({
   title,
@@ -177,148 +242,220 @@ export function HomeShowcase({
   marqueeItems,
 }: HomeShowcaseProps) {
   const rootRef = useRef<HTMLElement>(null);
-  // 已挂载实时 iframe 的面板下标。一旦加入不再移除（保持挂载，避免来回滚动重载）。
-  // 但挂载本身是**延迟**的：滚停后才加载，快速划过的面板不会触发加载（见下方 timers）。
-  const [mounted, setMounted] = useState<Set<number>>(() => new Set());
-  // 当前在视口内的面板下标集合：驱动「向 iframe 通报可见性」（离屏暂停其内部动画）。
-  const [visible, setVisible] = useState<Set<number>>(() => new Set());
-  // 每个面板「待挂载」/「待卸载」的延迟计时器；翻页途中互相取消，避免抖动。
-  const mountTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
-  const unmountTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
-  // 用 ref 镜像 mounted，供 observer 回调内读取最新值（不必把 mounted 放进依赖重建 observer）。
-  const mountedRef = useRef(mounted);
-  mountedRef.current = mounted;
+  const activeRef = useRef(0);
+  const pendingIdxRef = useRef(0);
+
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // 全部带 embed 的屏：首页错峰挂上，之后永不卸 —— 这是「不再次白屏」的唯一可靠办法
+  const [mounted, setMounted] = useState<Set<number>>(() => {
+    const s = new Set<number>();
+    if (items[0]?.embedSrc) s.add(0);
+    return s;
+  });
+
+  activeRef.current = activeIdx;
+
+  useEffect(() => {
+    prefetchHubAssets();
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    items.forEach((item, i) => {
+      if (!item.embedSrc || i === 0) return;
+      // 错峰：避免首屏同时 parse 6 份 SPA
+      timers.push(
+        setTimeout(
+          () => {
+            setMounted((prev) => {
+              if (prev.has(i)) return prev;
+              const next = new Set(prev);
+              next.add(i);
+              return next;
+            });
+          },
+          400 + i * 450,
+        ),
+      );
+    });
+    return () => {
+      for (const t of timers) clearTimeout(t);
+    };
+  }, [items]);
+
+  /** 纯 DOM 入场，与滚动同时开始；禁止 setState */
+  const playEnterForScrollY = useCallback((scrollY: number) => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    // 回顶（Hero）：不要对 showcase 整批 is-in 进出，避免 6 面板同时开 blur 过渡
+    if (scrollY < 48) {
+      const all = root.querySelectorAll<HTMLElement>(
+        '.showcase-panel, .home-showcase__head',
+      );
+      for (const el of all) el.classList.remove('is-in');
+      return;
+    }
+
+    const snaps = root.querySelectorAll<HTMLElement>(
+      '.showcase-panel.home-snap-point, .home-showcase__head.home-snap-point',
+    );
+    let best: HTMLElement | null = null;
+    let bestDist = Infinity;
+    for (const el of snaps) {
+      const targetY = Math.max(0, el.offsetTop - HEADER);
+      const d = Math.abs(targetY - scrollY);
+      if (d < bestDist) {
+        bestDist = d;
+        best = el;
+      }
+    }
+    const all = root.querySelectorAll<HTMLElement>(
+      '.showcase-panel, .home-showcase__head',
+    );
+    for (const el of all) {
+      if (el !== best) el.classList.remove('is-in');
+    }
+    if (best && bestDist < 200) {
+      if (best.classList.contains('is-in')) {
+        best.classList.remove('is-in');
+        requestAnimationFrame(() => best?.classList.add('is-in'));
+      } else {
+        best.classList.add('is-in');
+      }
+      if (best.classList.contains('showcase-panel')) {
+        const idx = Number(best.dataset.index);
+        if (!Number.isNaN(idx)) pendingIdxRef.current = idx;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const onGoto = (e: Event) => {
+      const y = (e as CustomEvent<{ scrollY: number }>).detail?.scrollY;
+      if (typeof y === 'number') playEnterForScrollY(y);
+    };
+    const onDone = () => {
+      // 延后一帧再 setActiveIdx，避开卸 home-scrolling 的同一帧
+      requestAnimationFrame(() => {
+        const idx = pendingIdxRef.current;
+        if (idx !== activeRef.current) setActiveIdx(idx);
+      });
+    };
+
+    window.addEventListener('homepager:goto', onGoto);
+    window.addEventListener('homepager:done', onDone);
+    return () => {
+      window.removeEventListener('homepager:goto', onGoto);
+      window.removeEventListener('homepager:done', onDone);
+    };
+  }, [playEnterForScrollY]);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-
-    const panels = Array.from(
-      root.querySelectorAll<HTMLElement>('.showcase-panel'),
+    const targets = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        '.showcase-panel, .home-showcase__head',
+      ),
     );
-    const mountTimers = mountTimersRef.current;
-    const unmountTimers = unmountTimersRef.current;
-
     const io = new IntersectionObserver(
       (entries) => {
+        if (document.documentElement.classList.contains('home-scrolling')) {
+          return;
+        }
         for (const entry of entries) {
-          const idx = Number((entry.target as HTMLElement).dataset.index);
-          const inView = entry.isIntersecting;
-          // 入场/离场动效（立即响应，不受挂载延迟影响）
-          entry.target.classList.toggle('is-in', inView);
-
-          // 同步可见性集合 → EmbedFrame 据此 postMessage 给 iframe 暂停/恢复动画
-          setVisible((prev) => {
-            if (prev.has(idx) === inView) return prev;
-            const next = new Set(prev);
-            if (inView) next.add(idx);
-            else next.delete(idx);
-            return next;
-          });
-
-          if (inView) {
-            // 进入视口：取消待卸载，并延迟挂载（盖过 700ms 翻页动画，避免加载阻塞主线程）。
-            const pendingUnmount = unmountTimers.get(idx);
-            if (pendingUnmount) {
-              clearTimeout(pendingUnmount);
-              unmountTimers.delete(idx);
-            }
-            if (!mountedRef.current.has(idx) && !mountTimers.has(idx)) {
-              const id = setTimeout(() => {
-                mountTimers.delete(idx);
-                setMounted((prev) => {
-                  if (prev.has(idx)) return prev;
-                  const next = new Set(prev);
-                  next.add(idx);
-                  return next;
-                });
-              }, MOUNT_DELAY_MS);
-              mountTimers.set(idx, id);
-            }
-          } else {
-            // 离开视口：取消待挂载；已挂载的则延迟卸载，只保留视口附近的重型 iframe。
-            const pendingMount = mountTimers.get(idx);
-            if (pendingMount) {
-              clearTimeout(pendingMount);
-              mountTimers.delete(idx);
-            }
-            if (mountedRef.current.has(idx) && !unmountTimers.has(idx)) {
-              const id = setTimeout(() => {
-                unmountTimers.delete(idx);
-                setMounted((prev) => {
-                  if (!prev.has(idx)) return prev;
-                  const next = new Set(prev);
-                  next.delete(idx);
-                  return next;
-                });
-              }, UNMOUNT_DELAY_MS);
-              unmountTimers.set(idx, id);
+          entry.target.classList.toggle('is-in', entry.isIntersecting);
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting && el.classList.contains('showcase-panel')) {
+            const idx = Number(el.dataset.index);
+            if (!Number.isNaN(idx) && idx !== activeRef.current) {
+              setActiveIdx(idx);
             }
           }
         }
       },
-      // 提前一点（视口下方 25%）开始计时，让滚停后尽快就绪
-      { threshold: 0.2, rootMargin: '0px 0px 25% 0px' },
+      { threshold: 0.4, rootMargin: '0px 0px -12% 0px' },
     );
-    for (const panel of panels) io.observe(panel);
-
-    return () => {
-      io.disconnect();
-      for (const id of mountTimers.values()) clearTimeout(id);
-      for (const id of unmountTimers.values()) clearTimeout(id);
-      mountTimers.clear();
-      unmountTimers.clear();
-    };
+    for (const el of targets) io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
     <section ref={rootRef} id="showcase" className="home-showcase">
-      {/* 「强大，且易于上手」标题页 —— 单独作为 PPT 一页，让 HomePager 滚到此处时
-         真的停一屏。`.home-snap-point` 由父级 HomePager 用作「页」选择器
-         （见 components/HomePager.tsx）。把原来放在 Hero 与 Showcase 之间的
-         大字滚动条（QQ / Discord / Telegram …）拆成两行嵌入到标题上下，
-         既保住了「多平台支持」的视觉传达，又让翻页节奏里「标题页」真正成一页。 */}
       <div className="home-showcase__head home-snap-point">
         {marqueeItems && marqueeItems.length > 0 && (
           <div className="home-showcase__marquee">
-            <MarqueeRow items={marqueeItems} rowKey="head-top" />
+            <MarqueeRow items={marqueeItems} rowKey="head-top" alwaysRun />
           </div>
         )}
         <div className="home-showcase__head-copy">
-          <h2 className="home-showcase__title">{title}</h2>
-          <p className="home-showcase__subtitle">{subtitle}</p>
+          <h2
+            className="home-showcase__title showcase-fade"
+            style={{ '--stagger': 0 } as CSSProperties}
+          >
+            {title}
+          </h2>
+          <p
+            className="home-showcase__subtitle showcase-fade"
+            style={{ '--stagger': 1 } as CSSProperties}
+          >
+            {subtitle}
+          </p>
         </div>
         {marqueeItems && marqueeItems.length > 0 && (
           <div className="home-showcase__marquee">
-            <MarqueeRow items={marqueeItems} rowKey="head-bottom" reverse />
+            <MarqueeRow
+              items={marqueeItems}
+              rowKey="head-bottom"
+              reverse
+              alwaysRun
+            />
           </div>
         )}
       </div>
 
       <div className="home-showcase__list">
         {items.map((item, i) => {
-          const showEmbed = Boolean(item.embedSrc) && mounted.has(i);
+          const show = Boolean(item.embedSrc) && mounted.has(i);
           return (
             <article
-              key={item.img}
+              key={item.alt + i}
               className="showcase-panel home-snap-point"
               data-index={i}
               data-side={i % 2 === 0 ? 'left' : 'right'}
+              data-active={activeIdx === i ? 'true' : 'false'}
             >
               <div className="showcase-copy">
-                <span className="showcase-index">
+                <span
+                  className="showcase-index showcase-fade"
+                  style={{ '--stagger': 0 } as CSSProperties}
+                >
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="showcase-eyebrow">{item.eyebrow}</span>
-                <h3 className="showcase-heading">{item.title}</h3>
-                <p className="showcase-desc">{item.desc}</p>
+                <span
+                  className="showcase-eyebrow showcase-fade"
+                  style={{ '--stagger': 1 } as CSSProperties}
+                >
+                  {item.eyebrow}
+                </span>
+                <h3
+                  className="showcase-heading showcase-fade"
+                  style={{ '--stagger': 2 } as CSSProperties}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className="showcase-desc showcase-fade"
+                  style={{ '--stagger': 3 } as CSSProperties}
+                >
+                  {item.desc}
+                </p>
                 <ul className="showcase-points">
-                  {item.points.map((point) => (
-                    <li key={point}>
+                  {item.points.map((point, pi) => (
+                    <li
+                      key={point}
+                      className="showcase-fade"
+                      style={{ '--stagger': 4 + pi } as CSSProperties}
+                    >
                       <Check className="size-4" aria-hidden />
                       <span>{point}</span>
                     </li>
@@ -326,7 +463,10 @@ export function HomeShowcase({
                 </ul>
               </div>
 
-              <div className="showcase-shot">
+              <div
+                className="showcase-shot showcase-fade"
+                style={{ '--stagger': 2 } as CSSProperties}
+              >
                 <div className="showcase-shot__frame">
                   <span className="showcase-shot__bar" aria-hidden>
                     <i />
@@ -334,17 +474,15 @@ export function HomeShowcase({
                     <i />
                   </span>
                   <div className="showcase-shot__media">
-                    {showEmbed ? (
-                      <EmbedFrame
-                        item={item}
+                    {show ? (
+                      <PanelEmbed
+                        src={hubSrc(item.embedSrc)}
+                        alt={item.alt}
                         liveBadge={liveBadge}
-                        active={visible.has(i)}
+                        active={activeIdx === i}
                       />
                     ) : (
-                      // 挂载前（延迟挂载期间）显示轻量骨架，而非旧截图占位
-                      <div className="showcase-shot__skeleton" aria-hidden>
-                        <span className="showcase-shot__spinner" />
-                      </div>
+                      <div className="showcase-shot__placeholder" aria-hidden />
                     )}
                   </div>
                 </div>
