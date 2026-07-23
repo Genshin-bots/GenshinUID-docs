@@ -29,12 +29,12 @@ const HEADER = 56;
 
 const HUB_ASSETS = [
   '/hub/index.html',
-  '/hub/assets/js/index-sSz73b-v.js',
-  '/hub/assets/js/react-vendor-XgWShXRK.js',
-  '/hub/assets/js/ui-vendor-BKwDBpoa.js',
-  '/hub/assets/js/chart-vendor-Do6V0fNF.js',
-  '/hub/assets/js/virtual-twUirrML.js',
-  '/hub/assets/index-DolPpznn.css',
+  '/hub/assets/js/index-CiyVuPib.js',
+  '/hub/assets/js/react-vendor-DrPrjvB5.js',
+  '/hub/assets/js/ui-vendor-ByQNKk_Z.js',
+  '/hub/assets/js/thesvg-icons-v6NyTZFP.js',
+  '/hub/assets/js/virtual-1HIzeT1K.js',
+  '/hub/assets/index-DokQj0kQ.css',
 ] as const;
 
 function hubSrc(embedSrc?: string): string {

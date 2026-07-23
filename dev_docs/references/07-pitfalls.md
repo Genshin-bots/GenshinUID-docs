@@ -895,7 +895,7 @@ ${'>'.repeat(3)} Python 3.x.x`}</code></pre>
   - 无 `.gitmodules`、无 `external/gsuid_hub`、无 `scripts/hub.mjs`；
   - `pnpm dev` / `pnpm build` / CI 都不编 hub。
 - **更新 UI**：上游 `yarn build:demo` → 覆盖 `public/hub/` → 核对 `HUB_ASSETS`。
-- **关联**：[九 §9.8](./09-home-ppt-pager.md) / `plans/interactive-hub-showcase.md`（历史）。
+- **关联**：[九 §9.8](./09-home-ppt-pager.md)。
 
 ## 坑 #41：滚回首屏 Hero 背景「卡一下」才跟鼠标
 

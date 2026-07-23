@@ -303,7 +303,7 @@ const hubEmbed = (route: string) =>
 | 当前+邻屏卸载 | 回滚白屏 ~1s | 已弃用 |
 | **当前** | `public/hub/` 入库 + 会话常驻 iframe + 错峰挂载 | 完全复刻 + 可接受性能 |
 
-更细的 Mock / API 对照与早期迭代：`plans/interactive-hub-showcase.md`（**历史计划**，以本章 + 源码为准）。
+早期迭代方案文档已删除；以本章 + 源码 + 坑 #36–#43 为准。
 
 ---
 
@@ -341,7 +341,6 @@ const hubEmbed = (route: string) =>
 | `app/global.css` | snap / showcase / embed / home-scrolling / back-top / feature-card |
 | `package.json` | `dev`/`build` = 纯 next |
 | `deploy-next.yml` | 无 submodule |
-| `plans/interactive-hub-showcase.md` | 历史方案（非现行规范） |
 
 ---
 
