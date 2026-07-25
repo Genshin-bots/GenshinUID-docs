@@ -1,36 +1,90 @@
 ---
 title: Documentation Home
-description: Sayu Core (GsCore) Documentation
+description: Official GsCore (Sayu Core) docs — deploy, operate, plugins & AI
 icon: House
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
-Welcome to the GsCore documentation! Please browse the sections using the left sidebar.
+**GsCore** is a separated bot business core: unified plugins, WebConsole, optional AI.  
+Pick a path below — docs are layered as Getting Started → Operators → Developers.
+
+<PathWizard
+  label="Where do you want to start?"
+  startLabel="Start reading"
+  paths={[
+    {
+      id: 'deploy',
+      name: 'Deploy',
+      desc: 'Install Core, link Bot, install plugins',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: 'Concepts', href: '/docs/getting-started/concepts/', desc: 'Core ≠ Bot' },
+        { title: 'Environment', href: '/docs/getting-started/environment/' },
+        { title: 'Install', href: '/docs/getting-started/install/' },
+        { title: 'Link Bot', href: '/docs/getting-started/link-bot/' },
+      ],
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      desc: 'Container deployment',
+      icon: 'container',
+      steps: [
+        { title: 'Docker guide', href: '/docs/getting-started/docker/' },
+        { title: 'First config', href: '/docs/getting-started/first-config/' },
+        { title: 'Checklist', href: '/docs/getting-started/checklist/' },
+      ],
+    },
+    {
+      id: 'dev',
+      name: 'Plugin dev',
+      desc: 'Commands, AI hooks, database',
+      icon: 'terminal',
+      steps: [
+        { title: 'Developer overview', href: '/docs/developers/plugins/overview/' },
+        { title: 'Finish deploy first', href: '/docs/getting-started/install/' },
+      ],
+    },
+    {
+      id: 'ai',
+      name: 'Enable AI',
+      desc: 'Models, search, memory (optional)',
+      icon: 'sparkles',
+      steps: [
+        { title: 'Ops: enable AI', href: '/docs/getting-started/enable-ai/' },
+        { title: 'AI features', href: '/docs/ai-features/' },
+      ],
+    },
+  ]}
+/>
+
+## Browse by section
 
 <Cards>
-  <Card title="🚀 Quick Start" href="/docs/started/install-core">
-    Install GsCore, link your Bot, install plugins
+  <Card title="Getting Started" href="/docs/getting-started/concepts/">
+    Concepts, env, install, Docker, console, bots, plugins
   </Card>
-  <Card title="🤖 Supported Bots" href="/docs/link-bots/adapter-list">
-    Compatible Bot frameworks
+  <Card title="WebConsole" href="/docs/getting-started/webconsole/">
+    Register admin, manage config & plugins
   </Card>
-  <Card title="🔧 Install Plugins" href="/docs/install-plugins/install-plugins">
-    Install and manage plugins
+  <Card title="Operators" href="/docs/operators/">
+    Config fields, security, DB, troubleshooting (WIP)
   </Card>
-  <Card title="🚀 Advanced" href="/docs/advance/base-info">
-    Learn advanced GsCore concepts
+  <Card title="AI Features" href="/docs/ai-features/">
+    Current AI docs (migrating to developers/ai-api)
   </Card>
-  <Card title="🧠 AI Features" href="/docs/ai-features">
-    Explore GsCore AI capabilities
+  <Card title="Write Plugins" href="/docs/code-plugins/start/">
+    Plugin development (migrating to developers/plugins)
   </Card>
-  <Card title="🔍 Plugin Development" href="/docs/code-plugins/start">
-    Develop custom GsCore plugins
+  <Card title="Write Adapters" href="/docs/code-adapter/protocol/">
+    Protocol & adapters
   </Card>
-  <Card title="🧐 Adapter Development" href="/docs/code-adapter/pack">
-    Develop custom Bot adapters
+  <Card title="Plugin Help" href="/docs/plugins-help/genshin-uid/">
+    Per-game plugin usage
   </Card>
-  <Card title="📄 Plugin Help" href="/docs/plugins-help/genshin-uid">
-    Per-plugin usage docs
+  <Card title="FAQ" href="/docs/faq/">
+    Searchable FAQ
   </Card>
 </Cards>

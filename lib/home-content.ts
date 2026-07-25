@@ -113,28 +113,28 @@ const zhFeatures: Feature[] = [
     title: '支持多种平台',
     details:
       '适配QQ、QQ频道、微信、Telegram、Discord、飞书、KOOK、DoDo、米游社...',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: '支持平台',
   },
   {
     icon: 'bots',
     title: '适配多种Bot',
     details: '适配NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot...',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: '支持Bot',
   },
   {
     icon: 'protocol',
     title: '连接多种协议',
     details: '通过简单的早柚协议可以分发给OneBotV11、V12、Red等（需Bot支持）',
-    link: '/docs/code-adapter/protocol/',
+    link: '/docs/developers/adapters/protocol/',
     linkText: '早柚协议',
   },
   {
     icon: 'console',
     title: '网页控制台',
     details: '任何插件均可通过简单继承，令插件配置项直接在网页控制台上修改生效',
-    link: '/docs/started/web-console/',
+    link: '/docs/getting-started/webconsole/',
     linkText: '如何使用',
   },
   {
@@ -142,7 +142,7 @@ const zhFeatures: Feature[] = [
     title: '插件统一',
     details:
       '高度统一集成的插件，令你不需要为某种功能装很多插件，或者为了某种功能装重复插件',
-    link: '/docs/install-plugins/plugins-list/',
+    link: '/docs/guide/plugins-catalog/',
     linkText: '插件列表',
   },
   {
@@ -150,14 +150,14 @@ const zhFeatures: Feature[] = [
     title: '统一数据库支持',
     details:
       '通过简单的继承重写，可直接适配基础多账号方法、网页控制台增删改查以及更多',
-    link: '/docs/code-plugins/plugins-data-base/',
+    link: '/docs/developers/plugins/overview/',
     linkText: '简单示例',
   },
   {
     icon: 'docs',
     title: '文档完善',
     details: '安装、配置、安装插件、编写插件、编写适配器，文档一应俱全',
-    link: '/docs/started/env-check/',
+    link: '/docs/getting-started/environment/',
     linkText: '查阅文档',
   },
   {
@@ -175,7 +175,7 @@ const enFeatures: Feature[] = [
     title: 'Multi-platform',
     details:
       'Supports QQ, QQ Guild, WeChat, Telegram, Discord, Feishu, KOOK, DoDo, Miyoushe...',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: 'Platforms',
   },
   {
@@ -183,7 +183,7 @@ const enFeatures: Feature[] = [
     title: 'Multi-bot',
     details:
       'Compatible with NoneBot2, HoshinoBot, ZeroBot, Koishi, YunzaiBot...',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: 'Bots',
   },
   {
@@ -191,7 +191,7 @@ const enFeatures: Feature[] = [
     title: 'Sayu Protocol',
     details:
       'Distribute to OneBotV11, V12, Red, etc. via the simple Sayu protocol',
-    link: '/docs/code-adapter/protocol/',
+    link: '/docs/developers/adapters/protocol/',
     linkText: 'Protocol',
   },
   {
@@ -199,7 +199,7 @@ const enFeatures: Feature[] = [
     title: 'Web Console',
     details:
       'Any plugin can expose its config to the web console with a simple inheritance',
-    link: '/docs/started/web-console/',
+    link: '/docs/getting-started/webconsole/',
     linkText: 'How to use',
   },
   {
@@ -207,21 +207,21 @@ const enFeatures: Feature[] = [
     title: 'Unified Plugins',
     details:
       'Highly unified plugins so you do not need many plugins or duplicated ones',
-    link: '/docs/install-plugins/plugins-list/',
+    link: '/docs/guide/plugins-catalog/',
     linkText: 'Plugin list',
   },
   {
     icon: 'database',
     title: 'Unified Database',
     details: 'Inherit to get multi-account methods, web console CRUD and more',
-    link: '/docs/code-plugins/plugins-data-base/',
+    link: '/docs/developers/plugins/overview/',
     linkText: 'Example',
   },
   {
     icon: 'docs',
     title: 'Complete Docs',
     details: 'Installation, configuration, plugins, development — all covered',
-    link: '/docs/started/env-check/',
+    link: '/docs/getting-started/environment/',
     linkText: 'Read docs',
   },
   {
@@ -239,49 +239,49 @@ const jaFeatures: Feature[] = [
     title: 'マルチプラットフォーム',
     details:
       'QQ、QQギルド、WeChat、Telegram、Discord、Feishu、KOOK、DoDo、米游社...',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: 'プラットフォーム',
   },
   {
     icon: 'bots',
     title: 'マルチBot',
     details: 'NoneBot2、HoshinoBot、ZeroBot、Koishi、YunzaiBot に対応',
-    link: '/docs/link-bots/adapter-list/',
+    link: '/docs/getting-started/link-bot/',
     linkText: 'Bot',
   },
   {
     icon: 'protocol',
     title: 'Sayuプロトコル',
     details: 'Sayuプロトコル経由でOneBotV11、V12、Red等に配信',
-    link: '/docs/code-adapter/protocol/',
+    link: '/docs/developers/adapters/protocol/',
     linkText: 'プロトコル',
   },
   {
     icon: 'console',
     title: 'Webコンソール',
     details: '簡単な継承でプラグイン設定をWebコンソールで管理',
-    link: '/docs/started/web-console/',
+    link: '/docs/getting-started/webconsole/',
     linkText: '使い方',
   },
   {
     icon: 'plugins',
     title: '統一プラグイン',
     details: '重複や乱立しない、高度に統合されたプラグイン',
-    link: '/docs/install-plugins/plugins-list/',
+    link: '/docs/guide/plugins-catalog/',
     linkText: '一覧',
   },
   {
     icon: 'database',
     title: '統一データベース',
     details: '継承でマルチアカウントやCRUD機能を即座に獲得',
-    link: '/docs/code-plugins/plugins-data-base/',
+    link: '/docs/developers/plugins/overview/',
     linkText: '例',
   },
   {
     icon: 'docs',
     title: '完全なドキュメント',
     details: 'インストール、設定、プラグイン、開発まですべて網羅',
-    link: '/docs/started/env-check/',
+    link: '/docs/getting-started/environment/',
     linkText: '読む',
   },
   {
@@ -544,7 +544,7 @@ export function getHomeContent(lang: Language): HomeContent {
         actions: [
           {
             text: 'Quick Start',
-            link: '/docs/started/install-core/',
+            link: '/docs/getting-started/install/',
             primary: true,
           },
           { text: 'Write Plugin', link: '/docs/code-plugins/start/' },
@@ -578,7 +578,7 @@ export function getHomeContent(lang: Language): HomeContent {
         actions: [
           {
             text: 'クイックスタート',
-            link: '/docs/started/install-core/',
+            link: '/docs/getting-started/install/',
             primary: true,
           },
           { text: 'プラグイン開発', link: '/docs/code-plugins/start/' },
@@ -611,7 +611,7 @@ export function getHomeContent(lang: Language): HomeContent {
       actions: [
         {
           text: '快速开始',
-          link: '/docs/started/install-core/',
+          link: '/docs/getting-started/install/',
           primary: true,
         },
         { text: '编写插件', link: '/docs/code-plugins/start/' },

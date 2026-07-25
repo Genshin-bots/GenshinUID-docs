@@ -1,0 +1,131 @@
+---
+title: "插件目录与入口"
+description: "嵌套加载、Plugins / SV 层级、pyproject 与资源路径——照着搭骨架。"
+icon: FolderTree
+sectionTitles: true
+---
+
+<TimeEstimate minutes={20} level="medium" />
+
+推荐使用与 **ZZZeroUID / SayuStock** 相同的 **嵌套加载** 结构。
+
+<CheckProgress
+  keys={['gs-dev-dir', 'gs-dev-entry', 'gs-dev-plugins']}
+  label="结构学习进度"
+/>
+
+## 推荐目录
+
+```text
+gsuid_core/plugins/MyPlugin/          ← 仓库根（插件名）
+├── __init__.py                       ← 外层，可几乎为空
+├── __nest__.py                       ← 空文件：启用嵌套加载
+├── pyproject.toml
+├── README.md
+├── ICON.png
+└── MyPlugin/                         ← 内层包，与插件名同名
+    ├── __init__.py                   ← Plugins(...) + 触发导入
+    ├── __full__.py                   ← 空文件：扫描子模块
+    ├── version.py
+    ├── myplugin_xxx/                 ← 业务模块
+    ├── myplugin_config/
+    └── utils/
+```
+
+<CheckItem step={1} title="理解嵌套加载" storageKey="gs-dev-dir">
+
+| 文件 | 作用 |
+|------|------|
+| 外层 `__nest__.py` | 告诉框架：去内层包里找业务 |
+| 内层 `__full__.py` | 自动 import 子模块，触发 `@sv.on_xxx` 注册 |
+| 内层 `__init__.py` | 声明 `Plugins(...)` |
+
+没有这两空文件时，你需要手动在 `__init__.py` 里 `from . import 子模块`。
+
+</CheckItem>
+
+## 入口代码
+
+<CheckItem step={2} title="写好 Plugins 声明" storageKey="gs-dev-entry">
+
+**外层 `MyPlugin/__init__.py`：**
+
+```python
+"""init"""
+```
+
+**外层 `MyPlugin/__nest__.py`：** 空文件。
+
+**内层 `MyPlugin/MyPlugin/__init__.py`：**
+
+```python
+"""init"""
+from gsuid_core.sv import Plugins
+
+Plugins(
+    name="MyPlugin",
+    force_prefix=["mp", "我的插件"],  # 用户命令前缀
+    allow_empty_prefix=False,
+    alias=["my_plugin"],
+)
+# 使用 __full__.py 时通常不必手动 import 各子模块
+```
+
+</CheckItem>
+
+## Plugins vs SV
+
+| | Plugins | SV |
+|--|---------|-----|
+| 层级 | 整个插件 | 一组功能 |
+| 典型字段 | name / force_prefix / pm | name / pm / priority / area |
+| 在哪写 | 内层 `__init__.py` | 各业务模块顶部 |
+| 单例 | 同 name 一次 | 同 name 共享 |
+
+```python
+from gsuid_core.sv import SV
+
+sv = SV("查询用户信息", pm=6, priority=5, area="ALL")
+```
+
+`SV` 会从调用栈推断归属插件，一般不用手填 plugin 名。
+
+## pyproject.toml
+
+```toml
+[project]
+name = "my-plugin"
+version = "0.1.0"
+dependencies = [
+    "httpx>=0.24.0",
+    "pillow>=9.0.0",
+]
+```
+
+无需再声明 `gsuid-core` / `fastapi` / `sqlmodel` 等框架已有依赖。
+
+## 资源路径
+
+```python
+# utils/resource/RESOURCE_PATH.py
+from pathlib import Path
+from gsuid_core.data_store import get_res_path
+
+MAIN_PATH = get_res_path() / "MyPlugin"
+PLAYER_PATH = MAIN_PATH / "players"
+RESOURCE_PATH = MAIN_PATH / "resource"
+for p in (PLAYER_PATH, RESOURCE_PATH):
+    p.mkdir(parents=True, exist_ok=True)
+```
+
+运行时数据在 `data/MyPlugin/`，**不是**插件源码目录。
+
+<CheckItem step={3} title="能复述：源码在 plugins/，存档在 data/" storageKey="gs-dev-plugins" />
+
+<NextSteps
+  items={[
+    { title: '触发器选型', href: './triggers/', primary: true },
+    { title: '发消息 API', href: './messaging/' },
+    { title: '完整示例', href: './full-example/' },
+  ]}
+/>

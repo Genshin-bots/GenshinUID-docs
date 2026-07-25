@@ -1,0 +1,54 @@
+---
+title: "数据库"
+description: "SQLModel 模型、@with_session、注册到 WebConsole、加列迁移。"
+icon: Database
+sectionTitles: true
+---
+
+## 基本写法
+
+```python
+from typing import Optional
+from sqlmodel import Field
+from gsuid_core.utils.database.base_models import Bind, with_session
+from gsuid_core.webconsole.mount_app import GsAdminModel, site
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+class MyBind(Bind, table=True):
+    uid: Optional[str] = Field(default=None, title="游戏UID")
+
+    @classmethod
+    @with_session
+    async def get_uid(cls, session: AsyncSession, user_id: str, bot_id: str):
+        ...
+```
+
+- **不要**手写 `__tablename__`：表名默认类名小写  
+- 方法写在模型类上，用 `@with_session`  
+
+## 注册到网页控制台
+
+```python
+@site.register_admin
+class MyBindAdmin(GsAdminModel):
+    pk_name = "id"
+    model = MyBind
+    # 按框架示例配置显示列
+```
+
+## Schema 变更
+
+给已有表加列：在 `on_core_start_before` 阶段用 `exec_list` / 迁移工具执行 SQL。  
+详见 skill §5.7；生产环境先备份 `GsData.db`。
+
+## 注意
+
+- Windows MySQL 相关：`greenlet` + `msvc-runtime`  
+- 切换 MySQL 需装 `aiomysql` 或 `asyncmy`  
+
+<NextSteps
+  items={[
+    { title: '定时与订阅', href: './scheduler/', primary: true },
+    { title: '完整示例', href: './full-example/' },
+  ]}
+/>

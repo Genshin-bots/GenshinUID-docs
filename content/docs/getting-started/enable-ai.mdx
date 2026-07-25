@@ -1,0 +1,152 @@
+---
+title: "启用 AI（可选）"
+description: "从零打开 AI：总开关、模型 Key、搜索与资源消耗——可跳过，不影响普通插件。"
+icon: Sparkles
+sectionTitles: true
+---
+
+<TimeEstimate minutes={20} level="medium" />
+
+**你可以完全跳过这一页。**  
+查 UID、订阅、画图等业务插件 **不依赖** AI。
+
+只有当你想要：自然语言对话、自动调工具、记忆、联网搜索等能力时，再继续。
+
+<BeginnerTip variant="remember" title="费用提醒">
+
+AI 会调用你配置的大模型 API，通常按 **token 计费**。  
+请设置白名单，避免群里所有人狂刷。
+
+</BeginnerTip>
+
+<CheckProgress
+  keys={['gs-ai-enable', 'gs-ai-model', 'gs-ai-test']}
+  label="AI 启用进度"
+  doneText="AI 已打开。可用白名单与多轮上限控制成本。"
+/>
+
+## 步骤 1：打开总开关
+
+<CheckItem
+  step={1}
+  title="启用 AI 服务并重启"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-ai-enable"
+>
+
+**推荐路径：** WebConsole → **AI 配置** → 打开「启用 AI 服务」→ 保存 → `core重启`。
+
+对应文件：`data/ai_core/ai_config.json` 中 `"enable": true`。
+
+### 怎样确认已开启？
+
+重启后日志应出现类似：
+
+```text
+🧠 AI工具: … | 🔗 Trigger工具: … | 🎭 人格: …
+```
+
+**没有这一行** = 仍未启用或配置未加载。
+
+</CheckItem>
+
+## 步骤 2：配置至少一个模型
+
+<CheckItem
+  step={2}
+  title="添加 OpenAI 兼容模型 Profile"
+  subtitle="DeepSeek / 智谱 / MiniMax / 其它兼容接口均可"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-ai-model"
+>
+
+在 WebConsole「模型配置」里新增，一般需要：
+
+| 字段 | 含义 |
+|------|------|
+| `base_url` | API 根地址 |
+| `model_name` | 模型名 |
+| `api_key` | 密钥 |
+| `model_support` | 如 `["text"]` |
+
+文件也会落在 `data/ai_core/provider_configs/` 下。
+
+在 `ai_config` 中指定高级 / 低级任务使用哪个 profile（格式类似 `openai++DeepSeek`，以控制台选项为准）。
+
+<Callout type="warn" title="">
+
+不要把 `api_key` 提交到公开 Git 仓库。
+
+</Callout>
+
+</CheckItem>
+
+## 步骤 3：对话试一次
+
+<CheckItem
+  step={3}
+  title="在已连接的会话里 @ 机器人或触发提及应答"
+  badge={{ text: "验收", type: "tip" }}
+  storageKey="gs-ai-test"
+>
+
+默认 AI 模式常包含 **「提及应答」**：在群里 @ 机器人说话。
+
+具体唤醒方式以你控制台里 `ai_mode` 配置为准。
+
+若完全没反应：
+
+1. 总开关与模型是否保存并重启  
+2. 用户是否在黑名单 / 不在白名单  
+3. 实时日志里是否有 API 报错（Key、余额、URL）  
+
+</CheckItem>
+
+## 可选：搜索与其它服务
+
+| 服务 | 用途 | 新手建议 |
+|------|------|----------|
+| Tavily / Exa | 联网搜索 | 有免费额度可配 |
+| local 嵌入 | 知识库 / 检索 | 默认即可，占约 300MB |
+| Rerank | 提升检索质量 | 机器内存小就别开（约 1GB） |
+| MCP | 图音视频理解等 | 进阶再配 |
+
+资源粗表：
+
+| 组件 | 大约占用 |
+|------|----------|
+| local 嵌入 | 300MB 级 |
+| local Rerank | 1GB 级 |
+| 远程 LLM | 按调用付费 |
+
+## 成本与安全旋钮
+
+- `white_list` / `black_list`：限制谁能用 AI  
+- `multi_agent_lenth`（拼写以配置为准）：限制思考轮数，防止死循环烧 token  
+- 出戏防火墙等默认开启项建议保持  
+
+## 用户向说明
+
+群友怎么用、记忆是什么：见 [AI 使用指南](/docs/guide/ai-for-users/)。  
+插件如何把命令暴露给 AI：见开发者文档（`to_ai` 等）。
+
+<NextSteps
+  items={[
+    {
+      title: '验收清单',
+      href: './checklist/',
+      desc: '部署是否完整',
+      primary: true,
+    },
+    {
+      title: 'AI 用户指南',
+      href: '/docs/guide/ai-for-users/',
+      desc: '群里怎么互动',
+    },
+    {
+      title: '现有 AI 功能文档',
+      href: '/docs/ai-features/',
+      desc: '更细的能力说明',
+    },
+  ]}
+/>

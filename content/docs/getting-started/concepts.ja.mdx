@@ -1,0 +1,102 @@
+---
+title: "基本概念"
+description: "初心者向け：Core / Bot / アダプタ / プラグインとメッセージの流れ。"
+icon: Lightbulb
+sectionTitles: true
+---
+
+<TimeEstimate minutes={8} level="easy" levelText="かんたん" prefix="目安" />
+
+**インストール前に**読んでください。「Core は動くのにチャットが無反応」の多くはここで防げます。
+
+## 一言で
+
+| 部品 | たとえ |
+|------|--------|
+| **Core** | **脳**（コマンド・プラグイン・DB・任意 AI） |
+| **Bot** | **口と耳**（QQ / Telegram などに接続） |
+| **アダプタ** | **翻訳者**（プロトコル変換） |
+| **プラグイン** | **スキルカード**（UID 照会など） |
+
+<BeginnerTip title="最重要">
+
+**Core 単体は完成したボットではありません。** 上流 Bot（+ アダプタ）が必須です。
+
+</BeginnerTip>
+
+<FlowDiagram
+  label="各ブロックをタップ"
+  hint="説明を表示"
+  nodes={[
+    {
+      id: 'platform',
+      name: 'チャットアプリ',
+      short: 'QQ / TG…',
+      icon: 'message',
+      detail: 'ユーザーが話す場所。Core 自身は QQ にログインしません。',
+    },
+    {
+      id: 'bot',
+      name: 'Bot + アダプタ',
+      short: 'NoneBot2…',
+      icon: 'bot',
+      detail: 'Bot がプラットフォーム接続。アダプタが WebSocket で Core と双方向に中継します。',
+    },
+    {
+      id: 'core',
+      name: 'GsCore',
+      short: '脳',
+      icon: 'server',
+      detail: '独立プロセス。プラグイン（と任意 AI）で処理し、同じ WS で返信します。',
+    },
+    {
+      id: 'plugin',
+      name: 'プラグイン',
+      short: '機能',
+      icon: 'puzzle',
+      detail: 'plugins/ 配下。業務プラグインが無いとコマンドがほぼありません。',
+    },
+  ]}
+/>
+
+<PathWizard
+  label="近い経路を選ぶ"
+  startLabel="開始"
+  paths={[
+    {
+      id: 'newbie',
+      name: '完全初心者',
+      desc: '順番に導入',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: '環境確認', href: './environment/' },
+        { title: 'インストール', href: './install/' },
+        { title: '初期設定', href: './first-config/' },
+        { title: 'Web コンソール', href: './webconsole/' },
+        { title: 'Bot 連携', href: './link-bot/' },
+        { title: 'プラグイン', href: './install-plugins/' },
+      ],
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      desc: 'ローカル Python を避ける',
+      icon: 'container',
+      steps: [
+        { title: 'Docker', href: './docker/' },
+        { title: '初期設定', href: './first-config/' },
+        { title: 'Bot 連携', href: './link-bot/' },
+        { title: 'チェックリスト', href: './checklist/' },
+      ],
+    },
+  ]}
+/>
+
+<NextSteps
+  items={[
+    { title: '環境確認', href: './environment/', primary: true },
+    { title: 'Docker', href: './docker/' },
+    { title: 'インストール', href: './install/' },
+  ]}
+/>

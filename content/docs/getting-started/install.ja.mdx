@@ -1,0 +1,79 @@
+---
+title: "インストールと起動"
+description: "クローン、依存関係、Core 起動（uv / poetry / pdm / pip）。"
+icon: Download
+sectionTitles: true
+---
+
+**ソース導入**の手順です。コンテナは [Docker](./docker/) へ。
+
+## クローン
+
+```shell
+git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
+# ミラー: https://cnb.cool/gscore-mirror/gsuid_core.git
+cd gsuid_core
+```
+
+## 依存関係
+
+リポジトリ直下（`pyproject.toml` がある場所）で実行。
+
+<PkgManager
+  label="パッケージマネージャ"
+  options={[
+    { id: 'uv', name: 'uv', desc: '推奨', recommended: true },
+    { id: 'poetry', name: 'poetry', desc: '定番' },
+    { id: 'pdm', name: 'pdm', desc: 'PEP 582' },
+    { id: 'pip', name: 'pip', desc: '最終手段', icon: 'pip' },
+  ]}
+>
+
+<div data-pkg="uv">
+
+```shell
+uv python install 3.12
+uv sync --python 3.12
+uv run python -m ensurepip
+```
+
+</div>
+
+<div data-pkg="poetry">
+
+```shell
+poetry install
+```
+
+</div>
+
+<div data-pkg="pdm">
+
+```shell
+pdm install
+```
+
+</div>
+
+<div data-pkg="pip">
+
+```shell
+python -m pip install -r requirements.txt
+```
+
+</div>
+
+</PkgManager>
+
+## 起動
+
+```shell
+uv run core
+uv run core --host 0.0.0.0 --port 9527
+```
+
+初回起動で `data/` と `REGISTER_CODE` 付き `config.json` が作成されます。
+
+## 次へ
+
+[初期設定](./first-config/) → [Web コンソール](./webconsole/) → [Bot 連携](./link-bot/)

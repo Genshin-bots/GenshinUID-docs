@@ -1,0 +1,53 @@
+---
+title: "定时任务与订阅"
+description: "APScheduler 与 gs_subscribe：主动推送必须走订阅，不要硬编码群号。"
+icon: Clock
+sectionTitles: true
+---
+
+## 红线
+
+<Callout type="error" title="">
+
+主动往群里推消息，**必须用 `gs_subscribe`**。  
+禁止 `for bot in gss.active_bot: await bot.target_send(...)` 写死群号。
+
+</Callout>
+
+## 为何强制订阅？
+
+- 用户可自行开关订阅  
+- 多 Bot / 多群可管理  
+- 与权限、下线 Bot 状态一致  
+
+## 使用思路
+
+1. 提供「开启订阅 / 关闭订阅」命令，内部调用订阅 API  
+2. 定时任务触发时，按订阅列表推送  
+3. 参考成熟插件（签到提醒、树脂提醒）实现  
+
+具体函数名以当前 `gsuid_core` 版本 `gs_subscribe` 模块为准（`subscribe` / `get_subscribe` 等）。
+
+## APScheduler
+
+框架已内置调度器。在插件启动钩子里注册 job，注意：
+
+- 不要阻塞事件循环  
+- 长任务注意 `misfire_grace_time`（Core 配置）  
+
+## 生命周期钩子（关联）
+
+| 钩子 | 时机 |
+|------|------|
+| `on_core_start_before` | WS 前，适合迁移 DB |
+| `on_core_start` | WS 后异步 |
+| Bot 上线钩子 | 单 Bot 连接建立 |
+
+详见 skill 第七章。
+
+<NextSteps
+  items={[
+    { title: 'to_ai', href: './ai/to-ai/', primary: true },
+    { title: '完整示例', href: './full-example/' },
+  ]}
+/>

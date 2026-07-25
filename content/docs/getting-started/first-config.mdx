@@ -1,0 +1,344 @@
+---
+title: "首次配置"
+description: "用大白话讲清 HOST、masters、WS_TOKEN；本机与公网两种场景手把手。"
+icon: Settings
+sectionTitles: true
+---
+
+<TimeEstimate minutes={15} level="medium" />
+
+Core 已经能启动后，**先改配置再连 Bot**。  
+改错也不用慌：先备份再改，坏了用备份覆盖。
+
+<CheckProgress
+  keys={['gs-cfg-locate', 'gs-cfg-masters', 'gs-cfg-scene', 'gs-cfg-restart']}
+  label="配置进度"
+  doneText="关键配置已就绪，可以去注册网页控制台或连 Bot。"
+/>
+
+## 配置文件在哪？
+
+启动成功后，在**仓库根目录**会有：
+
+```
+gsuid_core/
+└── data/
+    └── config.json    ← 本页主要改这个
+```
+
+<CheckItem
+  step={1}
+  title="找到并备份 config.json"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-cfg-locate"
+>
+
+```shell
+# 在仓库根目录
+# Windows PowerShell
+copy data\config.json data\config.json.bak
+
+# Linux / macOS
+cp data/config.json data/config.json.bak
+```
+
+用任意编辑器打开 `data/config.json`（VS Code / Notepad++ 均可）。  
+**改完必须是合法 JSON**：多一个逗号、少一个引号都会导致 Core 启动失败。
+
+验证 JSON：
+
+```shell
+python -c "import json; json.load(open('data/config.json', encoding='utf-8')); print('JSON OK')"
+```
+
+</CheckItem>
+
+## 怎么改更轻松？
+
+<PkgManager
+  label="两种改法"
+  options={[
+    {
+      id: 'console',
+      name: '网页控制台',
+      desc: '可视化，推荐熟悉后使用',
+      icon: 'monitor',
+      recommended: true,
+    },
+    {
+      id: 'file',
+      name: '直接改文件',
+      desc: '第一次没有账号时用这个',
+      icon: 'fileJson',
+    },
+  ]}
+>
+
+<div data-pkg="console">
+
+先按 [网页控制台](./webconsole/) 用 `REGISTER_CODE` 注册管理员，再到 **核心配置** 页修改。  
+注意：`HOST` / `PORT` / `WS_TOKEN` 等很多项改完要 **重启 Core**。
+
+</div>
+
+<div data-pkg="file">
+
+适合**第一次**：还没有控制台账号时，直接编辑 `data/config.json`。  
+下面字段卡片就是给你对照文件用的。
+
+</div>
+
+</PkgManager>
+
+## 新手必懂的 5 个字段
+
+<ConfigFieldGrid>
+
+<ConfigField
+  name="masters"
+  defaultValue="[]"
+  file="config.json"
+  when="要用管理命令、装插件"
+  risk="medium"
+>
+  **主人账号列表**（最高权限 pm=0）。填**平台上的用户 ID**，不是昵称。  
+  QQ 一般就是 QQ 号字符串，例如 `["123456789"]`。  
+  不确定时：先连上 Bot，你发一条消息，看 Core 日志里的 `user_id`。
+</ConfigField>
+
+<ConfigField
+  name="HOST"
+  defaultValue='"localhost"'
+  file="config.json"
+  when="别的电脑 / 公网要访问"
+  risk="medium"
+>
+  `localhost` = 只允许本机访问。  
+  要让另一台机器上的 Bot 连进来，或公网访问控制台 → 改成 `"0.0.0.0"`。
+</ConfigField>
+
+<ConfigField
+  name="PORT"
+  defaultValue='"8765"'
+  file="config.json"
+  when="端口冲突"
+  risk="low"
+>
+  注意是**字符串**。Bot 连接和浏览器访问都要跟这个端口一致。
+</ConfigField>
+
+<ConfigField
+  name="WS_TOKEN"
+  defaultValue='""'
+  file="config.json"
+  when="公网或跨机器连接"
+  risk="high"
+>
+  WebSocket 口令。Bot 连接 URL 里的 `token=` 必须**完全一致**。  
+  本机可先留空；**公网务必设成长随机串**。生成示例：
+
+```shell
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+</ConfigField>
+
+<ConfigField
+  name="REGISTER_CODE"
+  defaultValue="首次随机 32 位"
+  file="config.json"
+  when="注册网页控制台"
+  risk="high"
+>
+  打开 `/app` 注册管理员时要用。**整站只能注册一个管理员**。  
+  不要把这个码发到公开群或提交到 GitHub。
+</ConfigField>
+
+</ConfigFieldGrid>
+
+## 步骤 2：填上你的 masters
+
+<CheckItem
+  step={2}
+  title="把 masters 改成你的 ID"
+  subtitle='例如 "masters": ["你的QQ号"]'
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-cfg-masters"
+>
+
+最小示例（请替换数字）：
+
+```json
+{
+  "HOST": "localhost",
+  "PORT": "8765",
+  "WS_TOKEN": "",
+  "masters": ["123456789"],
+  "superusers": []
+}
+```
+
+<BeginnerTip variant="remember" title="权限相关">
+
+- `masters`：主人，pm=0，能装插件、重启 Core 等  
+- `superusers`：超级用户，pm=1，权限低于主人  
+- 群主 / 管理员的权限由 Bot 侧上报，和这里不是一回事  
+
+</BeginnerTip>
+
+</CheckItem>
+
+## 步骤 3：选你的部署场景
+
+这是新手最容易漏的分叉。**点选你的情况**，只看对应说明。
+
+<CheckItem
+  step={3}
+  title="按场景设 HOST / TOKEN"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-cfg-scene"
+  checkable={false}
+>
+
+<DecisionTree
+  label="Bot 和 Core 的位置关系"
+  options={[
+    {
+      id: 'local',
+      name: '同一台电脑',
+      desc: '学习 / 自用最常见',
+      icon: 'shield',
+      recommended: true,
+    },
+    {
+      id: 'remote',
+      name: '不同机器或公网',
+      desc: 'VPS、家里机房、Docker 跨容器',
+      icon: 'alert',
+    },
+  ]}
+>
+
+<div data-branch="local">
+
+### 同机推荐配置
+
+```json
+{
+  "HOST": "localhost",
+  "PORT": "8765",
+  "WS_TOKEN": "",
+  "TRUSTED_IPS": ["localhost", "::1", "127.0.0.1"],
+  "masters": ["你的ID"]
+}
+```
+
+- Bot 里填 `127.0.0.1` 或 `localhost` 即可  
+- 生产环境仍**建议**设一个 `WS_TOKEN`，养成好习惯  
+
+<ChatPanel title="同机时 Bot 侧环境变量（NoneBot2 示意）">
+  <ChatMessage nickname="配置文件" bot>
+    {`gsuid_core_host=127.0.0.1
+gsuid_core_port=8765
+gsuid_core_ws_token=`}
+  </ChatMessage>
+</ChatPanel>
+
+</div>
+
+<div data-branch="remote">
+
+### 跨机 / 公网必做清单
+
+1. Core：`"HOST": "0.0.0.0"`  
+2. Core：设置强随机 `"WS_TOKEN": "..."`  
+3. 防火墙 / 安全组放行端口  
+4. Bot：指向 Core 的 IP 或域名，并带上同样 token  
+5. 强烈建议前面加 Nginx/Caddy，启用 **HTTPS / WSS**
+
+```json
+{
+  "HOST": "0.0.0.0",
+  "PORT": "8765",
+  "WS_TOKEN": "这里粘贴你生成的长随机串",
+  "masters": ["你的ID"]
+}
+```
+
+Bot 连接形态：
+
+```text
+ws://<Core的IP或域名>:8765/<bot_id>?token=<与上面相同的WS_TOKEN>
+```
+
+<Callout type="error" title="安全">
+
+公网空 Token + `0.0.0.0` = 谁都能连你的 Core。  
+Token 连错约 5 次，IP 可能被临时封禁约 15 分钟。
+
+</Callout>
+
+Docker 里 Bot 访问宿主机 Core，主机名常用 `host.docker.internal`（需 compose 配 `extra_hosts`）。详见 [链接 Bot](./link-bot/)。
+
+</div>
+
+</DecisionTree>
+
+</CheckItem>
+
+## 步骤 4：保存并重启
+
+<CheckItem
+  step={4}
+  title="验证 JSON → 重启 Core"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-cfg-restart"
+>
+
+```shell
+python -c "import json; json.load(open('data/config.json', encoding='utf-8')); print('JSON OK')"
+```
+
+然后停掉旧进程，再：
+
+```shell
+uv run core
+```
+
+启动无报错、日志正常，即配置已被读取。
+
+</CheckItem>
+
+## 命令头 command_start（可选，先别乱改）
+
+```json
+"command_start": []
+```
+
+- 空 = 命令不用前缀，`gs帮助` 直接发  
+- 若写成 `["/"]`，则必须 `/gs帮助` 才会触发——**所有命令**都要带前缀  
+
+新手建议先保持默认空数组。
+
+## 改完了去哪？
+
+<NextSteps
+  items={[
+    {
+      title: '网页控制台',
+      href: './webconsole/',
+      desc: '用 REGISTER_CODE 注册唯一管理员',
+      primary: true,
+    },
+    {
+      title: '链接 Bot',
+      href: './link-bot/',
+      desc: '让群消息进到 Core',
+    },
+    {
+      title: 'config 字段扩展',
+      href: '/docs/operators/config-json/',
+      desc: '运维向更多字段',
+    },
+  ]}
+/>

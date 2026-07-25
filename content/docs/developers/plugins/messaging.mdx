@@ -1,0 +1,111 @@
+---
+title: "消息收发"
+description: "Event 字段、bot.send、按钮选项、多步会话与撤回禁言要点。"
+icon: MessageSquare
+sectionTitles: true
+---
+
+<TimeEstimate minutes={20} level="medium" />
+
+## Event 常用字段
+
+| 字段 | 含义 |
+|------|------|
+| `ev.user_id` | 发送者 |
+| `ev.group_id` | 群；私聊为 None |
+| `ev.text` | 去掉前缀和命令后的参数 |
+| `ev.command` | 命中的关键词 |
+| `ev.raw_text` | 原始全文 |
+| `ev.is_tome` | 是否 @ 了机器人 |
+| `ev.regex_dict` | 正则命名分组 |
+
+## 发送
+
+```python
+await bot.send("纯文本")
+await bot.send(["第一行", "第二行"])
+
+from gsuid_core.segment import MessageSegment
+await bot.send(MessageSegment.image(img_bytes))
+await bot.send(MessageSegment.image("https://example.com/a.png"))
+```
+
+## 选项 / 按钮：优先 send_option
+
+<BeginnerTip title="为什么不用纯文本「请回复 1/2/3」？">
+
+支持按钮的平台会渲染可点按钮；不支持时用 `unsuported_platform=True` 自动变文字提示。
+
+</BeginnerTip>
+
+```python
+from gsuid_core.message_models import Button
+
+@sv.on_fullmatch("菜单")
+async def _(bot: Bot, ev: Event) -> None:
+    await bot.send_option(
+        reply="请选择：",
+        option_list=["查角色", "查武器", "查抽卡"],
+        unsuported_platform=True,
+    )
+```
+
+自定义点击后真正发出的命令：
+
+```python
+await bot.send_option(
+    reply="确认绑定？",
+    option_list=[
+        Button("✅ 确认", "确认绑定 12345678", "已确认"),
+        Button("❌ 取消", "取消绑定", "已取消"),
+    ],
+    unsuported_platform=True,
+)
+```
+
+## 多步会话
+
+| API | 行为 |
+|-----|------|
+| `send_option` | 只发选项，不等待 |
+| `receive_resp` | 等**同一用户**下一条 |
+| `receive_mutiply_resp` | 等群内任意用户 |
+
+```python
+@sv.on_fullmatch("开始测试")
+async def _(bot: Bot, ev: Event) -> None:
+    resp = await bot.receive_resp("请继续说话：")
+    if resp is not None:
+        await bot.send(f"你说了：{resp.text}")
+```
+
+默认超时约 60 秒。AI 场景下 `MockBot` 的 `receive_resp` 会返回 `None`——**多步交互不要 to_ai**。
+
+## 撤回与禁言（简要）
+
+```python
+ids = await bot.send("5 秒后撤回", wait_recall=True)
+await asyncio.sleep(5)
+await bot.unsend(ids)
+
+await bot.ban(user_id, group_id, duration=600)  # 秒；0=解禁
+```
+
+HTTP 模式不支持；依赖适配器能力。
+
+## 对话示意
+
+<ChatPanel title="用户侧体验">
+  <ChatMessage nickname="你">菜单</ChatMessage>
+  <ChatMessage nickname="GsCore">请选择：查角色 / 查武器 / 查抽卡</ChatMessage>
+  <ChatMessage nickname="你">查角色 胡桃</ChatMessage>
+  <ChatMessage nickname="GsCore">（角色面板图）</ChatMessage>
+</ChatPanel>
+
+<NextSteps
+  items={[
+    { title: '配置管理', href: './config/', primary: true },
+    { title: '触发器', href: './triggers/' },
+    { title: 'to_ai', href: './ai/to-ai/' },
+  ]}
+/>

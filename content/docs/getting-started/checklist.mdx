@@ -1,0 +1,181 @@
+---
+title: "验收清单"
+description: "从环境到插件的最终打勾表——全绿即可日常使用，并附故障分流。"
+icon: ListChecks
+sectionTitles: true
+---
+
+<TimeEstimate minutes={10} level="easy" />
+
+把这一页当作 **上线前登机口检查**。  
+每一项都能在前面的章节找到做法；点不开的链接说明你可能跳步了。
+
+<BeginnerTip title="怎么用这页">
+
+建议打印或开着本页，一边点机器人一边勾选。  
+浏览器进度（其它页的「我完成了这步」）是分页面存的，本页是总表，请手动核对。
+
+</BeginnerTip>
+
+## A. 环境与进程
+
+- [ ] Python ≥ 3.11（或 Docker 已跑起来）  
+- [ ] `git` 可用  
+- [ ] Core 能稳定启动，日志有「启动完成」  
+- [ ] 启动后存在 `data/config.json`  
+
+→ [环境检查](./environment/) · [安装](./install/) · [Docker](./docker/)
+
+## B. 权限与安全
+
+- [ ] `masters` 已填自己的平台 ID  
+- [ ] 知道 `REGISTER_CODE` 在哪，且未泄露  
+- [ ] **同机**：能接受当前 HOST/TOKEN 策略  
+- [ ] **公网/跨机**：`HOST=0.0.0.0` + 强 `WS_TOKEN` + 端口放行  
+
+→ [首次配置](./first-config/)
+
+## C. 网页控制台
+
+- [ ] 浏览器可打开 `http://HOST:PORT/app`  
+- [ ] 已用注册码创建管理员并成功登录  
+- [ ] 仪表盘能看到插件 / 服务数字  
+
+→ [网页控制台](./webconsole/)
+
+## D. Bot 连接
+
+- [ ] **先 Core 后 Bot** 的启动顺序  
+- [ ] Bot 日志显示已连接 Core  
+- [ ] 聊天发消息后，Core 日志有记录  
+- [ ] 主人可执行 `core` 类管理命令  
+
+→ [链接 Bot](./link-bot/) · [NoneBot2 保姆级](./nonebot2/)
+
+## E. 插件
+
+- [ ] 至少安装一颗业务插件并已重启  
+- [ ] 帮助或业务命令有响应（如 `gs帮助`）  
+- [ ] （可选）WebConsole 插件管理列表正常  
+
+→ [安装插件](./install-plugins/) · [插件目录](/docs/guide/plugins-catalog/)
+
+## F. AI（可选）
+
+- [ ] 不需要 AI：跳过即可  
+- [ ] 需要 AI：启动日志有 AI 统计行  
+- [ ] 模型 Key 可用；已考虑白名单与费用  
+
+→ [启用 AI](./enable-ai/)
+
+## 还没通？按症状分流
+
+<DecisionTree
+  label="现在卡在哪一步？"
+  options={[
+    {
+      id: 'start',
+      name: 'Core 起不来',
+      desc: '安装 / 依赖 / 端口',
+      icon: 'alert',
+    },
+    {
+      id: 'console',
+      name: '控制台进不去',
+      desc: '/app 空白或无法注册',
+      icon: 'wrench',
+    },
+    {
+      id: 'ws',
+      name: 'Bot 连不上',
+      desc: 'Token / 网络 / 顺序',
+      icon: 'shield',
+    },
+    {
+      id: 'cmd',
+      name: '连上了没命令',
+      desc: '插件 / 权限 / 前缀',
+      icon: 'help',
+    },
+  ]}
+>
+
+<div data-branch="start">
+
+- 回 [安装与启动 · 失败对照表](./install/)  
+- Docker 用户看 [Docker · 常见错误](./docker/)  
+- 读 `data/logs/` 最新文件  
+
+</div>
+
+<div data-branch="console">
+
+- 确认地址带 `/app`  
+- 等 `data/dist` 就绪  
+- 注册码是否复制完整  
+- 见 [网页控制台](./webconsole/)  
+
+</div>
+
+<div data-branch="ws">
+
+- 1008 → Token  
+- 连接失败 → Core 是否在听、防火墙  
+- 见 [链接 Bot](./link-bot/) · [NoneBot2](./nonebot2/) · [故障排查](/docs/operators/troubleshooting/) 
+
+</div>
+
+<div data-branch="cmd">
+
+- `masters` 是否包含你  
+- 是否已装业务插件并重启  
+- `command_start` 是否多了前缀  
+- 见 [安装插件](./install-plugins/)  
+
+</div>
+
+</DecisionTree>
+
+## 全部完成后
+
+恭喜，你已经完成 GsCore **最小可用部署**：
+
+```text
+平台 → Bot → Core → 插件 → 回复
+         ↘ WebConsole 管理
+```
+
+接下来可以：
+
+- 把常用插件装齐，看 [插件帮助](/docs/plugins-help/genshin-uid/)  
+- 需要自然语言时再开 [AI](./enable-ai/)  
+- 深入配置与排障： [运维指南](/docs/operators/)  
+- 自己写功能： [插件开发](/docs/developers/plugins/overview/)  
+
+也欢迎把本页当「给朋友的交接清单」转发。
+
+<NextSteps
+  items={[
+    {
+      title: '插件目录',
+      href: '/docs/guide/plugins-catalog/',
+      desc: '看看还能装什么',
+      primary: true,
+    },
+    {
+      title: '运维指南',
+      href: '/docs/operators/',
+      desc: '配置与数据布局',
+    },
+    {
+      title: '常见问题',
+      href: '/docs/faq/',
+      desc: '搜索式 FAQ',
+    },
+    {
+      title: '回到概念页',
+      href: './concepts/',
+      desc: '复习架构',
+    },
+  ]}
+/>

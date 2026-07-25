@@ -1,0 +1,65 @@
+---
+title: "配置管理"
+description: "CONFIG_DEFAULT 与 StringConfig：让配置出现在网页控制台。"
+icon: Settings
+sectionTitles: true
+---
+
+插件配置应声明默认值，由框架生成 `data/plugins_configs/<插件>.json`，并在 WebConsole 可改。
+
+## 模式
+
+```python
+# myplugin_config/config_default.py
+from gsuid_core.utils.plugins_config.gs_config import StringConfig
+from gsuid_core.utils.plugins_config.models import (
+    GsStrConfig,
+    GsBoolConfig,
+    GsIntConfig,
+    GsListStrConfig,
+)
+
+CONFIG_DEFAULT = {
+    "IsOpen": GsBoolConfig("功能总开关", "是否启用本插件主功能", True),
+    "ApiKey": GsStrConfig("API密钥", "第三方接口 Key", ""),
+    "Limit": GsIntConfig("次数上限", "每日调用上限", 10),
+    "Admins": GsListStrConfig("额外管理员", "用户 ID 列表", []),
+}
+
+# myplugin_config/myplugin_config.py
+from gsuid_core.data_store import get_res_path
+from .config_default import CONFIG_DEFAULT
+
+MYPLUGIN_CONFIG = StringConfig(
+    "MyPlugin",
+    get_res_path() / "MyPlugin" / "config.json",  # 或使用框架约定路径
+    CONFIG_DEFAULT,
+)
+```
+
+实际项目请对照成熟插件（GenshinUID / ZZZeroUID）的 `StringConfig` 构造参数。
+
+## 读取
+
+```python
+enabled = MYPLUGIN_CONFIG.get_config("IsOpen").data
+```
+
+多数项改完可热更；以控制台提示为准。
+
+## 与 Core 配置的边界
+
+| 配置 | 文件 |
+|------|------|
+| 全局 masters / WS | `data/config.json` |
+| 行为 / 镜像源 | `data/core_config.json` |
+| 你的插件 | `data/plugins_configs/` 或插件 data 目录 |
+
+不要把插件私密 Key 写进仓库明文示例。
+
+<NextSteps
+  items={[
+    { title: '数据库', href: './database/', primary: true },
+    { title: '结构', href: './structure/' },
+  ]}
+/>

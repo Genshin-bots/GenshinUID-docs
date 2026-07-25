@@ -1,0 +1,53 @@
+---
+title: "代码红线"
+description: "插件作者自查：禁止滥用 try/except、同步阻塞、to_ai 冲突等。"
+icon: ShieldAlert
+sectionTitles: true
+---
+
+写完插件对照打勾。细则与类型规范以仓库 `docs/LLM.md`（贡献者）及 skill §17 为准。
+
+## 绝对避免
+
+| 红线 | 原因 |
+|------|------|
+| 大面积 `try/except: pass` 吞错 | 线上静默坏掉，极难查 |
+| 对同一函数同时 `to_ai` 与 `@ai_tools` | 重复注册 / 行为异常 |
+| 在触发器里同步阻塞（重 CPU、同步 HTTP） | 卡死整个 Core 事件循环 |
+| 主动推送硬编码群号循环 `target_send` | 应用 `gs_subscribe` |
+| 触发器里使用 `_Bot` | 只用高层 `Bot` |
+| `cast` / `type: ignore` / `getattr` 乱兜底 | 掩盖类型与数据错误 |
+
+## 少数例外
+
+- **`ai_return` 辅助函数**内允许 try/except，失败只打日志，不影响出图  
+- 与第三方 API 边界：捕获后**明确** `bot.send` 错误原因，不要空 except  
+
+## 性能
+
+```python
+# 重计算
+import asyncio
+await asyncio.to_thread(cpu_bound_fn, ...)
+```
+
+## 安全
+
+- 管理命令设好 `pm`  
+- 危险操作不要 `to_ai`  
+- 密钥走配置，不进 git  
+
+## 自检清单
+
+- [ ] 每个触发器签名是 `(bot: Bot, ev: Event)`  
+- [ ] 前缀与 `force_prefix` 符合预期  
+- [ ] 需要 AI 的命令只有 `to_ai` 一条路径  
+- [ ] 推送走订阅  
+- [ ] 本地 `core重启` 加载无报错  
+
+<NextSteps
+  items={[
+    { title: '完整示例', href: './full-example/' },
+    { title: '总览', href: './overview/', primary: true },
+  ]}
+/>

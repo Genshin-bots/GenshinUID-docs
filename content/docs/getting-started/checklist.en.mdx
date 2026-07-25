@@ -1,0 +1,33 @@
+---
+title: "Checklist"
+description: "Verify Core, console, Bot, and plugins are wired up."
+icon: ListChecks
+---
+
+## Infrastructure
+
+- [ ] Core starts without crash loops  
+- [ ] `masters` set to your platform user id  
+- [ ] Public deploy: `HOST=0.0.0.0` + `WS_TOKEN`  
+- [ ] WebConsole at `http://HOST:PORT/app` works  
+
+## Connectivity
+
+- [ ] Bot logs show connected to Core  
+- [ ] Messages appear in Core logs  
+- [ ] Master can run `core` admin commands  
+
+## Plugins
+
+- [ ] At least one business plugin installed + restart  
+- [ ] Plugin help / command responds  
+
+## Optional AI
+
+- [ ] Startup log shows AI tool stats  
+- [ ] Model profile works  
+- [ ] Whitelist / budget considered  
+
+## Paths
+
+[Concepts](./concepts/) · [Install](./install/) · [Link Bot](./link-bot/) · [FAQ](/docs/faq/)

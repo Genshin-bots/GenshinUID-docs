@@ -1,44 +1,50 @@
+'use client';
+
+import { Check } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Badge, type BadgeType } from '@/components/Badge';
 import { cn } from '@/lib/utils';
 
 /**
- * 引导式检查步骤卡（Server Component）
+ * 引导式检查步骤卡（Client Component，支持本地勾选进度）
  *
- * 用于环境检查、安装等「按步骤走」的章节，每张卡 = 一个独立步骤：
- *   - 左侧：圆形渐变步骤号（视觉锚点 + 顺序感）
- *   - 右侧：标题行（标题 + 徽章）、副标题、内容（code 块 / Callout / 嵌套组件等）
- *   - 多张连续使用时，卡之间会自动出现 2px 渐变连接线（CSS 伪元素，无需手动配）
- *
- * 设计原则：
- *   - 内容**默认全部展开**——用户不再需要"点开 detail"，所有检查命令常显
- *   - 步骤号 + 标题 + 徽章 三件套承担"我现在到哪一步、要做什么、是必装还是可选"的语义
- *   - 标题与正文走 MiSans VF（项目字体规范），版本/数字才用 mono
- *
- * 用法（MDX）：
  * <CheckItem
  *   step={1}
- *   title="确保安装 Python 环境"
- *   subtitle="版本须 >3.9，建议 >=3.12"
+ *   title="确保安装 Python"
+ *   subtitle="≥3.11，建议 3.12"
  *   badge={{ text: "必装", type: "warning" }}
+ *   checkable
+ *   storageKey="gs-env-python"
  * >
- *   ```shell
- *   python -V
- *   ```
+ *   ...
  * </CheckItem>
  */
+
 export interface CheckItemProps {
-  /** 步骤序号（1, 2, 3...） */
   step: number;
-  /** 步骤标题 */
   title: string;
-  /** 副标题/说明（标题下一行灰色文字，可选） */
   subtitle?: string;
-  /** 标题右侧徽章（如「必装」「推荐」），可选 */
   badge?: { text: string; type?: BadgeType };
-  /** 步骤内容——code 块、Callout、嵌套 CheckItem / PkgManager 都能塞 */
   children: ReactNode;
   className?: string;
+  /**
+   * 是否显示「我完成了」勾选。进度写入 localStorage（若提供 storageKey）。
+   * 默认 true——新手文档推荐开启。
+   */
+  checkable?: boolean;
+  /** localStorage 键，跨刷新保留进度；不设则仅会话内 state */
+  storageKey?: string;
+  /** 勾选按钮文案 */
+  checkLabel?: string;
+  checkedLabel?: string;
+}
+
+const CHECK_EVENT = 'fd-checkitem-change';
+
+export function dispatchCheckChange() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new Event(CHECK_EVENT));
 }
 
 export function CheckItem({
@@ -48,11 +54,45 @@ export function CheckItem({
   badge,
   children,
   className,
+  checkable = true,
+  storageKey,
+  checkLabel = '我完成了这步',
+  checkedLabel = '已完成',
 }: CheckItemProps) {
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (!storageKey || typeof window === 'undefined') return;
+    try {
+      setDone(localStorage.getItem(storageKey) === '1');
+    } catch {
+      /* private mode */
+    }
+  }, [storageKey]);
+
+  const toggle = useCallback(() => {
+    setDone((prev) => {
+      const next = !prev;
+      if (storageKey && typeof window !== 'undefined') {
+        try {
+          if (next) localStorage.setItem(storageKey, '1');
+          else localStorage.removeItem(storageKey);
+        } catch {
+          /* ignore */
+        }
+        dispatchCheckChange();
+      }
+      return next;
+    });
+  }, [storageKey]);
+
   return (
-    <div className={cn('not-prose fd-checkitem', className)}>
+    <div
+      className={cn('not-prose fd-checkitem', done && 'is-done', className)}
+      data-done={done ? 'true' : 'false'}
+    >
       <div className="fd-checkitem__step" aria-hidden>
-        {step}
+        {done ? <Check className="h-4 w-4" strokeWidth={3} /> : step}
       </div>
       <div className="fd-checkitem__main">
         <div className="fd-checkitem__title-row">
@@ -61,7 +101,97 @@ export function CheckItem({
         </div>
         {subtitle && <p className="fd-checkitem__subtitle">{subtitle}</p>}
         <div className="fd-checkitem__body">{children}</div>
+        {checkable && (
+          <button
+            type="button"
+            className={cn('fd-checkitem__mark', done && 'is-checked')}
+            onClick={toggle}
+            aria-pressed={done}
+          >
+            <span className="fd-checkitem__mark-box" aria-hidden>
+              {done && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+            </span>
+            {done ? checkedLabel : checkLabel}
+          </button>
+        )}
       </div>
+    </div>
+  );
+}
+
+interface CheckProgressProps {
+  /** 与各 CheckItem 的 storageKey 列表对应 */
+  keys: string[];
+  label?: string;
+  className?: string;
+  /** 全部完成时的鼓励文案 */
+  doneText?: string;
+}
+
+/** 页面顶部进度条：统计多个 CheckItem 的 localStorage 进度 */
+export function CheckProgress({
+  keys,
+  label = '本页进度',
+  className,
+  doneText = '太棒了，本页步骤已全部完成！可以继续下一章。',
+}: CheckProgressProps) {
+  const [count, setCount] = useState(0);
+
+  const keysSig = keys.join('\0');
+
+  const refresh = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    let n = 0;
+    for (const k of keysSig.split('\0')) {
+      if (!k) continue;
+      try {
+        if (localStorage.getItem(k) === '1') n += 1;
+      } catch {
+        /* ignore */
+      }
+    }
+    setCount(n);
+  }, [keysSig]);
+
+  useEffect(() => {
+    refresh();
+    window.addEventListener(CHECK_EVENT, refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener(CHECK_EVENT, refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, [refresh]);
+
+  const total = keys.length;
+  const pct = total === 0 ? 0 : Math.round((count / total) * 100);
+  const allDone = total > 0 && count === total;
+
+  return (
+    <div
+      className={cn(
+        'not-prose fd-checkprogress',
+        allDone && 'is-complete',
+        className,
+      )}
+    >
+      <div className="fd-checkprogress__row">
+        <span className="fd-checkprogress__label">{label}</span>
+        <span className="fd-checkprogress__count">
+          {count} / {total}
+        </span>
+      </div>
+      <div
+        className="fd-checkprogress__bar"
+        role="progressbar"
+        aria-valuenow={count}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-label={label}
+      >
+        <div className="fd-checkprogress__fill" style={{ width: `${pct}%` }} />
+      </div>
+      {allDone && <p className="fd-checkprogress__done">{doneText}</p>}
     </div>
   );
 }

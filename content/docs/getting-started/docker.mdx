@@ -1,0 +1,212 @@
+---
+title: "Docker 部署"
+description: "零基础选模式、挂载卷、启动容器，并连上 Bot——专为不想折腾本机 Python 的新手。"
+icon: Container
+sectionTitles: true
+---
+
+<TimeEstimate minutes={25} level="medium" />
+
+适合：会一点 Docker，或不想在 Windows 上折腾编译依赖。  
+不适合：还没装过 Docker Desktop / 引擎——请先装好 Docker 再继续。
+
+<CheckProgress
+  keys={['gs-dk-mode', 'gs-dk-up', 'gs-dk-persist']}
+  label="Docker 进度"
+  doneText="容器已起来！记得做首次配置和连 Bot。"
+/>
+
+<BeginnerTip title="Docker 是什么（10 秒）">
+
+Docker 把「系统 + Python + 依赖 + Core」打成容器。  
+你只要挂上「数据盘」和「插件盘」，升级镜像时存档还在。
+
+</BeginnerTip>
+
+## 步骤 1：选模式
+
+<CheckItem
+  step={1}
+  title="挂载模式还是全量镜像？"
+  badge={{ text: "先选", type: "tip" }}
+  storageKey="gs-dk-mode"
+  checkable={false}
+>
+
+<PkgManager
+  label="两种官方路径"
+  options={[
+    {
+      id: 'mount',
+      name: '挂载模式',
+      desc: '本地有源码，改代码即生效',
+      icon: 'wrench',
+      recommended: true,
+    },
+    {
+      id: 'bundle',
+      name: '全量模式',
+      desc: '直接拉镜像，最少步骤',
+      icon: 'box',
+    },
+  ]}
+>
+
+<div data-pkg="mount">
+
+**适合**：想跟仓库更新、偶尔改配置文件、开发插件。
+
+```shell
+git clone https://cnb.cool/gscore-mirror/gsuid_core.git
+# 或 GitHub：https://github.com/Genshin-bots/gsuid_core.git
+cd gsuid_core
+cp .env.example .env
+docker compose up -d --build
+```
+
+第一次构建会久一点。用 `docker compose logs -f` 看进度。
+
+</div>
+
+<div data-pkg="bundle">
+
+**适合**：生产 / 「我只想跑起来」。
+
+```shell
+# 准备 docker-compose.bundle.yml 与 .env（设置 DATA_PATH、PLUGIN_PATH）
+docker compose -f docker-compose.bundle.yml up -d
+```
+
+或 `docker run` 示例：
+
+```shell
+docker run -d \
+  --name gsuid_core \
+  --restart always \
+  -p 8765:8765 \
+  -v /opt/gscore_data:/gsuid_core/data \
+  -v /opt/gscore_plugins:/gsuid_core/gsuid_core/plugins \
+  -v gsuid_core_venv:/venv \
+  docker.cnb.cool/gscore-mirror/gsuid_core:latest
+```
+
+Windows 路径请换成你的盘符目录，如 `D:/gscore/data`。
+
+</div>
+
+</PkgManager>
+
+</CheckItem>
+
+## 步骤 2：确认三个持久化挂载
+
+<CheckItem
+  step={2}
+  title="数据盘 / 插件盘 / venv 都挂了吗？"
+  badge={{ text: "必做", type: "danger" }}
+  storageKey="gs-dk-persist"
+>
+
+| 容器内路径 | 存什么 | 不挂会怎样 |
+|------------|--------|------------|
+| `/gsuid_core/data` | 配置、数据库、日志、AI | **存档全丢** |
+| `/gsuid_core/gsuid_core/plugins` | 业务插件 | 插件全丢 |
+| `/venv` | Python 环境（命名卷） | 每次重建重装依赖 |
+
+<Callout type="error" title="">
+
+只 `-p 8765:8765` 而不挂 `data`，等于每次重建都是新号——血的教训。
+
+</Callout>
+
+</CheckItem>
+
+## 步骤 3：看日志确认启动
+
+<CheckItem
+  step={3}
+  title="容器在跑且日志有「启动完成」"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-dk-up"
+>
+
+```shell
+docker ps
+docker logs -f gsuid_core
+# compose 项目名不同时：
+# docker compose logs -f
+```
+
+浏览器访问：`http://localhost:8765/app`（端口以你映射为准）。
+
+进入容器排查：
+
+```shell
+docker exec -it gsuid_core bash
+```
+
+</CheckItem>
+
+## .env 新手常用项
+
+```properties
+PORT=8765
+# 国内装依赖慢时换 PyPI 镜像，例如：
+# GSCORE_PYTHON_INDEX=https://mirrors.aliyun.com/pypi/simple/
+
+# 可选代理（宿主机代理端口按你的为准）
+# GSCORE_HTTP_PROXY=http://host.docker.internal:7890
+# GSCORE_HTTPS_PROXY=http://host.docker.internal:7890
+```
+
+## 和 Bot 互通时注意
+
+| 拓扑 | Bot 里 host 怎么填 |
+|------|-------------------|
+| Bot 在宿主机，Core 在容器 | 通常 `127.0.0.1`（端口已映射） |
+| Bot 也在容器 | 用 compose 服务名，或 `host.docker.internal` |
+| Core 在远程 VPS | VPS 公网 IP + 安全组放行 + `WS_TOKEN` |
+
+镜像通常已 `--host 0.0.0.0`。公网务必配 Token，见 [首次配置](./first-config/)。
+
+## 升级与重置
+
+```shell
+# 拉新镜像（bundle）
+docker compose -f docker-compose.bundle.yml pull
+docker compose -f docker-compose.bundle.yml up -d
+
+# 依赖坏了：删 venv 卷重建（data 还在）
+docker compose down -v
+docker compose up -d --build
+```
+
+## 常见错误
+
+| 现象 | 处理 |
+|------|------|
+| `port is already allocated` | 改 `.env` 的 `PORT` 或关掉占用进程 |
+| 容器秒退 | `docker logs` 看完整错误 |
+| 权限写不了 data | 检查宿主机目录权限 |
+| git 装插件卡死 | 容器内配 git 代理或 WebConsole 换镜像源 |
+
+<NextSteps
+  items={[
+    {
+      title: '首次配置',
+      href: './first-config/',
+      desc: 'masters / TOKEN / 公网',
+      primary: true,
+    },
+    {
+      title: '网页控制台',
+      href: './webconsole/',
+      desc: '进 /app 注册',
+    },
+    {
+      title: '链接 Bot',
+      href: './link-bot/',
+      desc: '打通消息',
+    },
+  ]}
+/>

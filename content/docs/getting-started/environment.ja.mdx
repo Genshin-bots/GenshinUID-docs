@@ -1,0 +1,73 @@
+---
+title: "環境確認"
+description: "Python・git・パッケージマネージャ・ポートの確認。"
+icon: ClipboardCheck
+sectionTitles: true
+---
+
+## Python
+
+- **必須**: `>=3.11,<4.0` · **推奨**: `3.12` · `>=3.14` は非推奨
+
+<CheckItem step={1} title="Python を確認" badge={{ text: "必須", type: "warning" }}>
+
+```shell
+python -V
+```
+
+</CheckItem>
+
+## Git
+
+<CheckItem step={2} title="Git を確認" subtitle=">= 2.0" badge={{ text: "必須", type: "warning" }}>
+
+```shell
+git -v
+```
+
+</CheckItem>
+
+## パッケージマネージャ
+
+<CheckItem step={3} title="1 つ入れる" badge={{ text: "uv 推奨", type: "tip" }}>
+
+<PkgManager
+  label="いずれか"
+  options={[
+    { id: 'uv', name: 'uv', desc: '最速', recommended: true },
+    { id: 'poetry', name: 'poetry', desc: '定番' },
+    { id: 'pdm', name: 'pdm', desc: 'PEP 582' },
+  ]}
+>
+
+<div data-pkg="uv">
+
+```shell
+uv -V
+```
+
+</div>
+
+<div data-pkg="poetry">
+
+```shell
+poetry -V
+```
+
+</div>
+
+<div data-pkg="pdm">
+
+```shell
+pdm -V
+```
+
+</div>
+
+</PkgManager>
+
+</CheckItem>
+
+## 次へ
+
+[インストール](./install/) · [Docker](./docker/)

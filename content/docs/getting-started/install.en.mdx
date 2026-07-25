@@ -1,0 +1,99 @@
+---
+title: "Install & Start"
+description: "Clone the repo, install deps, start Core, and recognize a healthy log."
+icon: Download
+sectionTitles: true
+---
+
+<TimeEstimate minutes={20} level="medium" levelText="Medium" prefix="About" />
+
+Source install path. Prefer containers? → [Docker](./docker/).  
+Finish [Environment](./environment/) first.
+
+<CheckProgress
+  keys={['gs-install-clone', 'gs-install-deps', 'gs-install-start', 'gs-install-verify']}
+  label="Install progress"
+  doneText="Core starts — next: first config & link Bot."
+/>
+
+<CheckItem step={1} title="Clone the repository" badge={{ text: "Required", type: "warning" }} storageKey="gs-install-clone">
+
+```shell
+git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch
+# China mirror: https://cnb.cool/gscore-mirror/gsuid_core.git
+cd gsuid_core
+```
+
+You should see `pyproject.toml` in the current directory.
+
+</CheckItem>
+
+<CheckItem step={2} title="Install dependencies" badge={{ text: "Required", type: "warning" }} storageKey="gs-install-deps">
+
+<PkgManager
+  options={[
+    { id: 'uv', name: 'uv', recommended: true },
+    { id: 'poetry', name: 'poetry' },
+    { id: 'pdm', name: 'pdm' },
+    { id: 'pip', name: 'pip', icon: 'pip' },
+  ]}
+>
+<div data-pkg="uv">
+
+```shell
+uv python install 3.12
+uv sync --python 3.12
+uv run python -m ensurepip
+```
+
+</div>
+<div data-pkg="poetry">
+
+```shell
+poetry install
+```
+
+</div>
+<div data-pkg="pdm">
+
+```shell
+pdm install
+```
+
+</div>
+<div data-pkg="pip">
+
+```shell
+python -m pip install -r requirements.txt
+```
+
+</div>
+</PkgManager>
+
+</CheckItem>
+
+<CheckItem step={3} title="Start Core and spot success logs" badge={{ text: "Required", type: "warning" }} storageKey="gs-install-start">
+
+```shell
+uv run core
+```
+
+Look for startup-complete lines and try `http://localhost:8765/app`.
+
+</CheckItem>
+
+<CheckItem step={4} title="core --help works" storageKey="gs-install-verify">
+
+```shell
+uv run core --help
+```
+
+</CheckItem>
+
+<NextSteps
+  items={[
+    { title: 'First config', href: './first-config/', primary: true },
+    { title: 'WebConsole', href: './webconsole/' },
+    { title: 'Link Bot', href: './link-bot/' },
+  ]}
+/>

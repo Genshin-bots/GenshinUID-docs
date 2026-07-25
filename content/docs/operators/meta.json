@@ -1,0 +1,5 @@
+{
+  "title": "运维指南",
+  "icon": "Server",
+  "pages": ["index", "data-layout", "config-json", "troubleshooting"]
+}

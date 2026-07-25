@@ -1,36 +1,90 @@
 ---
 title: 文档首页
-description: 早柚核心 (GsCore) 文档
+description: 早柚核心 (GsCore) 官方文档 — 部署、运维、插件与 AI
 icon: House
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
-欢迎来到 GsCore 文档！请通过左侧侧边栏浏览各章节。
+**GsCore** 是分离式 Bot 业务核心：插件统一、网页控制台、可选 AI。  
+请先选择你的角色路径——文档已按「上手 → 运维 → 开发」分层。
+
+<PathWizard
+  label="你想从哪条路开始？"
+  startLabel="开始阅读"
+  paths={[
+    {
+      id: 'deploy',
+      name: '部署上手',
+      desc: '安装 Core、连 Bot、装插件',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: '核心概念', href: '/docs/getting-started/concepts/', desc: 'Core ≠ Bot' },
+        { title: '环境检查', href: '/docs/getting-started/environment/' },
+        { title: '安装与启动', href: '/docs/getting-started/install/' },
+        { title: '链接 Bot', href: '/docs/getting-started/link-bot/' },
+      ],
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      desc: '容器一键部署',
+      icon: 'container',
+      steps: [
+        { title: 'Docker 部署', href: '/docs/getting-started/docker/' },
+        { title: '首次配置', href: '/docs/getting-started/first-config/' },
+        { title: '验收清单', href: '/docs/getting-started/checklist/' },
+      ],
+    },
+    {
+      id: 'dev',
+      name: '插件开发',
+      desc: '写命令、接 AI、管数据',
+      icon: 'terminal',
+      steps: [
+        { title: '开发者总览', href: '/docs/developers/plugins/overview/' },
+        { title: '先完成部署', href: '/docs/getting-started/install/' },
+      ],
+    },
+    {
+      id: 'ai',
+      name: '启用 AI',
+      desc: '模型、搜索、记忆（可选）',
+      icon: 'sparkles',
+      steps: [
+        { title: '运维启用 AI', href: '/docs/getting-started/enable-ai/' },
+        { title: 'AI 能力入口', href: '/docs/ai-features/' },
+      ],
+    },
+  ]}
+/>
+
+## 按章节浏览
 
 <Cards>
-  <Card title="🚀 快速开始" href="/docs/started/install-core">
-    安装 GsCore、链接 Bot、安装插件
+  <Card title="快速开始" href="/docs/getting-started/concepts/">
+    概念、环境、安装、Docker、控制台、连 Bot、装插件
   </Card>
-  <Card title="🤖 链接支持 Bot" href="/docs/link-bots/adapter-list">
-    适配各种 Bot 框架
+  <Card title="网页控制台" href="/docs/getting-started/webconsole/">
+    注册管理员、配置与插件管理
   </Card>
-  <Card title="🔧 安装插件" href="/docs/install-plugins/install-plugins">
-    安装和管理插件
+  <Card title="运维与配置" href="/docs/operators/">
+    配置字段、安全、数据库、故障排查（建设中）
   </Card>
-  <Card title="🚀 进阶介绍" href="/docs/advance/base-info">
-    了解 GsCore 的高级概念
+  <Card title="AI 功能" href="/docs/ai-features/">
+    现有 AI 文档（将迁入 developers/ai-api）
   </Card>
-  <Card title="🧠 AI 功能" href="/docs/ai-features">
-    探索 GsCore 的 AI 能力
+  <Card title="编写插件" href="/docs/code-plugins/start/">
+    现有插件开发文档（将迁入 developers/plugins）
   </Card>
-  <Card title="🔍 编写插件" href="/docs/code-plugins/start">
-    开发自定义 GsCore 插件
+  <Card title="编写适配器" href="/docs/code-adapter/protocol/">
+    早柚协议与适配器（将迁入 developers/adapters）
   </Card>
-  <Card title="🧐 编写适配器" href="/docs/code-adapter/pack">
-    开发自定义 Bot 适配器
+  <Card title="插件帮助" href="/docs/plugins-help/genshin-uid/">
+    各游戏插件使用说明
   </Card>
-  <Card title="📄 插件帮助" href="/docs/plugins-help/genshin-uid">
-    各游戏插件的使用文档
+  <Card title="常见问题" href="/docs/faq/">
+    搜索式 FAQ
   </Card>
 </Cards>

@@ -1,36 +1,90 @@
 ---
 title: ドキュメントホーム
-description: さゆコア (GsCore) ドキュメント
+description: さゆコア (GsCore) 公式ドキュメント — 導入・運用・プラグイン・AI
 icon: House
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
-GsCore ドキュメントへようこそ！左側のサイドバーから各セクションをご覧ください。
+**GsCore** は分離型の Bot ビジネスコアです。プラグイン統合、Web コンソール、任意の AI を提供します。  
+下から役割を選んでください（導入 → 運用 → 開発）。
+
+<PathWizard
+  label="どの経路から始めますか？"
+  startLabel="読み始める"
+  paths={[
+    {
+      id: 'deploy',
+      name: '導入',
+      desc: 'Core を起動し Bot とプラグインを接続',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: '基本概念', href: '/docs/getting-started/concepts/', desc: 'Core ≠ Bot' },
+        { title: '環境確認', href: '/docs/getting-started/environment/' },
+        { title: 'インストール', href: '/docs/getting-started/install/' },
+        { title: 'Bot 連携', href: '/docs/getting-started/link-bot/' },
+      ],
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      desc: 'コンテナで導入',
+      icon: 'container',
+      steps: [
+        { title: 'Docker ガイド', href: '/docs/getting-started/docker/' },
+        { title: '初期設定', href: '/docs/getting-started/first-config/' },
+        { title: 'チェックリスト', href: '/docs/getting-started/checklist/' },
+      ],
+    },
+    {
+      id: 'dev',
+      name: 'プラグイン開発',
+      desc: 'コマンド・AI・DB',
+      icon: 'terminal',
+      steps: [
+        { title: '開発者概要', href: '/docs/developers/plugins/overview/' },
+        { title: '先に導入を完了', href: '/docs/getting-started/install/' },
+      ],
+    },
+    {
+      id: 'ai',
+      name: 'AI を有効化',
+      desc: 'モデル・検索・記憶（任意）',
+      icon: 'sparkles',
+      steps: [
+        { title: '運用：AI 有効化', href: '/docs/getting-started/enable-ai/' },
+        { title: 'AI 機能', href: '/docs/ai-features/' },
+      ],
+    },
+  ]}
+/>
+
+## セクション一覧
 
 <Cards>
-  <Card title="🚀 クイックスタート" href="/docs/started/install-core">
-    GsCore のインストール、Bot 連携、プラグイン
+  <Card title="クイックスタート" href="/docs/getting-started/concepts/">
+    概念・環境・インストール・Docker・コンソール・Bot・プラグイン
   </Card>
-  <Card title="🤖 対応 Bot" href="/docs/link-bots/adapter-list">
-    対応する Bot フレームワーク
+  <Card title="Web コンソール" href="/docs/getting-started/webconsole/">
+    管理者登録と設定
   </Card>
-  <Card title="🔧 プラグイン" href="/docs/install-plugins/install-plugins">
-    プラグインのインストールと管理
+  <Card title="運用" href="/docs/operators/">
+    設定・セキュリティ・DB・トラブルシュート（準備中）
   </Card>
-  <Card title="🚀 応用" href="/docs/advance/base-info">
-    GsCore の高度な概念
+  <Card title="AI 機能" href="/docs/ai-features/">
+    現行 AI ドキュメント
   </Card>
-  <Card title="🧠 AI 機能" href="/docs/ai-features">
-    GsCore の AI 機能
+  <Card title="プラグイン開発" href="/docs/code-plugins/start/">
+    プラグイン開発（移行予定）
   </Card>
-  <Card title="🔍 プラグイン開発" href="/docs/code-plugins/start">
-    カスタム GsCore プラグインの開発
+  <Card title="アダプタ開発" href="/docs/code-adapter/protocol/">
+    早柚プロトコル
   </Card>
-  <Card title="🧐 アダプタ開発" href="/docs/code-adapter/pack">
-    カスタム Bot アダプタの開発
+  <Card title="プラグインヘルプ" href="/docs/plugins-help/genshin-uid/">
+    ゲーム別プラグイン
   </Card>
-  <Card title="📄 プラグインヘルプ" href="/docs/plugins-help/genshin-uid">
-    プラグイン別のドキュメント
+  <Card title="FAQ" href="/docs/faq/">
+    検索可能な FAQ
   </Card>
 </Cards>

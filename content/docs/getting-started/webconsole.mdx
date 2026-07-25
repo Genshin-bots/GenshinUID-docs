@@ -1,0 +1,169 @@
+---
+title: "网页控制台"
+description: "从打开 /app、找到注册码，到登录后台管理插件与配置——新手全程截图式说明（含可交互 Demo）。"
+icon: Monitor
+sectionTitles: true
+---
+
+<TimeEstimate minutes={10} level="easy" />
+
+WebConsole 是装在 Core 里的 **网页管理后台**（不是聊天窗口）。  
+Core 一启动就会尝试提供它，一般**不用单独安装**。
+
+<CheckProgress
+  keys={['gs-wc-open', 'gs-wc-code', 'gs-wc-register']}
+  label="控制台上手进度"
+  doneText="你已经能进后台了！可以去连 Bot 或装插件。"
+/>
+
+## 它能干什么？（先建立预期）
+
+| 你想做的事 | 大概在哪 |
+|------------|----------|
+| 改主人、端口、Token | 核心配置 |
+| 装 / 更新 / 卸插件 | 插件管理 |
+| 改某个插件的开关和参数 | 插件配置 |
+| 看日志排查问题 | 历史日志 / 实时日志 |
+| 改主题外观 | 主题 |
+| 配 AI 模型 | AI 配置（可选） |
+
+下面是**可交互演示**（静态 Demo，数据是假的，但界面与真控制台一致）：
+
+<HubEmbed route="dashboard" title="仪表盘 Demo · 点「加载」体验" height={440} />
+
+## 步骤 1：打开地址
+
+<CheckItem
+  step={1}
+  title="浏览器访问控制台"
+  subtitle="默认 http://localhost:8765/app"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-wc-open"
+>
+
+| 场景 | 地址 |
+|------|------|
+| Core 在本机，默认端口 | [http://localhost:8765/app](http://localhost:8765/app) |
+| 你改过 PORT | `http://localhost:<端口>/app` |
+| 服务器上的 Core | `http://<服务器IP>:<端口>/app`（需 `HOST=0.0.0.0`） |
+
+**注意末尾是 `/app`。** 只打开根路径可能不是控制台页面。
+
+### 打不开时
+
+| 现象 | 排查 |
+|------|------|
+| 无法访问此网站 | Core 没在跑 / 端口错 / 防火墙 |
+| 空白或 404 | 前端资源还在下载：看 Core 日志里 `dist` 相关；等一会刷新 |
+| 能开登录页 | 成功，进入下一步 |
+
+<BeginnerTip title="第一次可能稍慢">
+
+部分环境下，控制台前端会在首次启动时下载到 `data/dist/`。保持 Core 运行，多等几十秒再刷新。
+
+</BeginnerTip>
+
+</CheckItem>
+
+## 步骤 2：找到注册码
+
+<CheckItem
+  step={2}
+  title="从 config.json 复制 REGISTER_CODE"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-wc-code"
+>
+
+注册码在 `data/config.json` 的 `REGISTER_CODE` 字段（32 位左右的十六进制字符串）。
+
+```shell
+python -c "import json; print(json.load(open('data/config.json',encoding='utf-8'))['REGISTER_CODE'])"
+```
+
+Windows 也可直接用编辑器打开 `data\config.json` 搜索 `REGISTER_CODE`。
+
+<Callout type="warn" title="">
+
+- 注册码 ≈ 「创建超级管理员的邀请码」  
+- **整个 Core 实例只能注册一个管理员账号**  
+- 不要发到公开群 / 截图上传到公开 issue  
+
+</Callout>
+
+</CheckItem>
+
+## 步骤 3：注册并登录
+
+<CheckItem
+  step={3}
+  title="用注册码创建管理员账号"
+  subtitle="用户名 + 邮箱 + 密码"
+  badge={{ text: "一次即可", type: "tip" }}
+  storageKey="gs-wc-register"
+>
+
+1. 打开 `/app`  
+2. 进入注册流程，粘贴 `REGISTER_CODE`  
+3. 设置用户名、邮箱、密码  
+4. 注册成功后登录  
+
+之后改密码请走控制台账号设置，不必再动注册码。
+
+### 登录相关安全（了解即可）
+
+- 密码在浏览器与 Core 之间走**应用层加密**（即使没配 HTTPS 也不明文传密码）  
+- 公网部署仍强烈建议 **反代 + HTTPS**  
+- 短时间失败太多次会触发限流（提示「操作过于频繁」）→ 等一会儿或重启 Core  
+
+### 忘了密码 / 注册码？
+
+| 忘了什么 | 做法 |
+|----------|------|
+| 注册码 | 再读一遍 `config.json` |
+| 密码 | 需要清理 Web 用户数据后重新注册（会丢掉控制台账号，**先备份 `data/`**） |
+
+具体库表名可能随版本变化，操作前请备份整个 `data` 目录。
+
+</CheckItem>
+
+## 登录后建议先点哪里？
+
+1. **仪表盘** — 确认插件数、触发器数不是 0（若为 0，去装插件）  
+2. **核心配置** — 核对 masters / HOST（改完重启）  
+3. **插件管理** — 安装 GenshinUID 等  
+4. **实时日志** — 连 Bot 时对着日志看最有效  
+
+再试一个 Demo 页：
+
+<HubEmbed route="plugins" title="插件管理 Demo" height={400} autoLoad={false} />
+
+## 和「聊天」的关系
+
+```
+群聊 / 私聊  ←→  Bot  ←→  Core  ←→  插件
+                      ↑
+              WebConsole 只是管理入口
+```
+
+控制台**不能代替** Bot。要在 QQ 里说话，必须完成 [链接 Bot](./link-bot/)。
+
+<NextSteps
+  items={[
+    {
+      title: '链接 Bot',
+      href: './link-bot/',
+      desc: '让消息真正进来',
+      primary: true,
+    },
+    {
+      title: '安装插件',
+      href: './install-plugins/',
+      desc: '装上业务功能',
+    },
+    {
+      title: '返回首次配置',
+      href: './first-config/',
+      desc: '还要改 HOST / TOKEN',
+    },
+  ]}
+/>

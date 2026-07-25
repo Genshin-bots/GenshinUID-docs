@@ -1,0 +1,180 @@
+---
+title: "SV 与触发器"
+description: "用决策树选对 on_command / on_prefix / on_fullmatch…，避免污染消息流。"
+icon: Zap
+sectionTitles: true
+---
+
+<TimeEstimate minutes={25} level="medium" />
+
+## 交互选型：我该用哪个？
+
+<DecisionTree
+  label="描述你的命令形态"
+  options={[
+    {
+      id: 'opt',
+      name: '参数可有可无',
+      desc: '「查询」和「查询 雷神」都要响应',
+      icon: 'lightbulb',
+      recommended: true,
+    },
+    {
+      id: 'must',
+      name: '必须带参数',
+      desc: '只有「查询 XXX」才触发',
+      icon: 'wrench',
+    },
+    {
+      id: 'exact',
+      name: '整句精确匹配',
+      desc: '只能是「帮助」两字',
+      icon: 'check',
+    },
+    {
+      id: 'contain',
+      name: '消息里出现某词',
+      desc: '任意位置包含关键词',
+      icon: 'alert',
+    },
+    {
+      id: 're',
+      name: '复杂结构 / 分组',
+      desc: '正则提取多个字段',
+      icon: 'box',
+    },
+    {
+      id: 'meta',
+      name: '进群 / 退群 / 戳一戳',
+      desc: '非文本元事件',
+      icon: 'help',
+    },
+  ]}
+>
+
+<div data-branch="opt">
+
+用 **`on_command`**（默认首选）。
+
+```python
+@sv.on_command("查询")
+async def _(bot: Bot, ev: Event) -> None:
+    name = ev.text.strip()  # 无参时为空串
+    if not name:
+        return await bot.send("请输入角色名")
+    await bot.send(f"查询：{name}")
+```
+
+</div>
+
+<div data-branch="must">
+
+用 **`on_prefix`**。纯「查询」**不会**进函数。
+
+```python
+@sv.on_prefix("查询")
+async def _(bot: Bot, ev: Event) -> None:
+    name = ev.text.strip()  # 保证有内容才触发
+    await bot.send(f"查询：{name}")
+```
+
+</div>
+
+<div data-branch="exact">
+
+用 **`on_fullmatch`**。多一个字都不触发。适合帮助入口，常配 `block=True`。
+
+```python
+@sv.on_fullmatch("帮助", block=True)
+async def _(bot: Bot, ev: Event) -> None:
+    await bot.send("帮助内容")
+```
+
+</div>
+
+<div data-branch="contain">
+
+用 **`on_keyword`**。⚠️ **会扫全站消息**，容易误触发，谨慎使用。
+
+</div>
+
+<div data-branch="re">
+
+用 **`on_regex`**，读 `ev.regex_dict` / `ev.regex_group`。
+
+```python
+@sv.on_regex(r"查询\s*(?P<name>\S+)\s*的\s*(?P<attr>\S+)")
+async def _(bot: Bot, ev: Event) -> None:
+    name = ev.regex_dict.get("name", "")
+    attr = ev.regex_dict.get("attr", "")
+    await bot.send(f"{name} / {attr}")
+```
+
+</div>
+
+<div data-branch="meta">
+
+用 **`on_meta`**，标准事件仅三种：
+
+| 事件 | 含义 |
+|------|------|
+| `user_join_group` | 进群 |
+| `user_exit_group` | 退群 |
+| `poke` | 戳一戳 |
+
+```python
+@sv.on_meta("user_join_group")
+async def _(bot: Bot, ev: Event) -> None:
+    uid = ev.get_meta("user_id")
+    await bot.send(f"欢迎 {uid}")
+```
+
+与普通消息路径**双向隔离**。
+
+</div>
+
+</DecisionTree>
+
+## 速查表
+
+| 装饰器 | 无参时 | 场景 |
+|--------|--------|------|
+| `on_command` | 仍触发 | 默认 |
+| `on_prefix` | 不触发 | 强制参数 |
+| `on_fullmatch` | 必须整句相等 | 帮助 |
+| `on_keyword` | 子串命中 | 慎用 |
+| `on_regex` | 正则 | 复杂解析 |
+| `on_file` | 文件后缀 | 收图 |
+| `on_message` | 所有消息 | 观察用，别复读 |
+| `on_meta` | 元事件 | 进退群/戳 |
+
+## 通用参数
+
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `block` | False | 匹配后是否截断后续触发器 |
+| `to_me` | False | 是否必须 @ 机器人 |
+| `prefix` | True | 是否自动加插件 force_prefix |
+| `to_ai` | `""` | 非空则注册为 AI 工具，**勿与 @ai_tools 同用** |
+
+## 函数签名（固定）
+
+```python
+async def handler(bot: Bot, ev: Event) -> None:
+    ...
+```
+
+不要 import 底层 `_Bot`。
+
+## 和 AI 的关系
+
+命令也要给用户点 → 优先 [to_ai](./ai/to-ai/)。  
+纯内部工具 → `@ai_tools`（见 AI API 文档）。
+
+<NextSteps
+  items={[
+    { title: '消息收发', href: './messaging/', primary: true },
+    { title: 'to_ai', href: './ai/to-ai/' },
+    { title: '目录结构', href: './structure/' },
+  ]}
+/>

@@ -140,15 +140,58 @@ export const faqItems: FaqItem[] = [
     tag: 'info',
     a: (
       <>
-        请自行前往对应文档查看，例如{' '}
-        <a href="https://nb2.baka.icu/" target="_blank" rel="noreferrer">
-          NoneBot2 文档
-        </a>
-        、以及各个适配器的文档，善用{' '}
-        <a href="https://github.com" target="_blank" rel="noreferrer">
-          GitHub
-        </a>{' '}
-        的搜索功能。
+        <p>
+          本站保姆级接入：{' '}
+          <a href="/docs/getting-started/nonebot2/">
+            NoneBot2 保姆级接入 GsCore
+          </a>
+          （创建项目 → 装适配插件 → .env → 先 Core 后 Bot 验收）。
+        </p>
+        <p>
+          NoneBot 本体与平台适配器仍请参考{' '}
+          <a href="https://nonebot.dev/" target="_blank" rel="noreferrer">
+            NoneBot2 文档
+          </a>
+          。
+        </p>
+      </>
+    ),
+  },
+  {
+    q: 'Bot 连接 Core 报 1008 或 Token 错误',
+    tag: 'danger',
+    a: (
+      <>
+        Core 的 <code>WS_TOKEN</code> 必须与 Bot 侧（如{' '}
+        <code>gsuid_core_ws_token</code>）完全一致；公网时空 Token
+        会被拒绝。改完两端都要重启。详见{' '}
+        <a href="/docs/getting-started/first-config/">首次配置</a> 与{' '}
+        <a href="/docs/operators/troubleshooting/">故障排查</a>。
+      </>
+    ),
+  },
+  {
+    q: 'Core 启动了但群里完全没反应',
+    tag: 'warning',
+    a: (
+      <>
+        依次确认：① 上游 Bot + 适配器已连接 Core；② Core 侧已安装业务插件并
+        <code>core重启</code>；③ <code>masters</code> / 权限 /{' '}
+        <code>command_start</code> 前缀。新手路径见{' '}
+        <a href="/docs/getting-started/concepts/">核心概念</a> 与{' '}
+        <a href="/docs/getting-started/checklist/">验收清单</a>。
+      </>
+    ),
+  },
+  {
+    q: 'to_ai 和 @ai_tools 可以一起用吗？',
+    tag: 'danger',
+    a: (
+      <>
+        <strong>不可以</strong>
+        对同一函数同时使用。用户命令 + AI 共用 → 只用触发器上的{' '}
+        <code>to_ai=...</code>；纯 AI 内部工具 → 只用 <code>@ai_tools</code>
+        。见 <a href="/docs/developers/plugins/ai/to-ai/">to_ai 文档</a>。
       </>
     ),
   },

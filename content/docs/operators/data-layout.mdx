@@ -1,0 +1,21 @@
+---
+title: "数据目录布局"
+description: "data/ 与 plugins/ 路径速查。"
+icon: FolderTree
+---
+
+| 路径 | 含义 |
+|------|------|
+| 仓库根 | `git clone` 目录，含 `pyproject.toml` |
+| `gsuid_core/` | Core Python 包 |
+| `gsuid_core/plugins/` | 业务插件 |
+| `data/` | 运行时生成 |
+| `data/config.json` | 全局配置 |
+| `data/core_config.json` | 行为配置 |
+| `data/plugins_configs/` | 插件独立配置 |
+| `data/ai_core/` | AI 配置 |
+| `data/GsData.db` | 默认 SQLite |
+| `data/logs/` | 日志（默认保留约 8 天） |
+| `data/dist/` | WebConsole 前端 bundle |
+
+Docker 必须持久化：`/gsuid_core/data`、`/gsuid_core/gsuid_core/plugins`、`/venv`。详见 [Docker](/docs/getting-started/docker/)。

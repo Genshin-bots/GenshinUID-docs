@@ -1,0 +1,33 @@
+---
+title: "config.json 要点"
+description: "全局配置最小必读字段；完整表将继续扩充。"
+icon: FileJson
+---
+
+完整字段说明将从 deploy skill 迁入。此处列出**最常改**的项。
+
+<ConfigFieldGrid>
+
+<ConfigField name="HOST" defaultValue='"localhost"' file="config.json" risk="medium" when="外网访问">
+本机用 `localhost`；公网用 `0.0.0.0`。
+</ConfigField>
+
+<ConfigField name="PORT" defaultValue='"8765"' file="config.json" risk="low">
+监听端口（字符串）。
+</ConfigField>
+
+<ConfigField name="WS_TOKEN" defaultValue='""' file="config.json" risk="high" when="跨机/公网">
+与 Bot 端 token 必须一致。
+</ConfigField>
+
+<ConfigField name="masters" defaultValue="[]" file="config.json" risk="medium">
+主人 ID 列表（pm=0）。
+</ConfigField>
+
+<ConfigField name="REGISTER_CODE" defaultValue="随机" file="config.json" risk="high">
+WebConsole 注册码，仅能注册一个管理员。
+</ConfigField>
+
+</ConfigFieldGrid>
+
+上手场景决策见 [首次配置](/docs/getting-started/first-config/)。旧文档：[进阶配置](/docs/advance/core-config/)。

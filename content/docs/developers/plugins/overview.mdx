@@ -1,0 +1,79 @@
+---
+title: "插件开发总览"
+description: "写 GsCore 插件从哪读起：路径图、交互选型、与旧文档对照。"
+icon: Puzzle
+sectionTitles: true
+---
+
+<TimeEstimate minutes={8} level="easy" />
+
+在写第一行代码前，请保证本机 [Core 已能跑](/docs/getting-started/install/) 且你能 [热重载/重启](/docs/getting-started/install/) 看到插件加载日志。
+
+## 你要做哪种事？
+
+<PathWizard
+  label="选目标，跳到对应章节"
+  startLabel="开始阅读"
+  paths={[
+    {
+      id: 'new',
+      name: '从零新建插件',
+      desc: '目录、入口、第一个命令',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: '目录与入口', href: './structure/' },
+        { title: '触发器怎么选', href: './triggers/' },
+        { title: '发消息', href: './messaging/' },
+        { title: '完整示例', href: './full-example/' },
+      ],
+    },
+    {
+      id: 'ai',
+      name: '让命令也能被 AI 调用',
+      desc: 'to_ai 优先',
+      icon: 'sparkles',
+      steps: [
+        { title: 'to_ai 决策', href: './ai/to-ai/' },
+        { title: 'AI API 手册', href: '/docs/developers/ai-api/' },
+      ],
+    },
+    {
+      id: 'data',
+      name: '配置 / 数据库 / 定时',
+      desc: '持久化与推送',
+      icon: 'terminal',
+      steps: [
+        { title: '配置', href: './config/' },
+        { title: '数据库', href: './database/' },
+        { title: '订阅与定时', href: './scheduler/' },
+      ],
+    },
+  ]}
+/>
+
+## 文档地图
+
+| 页面 | 内容 |
+|------|------|
+| [结构](./structure/) | 嵌套加载、Plugins vs SV、pyproject |
+| [触发器](./triggers/) | on_command / prefix / fullmatch… 选型器 |
+| [消息](./messaging/) | send / 按钮 / 多步会话 |
+| [配置](./config/) | CONFIG_DEFAULT / StringConfig |
+| [数据库](./database/) | SQLModel、控制台注册 |
+| [定时与订阅](./scheduler/) | APScheduler、gs_subscribe |
+| [to_ai](./ai/to-ai/) | 用户命令 + AI 双通道 |
+| [完整示例](./full-example/) | 最小可跑插件 |
+| [代码红线](./redlines/) | 禁止项速查 |
+
+## 旧文档
+
+迁移期间仍可参考：[/docs/code-plugins/](/docs/code-plugins/start/)
+
+<NextSteps
+  items={[
+    { title: '插件目录结构', href: './structure/', primary: true },
+    { title: '触发器选型', href: './triggers/' },
+    { title: 'to_ai 接入 AI', href: './ai/to-ai/' },
+  ]}
+/>

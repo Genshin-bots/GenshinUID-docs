@@ -1,0 +1,145 @@
+---
+title: "to_ai 与 ai_return"
+description: "优先方案：一份命令同时服务用户与 AI；决策树避免和 @ai_tools 冲突。"
+icon: Sparkles
+sectionTitles: true
+---
+
+<TimeEstimate minutes={25} level="medium" />
+
+## 先做选择
+
+<DecisionTree
+  label="这个函数会被怎样调用？"
+  options={[
+    {
+      id: 'both',
+      name: '用户命令 + AI 都要',
+      desc: '群友能直接发，AI 也能调',
+      icon: 'check',
+      recommended: true,
+    },
+    {
+      id: 'ai_only',
+      name: '仅 AI 内部工具',
+      desc: '不暴露用户命令',
+      icon: 'sparkles',
+    },
+    {
+      id: 'no_ai',
+      name: '不要给 AI',
+      desc: '危险 / 多步会话 / 管理命令',
+      icon: 'alert',
+    },
+  ]}
+>
+
+<div data-branch="both">
+
+用触发器参数 **`to_ai="..."`**，**不要**再写 `@ai_tools`。
+
+```python
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+@sv.on_command(
+    ("查角色", "角色信息"),
+    to_ai="""查询指定角色的培养与属性。
+    当用户问命座、圣遗物、天赋时调用。需要已绑定 UID。
+
+    Args:
+        text: 角色名，支持昵称。例如 "雷神"、"胡桃"
+    """,
+)
+async def get_char(bot: Bot, ev: Event) -> None:
+    name = ev.text.strip()
+    if not name:
+        ai_return("错误：未提供角色名")
+        return await bot.send("请输入角色名")
+    # ... 查数据、出图
+    await bot.send(image_bytes)
+```
+
+</div>
+
+<div data-branch="ai_only">
+
+用 **`@ai_tools`**，不要挂 `on_command`（或不要 to_ai）。  
+签名与 category 见 [AI API](/docs/developers/ai-api/)。
+
+</div>
+
+<div data-branch="no_ai">
+
+以下情况**不要**加 `to_ai`：
+
+- 清库、重载、高危管理  
+- 依赖 `receive_resp` 多步交互（AI 下为 None）  
+- `on_file` 等 AI 无法构造输入  
+- 纯管理员命令（虽有 pm 校验，仍浪费 token）  
+
+</div>
+
+</DecisionTree>
+
+## MockBot 行为（必须知道）
+
+AI 调用触发器时，`bot` 被换成 MockBot：
+
+| 你写的 | 实际 |
+|--------|------|
+| `bot.send(图片 bytes / base64)` | 注册资源 ID，**不直接发给用户** |
+| `bot.send(纯文字)` | 文字收集给 AI |
+| `receive_resp` | 返回 `None` |
+
+AI 可根据资源 ID 再调 `send_message_by_ai` 决定是否发出图片。
+
+## ai_return 放哪？
+
+**数据已拿到、图片未生成** 的数据层，而不是只在触发器外壳：
+
+```python
+async def render_char(uid: str, name: str) -> bytes:
+    data = await fetch(uid, name)
+    ai_return(f"{name} 等级{data['level']} 命座{data['cons']}")
+    return await draw(data)
+```
+
+`ai_return` 在用户直触时静默；仅 AI 调用时生效。  
+辅助提取函数是少数允许 `try/except` 的地方（见 [红线](../redlines/)）。
+
+## to_ai 文案怎么写
+
+必须让模型明白「何时调用」+「Args 格式 + 例子」：
+
+```text
+一句话功能
+自然语言场景
+
+Args:
+    text: 格式说明
+          例1
+          例2
+```
+
+写得差 → 工具注册了但 AI 从不调或乱填参。
+
+## 权限
+
+AI 调触发器时会再走 `plugins.pm` / `sv.pm`，与用户直触一致。
+
+## 对话示意
+
+<ChatPanel title="同一命令，两种入口">
+  <ChatMessage nickname="你">查角色 胡桃</ChatMessage>
+  <ChatMessage nickname="GsCore">（面板图）</ChatMessage>
+  <ChatMessage nickname="群友A" tag="用户">帮我看看胡桃面板怎么样</ChatMessage>
+  <ChatMessage nickname="GsCore">（AI 调 to_ai 工具后组织的文字/图）</ChatMessage>
+</ChatPanel>
+
+<NextSteps
+  items={[
+    { title: '完整示例', href: '../full-example/', primary: true },
+    { title: '触发器', href: '../triggers/' },
+    { title: 'AI API 手册', href: '/docs/developers/ai-api/' },
+  ]}
+/>

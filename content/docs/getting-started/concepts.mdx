@@ -1,0 +1,229 @@
+---
+title: "核心概念"
+description: "零基础也能懂：Core、Bot、适配器、插件分别是什么，消息怎么走。"
+icon: Lightbulb
+sectionTitles: true
+---
+
+<TimeEstimate minutes={8} level="easy" />
+
+如果你是第一次接触 GsCore，**请先读完这一页再装东西**。  
+花几分钟建立正确心智模型，能少踩 80% 的坑（「Core 启动了但群里没反应」几乎都是因为没弄清下面四件套）。
+
+## 一句话版本
+
+| 名字 | 你可以把它想成… |
+|------|----------------|
+| **Core（早柚核心）** | **大脑**：算命令、跑插件、记数据库、可选 AI |
+| **Bot** | **嘴巴和耳朵**：真正连 QQ / Telegram 等平台 |
+| **适配器（Adapter）** | **翻译官**：把平台协议 ⇄ 早柚协议互转 |
+| **插件（Plugin）** | **技能卡**：查 UID、画图、订阅推送等具体功能 |
+
+<BeginnerTip title="最重要的一句话">
+
+**Core 不是一个完整的聊天机器人。**  
+它必须和上游 Bot（+ 适配器）一起用。只启动 Core、不连 Bot，群里永远收不到消息——这不是故障，是架构设计。
+
+</BeginnerTip>
+
+## 消息是怎么走的？（点一点）
+
+下面每一块都可以点。看懂这条链路，后面的安装和排错都会轻松很多。
+
+<FlowDiagram
+  label="从你在群里说话，到机器人回复——点选查看每一层"
+  hint="点击方块"
+  nodes={[
+    {
+      id: 'platform',
+      name: '聊天平台',
+      short: 'QQ / TG…',
+      icon: 'message',
+      detail:
+        '你实际聊天的地方。GsCore 自己不直接登录 QQ/Telegram；登录和收消息由上游 Bot 负责。',
+    },
+    {
+      id: 'bot',
+      name: 'Bot + 适配器',
+      short: 'NoneBot2…',
+      icon: 'bot',
+      detail:
+        'Bot 框架负责对接各平台协议。适配器是装在 Bot 侧的小模块：收到消息后，用 WebSocket 发给 Core；收到 Core 的回复后再发回平台。',
+    },
+    {
+      id: 'core',
+      name: 'GsCore',
+      short: '大脑',
+      icon: 'server',
+      detail:
+        '独立进程（本机源码或 Docker）。监听 WebSocket，把消息分发给插件触发器；也可以走 AI。回复通过同一条 WS 通道回给 Bot。',
+    },
+    {
+      id: 'plugin',
+      name: '插件',
+      short: '业务功能',
+      icon: 'puzzle',
+      detail:
+        '装在 Core 的 plugins/ 目录里。没有业务插件时，Core 几乎没有「好玩」的命令——所以装好 Core 后通常要立刻装至少一颗插件（如 GenshinUID）。',
+    },
+  ]}
+/>
+
+```
+你说话 → 平台 → Bot/适配器 ──WebSocket──→ Core ──插件处理──→ 回复 ──WS──→ Bot → 平台
+```
+
+## 为什么要拆成「Core + Bot」？
+
+<BeginnerTip variant="why" title="设计动机（可选阅读）">
+
+- **一次编写，多端复用**：同一套插件逻辑可以接到 QQ、频道、TG…（取决于 Bot 支持的平台）。  
+- **职责清晰**：平台协议天天变，改适配器即可，业务插件相对稳定。  
+- **可远程部署**：Bot 在 A 机器、Core 在 B 机器（甚至公网 VPS）都行，用 `WS_TOKEN` 保护连接。
+
+</BeginnerTip>
+
+## 配置和数据会落在哪？
+
+第一次成功启动 Core 后，仓库根目录会出现 **`data/`**（很重要，备份就靠它）：
+
+| 路径 | 新手需要知道的 |
+|------|----------------|
+| `data/config.json` | 主人账号、端口、WS 令牌、WebConsole 注册码 |
+| `data/core_config.json` | 自动更新、代理、镜像源等行为开关 |
+| `data/plugins_configs/` | 每个插件一份配置 |
+| `data/GsData.db` | 默认 SQLite 数据库（账号绑定等） |
+| `data/ai_core/` | AI 相关（默认关着，可不管） |
+| `gsuid_core/plugins/` | **业务插件源码**目录（不是 data 里） |
+
+<BeginnerTip variant="remember" title="两个目录别搞混">
+
+- **`data/`** = 运行产生的「存档」  
+- **`gsuid_core/plugins/`** = 你装的「游戏 / 功能插件」代码  
+
+Docker 用户必须把这两处挂到宿主机，否则容器一重建数据全没。
+
+</BeginnerTip>
+
+## 你属于哪种人？选一条路
+
+<PathWizard
+  label="不用全读——选最接近你的一条"
+  startLabel="按推荐顺序开始"
+  paths={[
+    {
+      id: 'newbie',
+      name: '完全新手',
+      desc: '第一次搭 Bot，想跟教程一步步来',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        {
+          title: '环境检查',
+          href: './environment/',
+          desc: 'Python、git、包管理器（有勾选进度）',
+        },
+        {
+          title: '安装并启动 Core',
+          href: './install/',
+          desc: '推荐 uv，复制命令即可',
+        },
+        {
+          title: '首次配置',
+          href: './first-config/',
+          desc: '填 masters，弄懂本机/公网',
+        },
+        {
+          title: '打开网页控制台',
+          href: './webconsole/',
+          desc: '用注册码创建管理员',
+        },
+        {
+          title: '链接 Bot',
+          href: './link-bot/',
+          desc: '推荐 NoneBot2',
+        },
+        {
+          title: '安装插件并验收',
+          href: './install-plugins/',
+          desc: '至少装一颗业务插件',
+        },
+      ],
+    },
+    {
+      id: 'docker',
+      name: '我想用 Docker',
+      desc: '不想自己折腾 Python 环境',
+      icon: 'container',
+      steps: [
+        { title: 'Docker 部署', href: './docker/', desc: '挂载模式最省心' },
+        { title: '首次配置', href: './first-config/' },
+        { title: '链接 Bot', href: './link-bot/', desc: '注意 host.docker.internal' },
+        { title: '验收清单', href: './checklist/' },
+      ],
+    },
+    {
+      id: 'has-bot',
+      name: '已有 NoneBot2 / 其它 Bot',
+      desc: '只差把 Core 接上',
+      icon: 'bot',
+      steps: [
+        { title: '装好并启动 Core', href: './install/' },
+        { title: '配置 HOST / TOKEN', href: './first-config/' },
+        { title: '链接 Bot', href: './link-bot/' },
+        { title: '装插件', href: './install-plugins/' },
+      ],
+    },
+    {
+      id: 'dev',
+      name: '我想写插件',
+      desc: '先保证本地 Core 能跑',
+      icon: 'terminal',
+      steps: [
+        { title: '完成部署路径', href: './install/' },
+        {
+          title: '插件开发总览',
+          href: '/docs/developers/plugins/overview/',
+        },
+      ],
+    },
+  ]}
+/>
+
+## 常见误解速查
+
+| 误解 | 正解 |
+|------|------|
+| 「装了 Core 就能回消息」 | 还要装 **适配器 + Bot**，并 **装业务插件** |
+| 「WebConsole 就是 Bot」 | WebConsole 是 **管理后台**，不是聊天入口 |
+| 「AI 必须开」 | AI **默认关**；查 UID 等业务不依赖 AI |
+| 「配置改了立刻全生效」 | 端口 / HOST / 多数核心项需要 **重启 Core** |
+
+## 看完自测（心里过一遍）
+
+1. Core 和 Bot 谁连谁？（答：Bot 当客户端连 Core）  
+2. 插件装在哪？（答：Core 的 `plugins/`）  
+3. 公网部署最少要改什么？（答：`HOST=0.0.0.0` + `WS_TOKEN`）
+
+全答得上来就可以进入实操了。
+
+<NextSteps
+  items={[
+    {
+      title: '环境检查',
+      href: './environment/',
+      desc: '动手前 5 分钟自检，带进度勾选',
+      primary: true,
+    },
+    {
+      title: '跳过 Python，用 Docker',
+      href: './docker/',
+      desc: '容器党从这里走',
+    },
+    {
+      title: '直接看安装',
+      href: './install/',
+      desc: '环境已经 OK 时',
+    },
+  ]}
+/>

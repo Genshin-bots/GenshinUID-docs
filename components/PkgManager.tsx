@@ -74,6 +74,8 @@ interface PkgManagerProps {
   options: PkgManagerOption[];
   /** 顶部左侧的小标题，默认 "三选一即可" */
   label?: string;
+  /** 右侧灰色提示，默认「点击切换…」；可传空串隐藏 */
+  hint?: string;
   /** 每个 child 必须带 `data-pkg` 标记归属哪个 option */
   children: ReactNode;
   className?: string;
@@ -106,6 +108,7 @@ function PkgIcon({ id, iconKey }: { id: string; iconKey?: string }) {
 export function PkgManager({
   options,
   label = '三选一即可',
+  hint = '点击切换，下方只显示该选项的指南',
   children,
   className,
 }: PkgManagerProps) {
@@ -127,9 +130,7 @@ export function PkgManager({
     <div className={cn('not-prose fd-pkgmgr', className)}>
       <div className="fd-pkgmgr__head">
         <span className="fd-pkgmgr__label">{label}</span>
-        <span className="fd-pkgmgr__hint">
-          点击切换，下方只显示该工具的指南
-        </span>
+        {hint ? <span className="fd-pkgmgr__hint">{hint}</span> : null}
       </div>
       <div className="fd-pkgmgr__grid" role="tablist" aria-label={label}>
         {options.map((opt) => {

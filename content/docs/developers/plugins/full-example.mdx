@@ -1,0 +1,98 @@
+---
+title: "完整示例"
+description: "最小可运行插件骨架：目录、Plugins、SV、命令、to_ai。"
+icon: FileCode
+sectionTitles: true
+---
+
+<TimeEstimate minutes={30} level="medium" />
+
+下面是一个教学用 **Hello 插件** 骨架。生产项目请再拆模块并补 `pyproject` / 帮助图。
+
+## 目录
+
+```text
+gsuid_core/plugins/HelloUID/
+├── __init__.py
+├── __nest__.py
+├── pyproject.toml
+└── HelloUID/
+    ├── __init__.py
+    ├── __full__.py
+    └── hello_cmd/
+        └── __init__.py
+```
+
+## 代码
+
+**`HelloUID/HelloUID/__init__.py`**
+
+```python
+from gsuid_core.sv import Plugins
+
+Plugins(
+    name="HelloUID",
+    force_prefix=["hello", "你好"],
+    allow_empty_prefix=False,
+)
+```
+
+**`HelloUID/HelloUID/hello_cmd/__init__.py`**
+
+```python
+from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.ai_core.trigger_bridge import ai_return
+
+sv = SV("Hello示例", pm=6)
+
+@sv.on_command(
+    "世界",
+    to_ai="""向用户问好。
+    当用户说打招呼、hello 时调用。
+
+    Args:
+        text: 可选名字。例如 "小明"；可留空
+    """,
+)
+async def hello_world(bot: Bot, ev: Event) -> None:
+    name = ev.text.strip() or "旅人"
+    msg = f"你好，{name}！这是 HelloUID 示例插件。"
+    ai_return(msg)
+    await bot.send(msg)
+
+@sv.on_fullmatch("帮助", block=True)
+async def hello_help(bot: Bot, ev: Event) -> None:
+    await bot.send("命令：hello世界 [名字]")
+```
+
+## 启用
+
+1. 确认目录在 `gsuid_core/plugins/HelloUID`  
+2. `core重启` 或重启进程  
+3. 日志中插件数 +1  
+4. 发送：`hello世界` 或 `hello世界 派蒙`（取决于你的 force_prefix 与 command_start）
+
+<ChatPanel title="验收">
+  <ChatMessage nickname="你">hello世界</ChatMessage>
+  <ChatMessage nickname="GsCore">你好，旅人！这是 HelloUID 示例插件。</ChatMessage>
+</ChatPanel>
+
+## 下一步增强
+
+| 目标 | 去向 |
+|------|------|
+| 更合理触发器 | [triggers](./triggers/) |
+| 配置项 | [config](./config/) |
+| 存 UID | [database](./database/) |
+| 推送 | [scheduler](./scheduler/) |
+| 红线自检 | [redlines](./redlines/) |
+
+<NextSteps
+  items={[
+    { title: '代码红线', href: './redlines/', primary: true },
+    { title: 'to_ai 详解', href: './ai/to-ai/' },
+    { title: '总览', href: './overview/' },
+  ]}
+/>

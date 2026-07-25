@@ -1,0 +1,360 @@
+---
+title: "环境检查"
+description: "手把手确认 Python、git、包管理器与端口——做完再装，少踩坑。"
+icon: ClipboardCheck
+sectionTitles: true
+---
+
+<TimeEstimate minutes={10} level="easy" />
+
+这一页**只检查，不装 Core**。  
+请打开你的终端（Windows 可用 PowerShell 或 Windows Terminal），按步骤做。每完成一步点 **「我完成了这步」**，进度会记在本机浏览器里。
+
+<CheckProgress
+  keys={['gs-env-python', 'gs-env-git', 'gs-env-pkg', 'gs-env-port']}
+  label="环境检查进度"
+  doneText="环境已就绪！下一页去安装 Core。"
+/>
+
+<BeginnerTip title="还不会用终端？">
+
+- **Windows**：开始菜单搜索 `PowerShell` 或 `终端`  
+- **macOS**：`启动台 → 其他 → 终端`，或 Spotlight 搜 Terminal  
+- **Linux**：桌面环境一般有「终端」应用  
+
+命令是**一行一行**复制粘贴回车。若提示「不是内部或外部命令」，说明软件还没装好或没进 PATH。
+
+</BeginnerTip>
+
+## 1. Python 版本
+
+GsCore 需要：
+
+| | 要求 |
+|--|------|
+| **最低** | Python **3.11** |
+| **推荐** | **3.12**（Docker 官方镜像也是 3.12） |
+| **不建议** | 3.14 及以上（部分依赖可能还没有 wheel） |
+
+<CheckItem
+  step={1}
+  title="检查 Python 是否已安装"
+  subtitle="期望输出类似 Python 3.12.x"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-env-python"
+>
+
+```shell
+python -V
+```
+
+如果提示找不到命令，再试：
+
+```shell
+python3 -V
+# Windows 有时是：
+py -3.12 -V
+```
+
+### 还没有 Python？按系统安装
+
+<OsTabs label="选你的系统看安装方式">
+
+<div data-os="windows">
+
+1. 打开 [python.org Windows 下载页](https://www.python.org/downloads/windows/)  
+2. 下载 **3.12.x** 安装包  
+3. 安装时**务必勾选**底部 **「Add python.exe to PATH」**  
+4. **关掉并重新打开** PowerShell，再执行 `python -V`
+
+<Callout type="warn" title="">
+
+没勾选 PATH 是新手最常见翻车点：装完了终端仍提示找不到 `python`。
+
+</Callout>
+
+</div>
+
+<div data-os="linux">
+
+Debian / Ubuntu 示例：
+
+```shell
+sudo apt update
+sudo apt install -y python3.12 python3.12-venv python3-pip
+python3.12 -V
+```
+
+若仓库没有 3.12，可用系统自带的 `python3`，只要版本 ≥ 3.11。
+
+</div>
+
+<div data-os="macos">
+
+推荐用 Homebrew：
+
+```shell
+brew install python@3.12
+python3.12 -V
+```
+
+</div>
+
+</OsTabs>
+
+<BeginnerTip variant="why" title="为什么卡版本？">
+
+Core 的 `pyproject.toml` 写明了 `requires-python >=3.11,<4.0`。版本过旧会装不上依赖；过新则某些编译包可能失败。
+
+</BeginnerTip>
+
+</CheckItem>
+
+## 2. Git
+
+装插件、克隆仓库、自动更新都依赖 Git。
+
+<CheckItem
+  step={2}
+  title="检查 Git"
+  subtitle="版本 ≥ 2.0 即可"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-env-git"
+>
+
+```shell
+git -v
+# 有的环境是 git --version
+```
+
+期望类似：`git version 2.42.0.windows.1`
+
+### 未安装时
+
+<OsTabs>
+
+<div data-os="windows">
+
+前往 [git-scm.com](https://git-scm.com/) 下载安装包。  
+安装向导可一路默认；装完**重开终端**再测 `git -v`。
+
+</div>
+
+<div data-os="linux">
+
+```shell
+sudo apt install -y git
+```
+
+</div>
+
+<div data-os="macos">
+
+```shell
+brew install git
+# 或安装 Xcode Command Line Tools：
+# xcode-select --install
+```
+
+</div>
+
+</OsTabs>
+
+</CheckItem>
+
+## 3. 包管理器（装 Python 依赖用）
+
+你需要 **任选一个** 包管理器来安装 GsCore 的依赖。  
+**强烈推荐 uv**：速度快、省心，官方文档示例以它为主。
+
+<CheckItem
+  step={3}
+  title="安装并验证一个包管理器"
+  subtitle="点卡片切换说明；推荐 uv"
+  badge={{ text: "推荐 uv", type: "tip" }}
+  storageKey="gs-env-pkg"
+>
+
+<PkgManager
+  label="四选一（会决定你后面复制哪套命令）"
+  options={[
+    {
+      id: 'uv',
+      name: 'uv',
+      desc: '极速，新手首选',
+      minVersion: '>= 0.5',
+      recommended: true,
+    },
+    {
+      id: 'poetry',
+      name: 'poetry',
+      desc: '老项目常用',
+      minVersion: '>= 1.4',
+    },
+    {
+      id: 'pdm',
+      name: 'pdm',
+      desc: 'PEP 582 友好',
+    },
+    {
+      id: 'pip',
+      name: 'pip',
+      desc: '仅兜底，不推荐',
+      icon: 'pip',
+    },
+  ]}
+>
+
+<div data-pkg="uv">
+
+**检查是否已装：**
+
+```shell
+uv -V
+```
+
+**未安装时（最简单）：**
+
+```shell
+pip install uv
+# 或 pip3 install uv
+```
+
+官方安装脚本见 [docs.astral.sh/uv](https://docs.astral.sh/uv/)。  
+uv 甚至可以帮你下载 Python：`uv python install 3.12`。
+
+</div>
+
+<div data-pkg="poetry">
+
+```shell
+poetry -V
+# 未装：pip install poetry
+```
+
+若 Linux 桌面出现 `DBusErrorResponse`：
+
+```shell
+export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+```
+
+</div>
+
+<div data-pkg="pdm">
+
+```shell
+pdm -V
+# 建议：pipx install pdm
+```
+
+</div>
+
+<div data-pkg="pip">
+
+```shell
+pip -V
+```
+
+<Callout type="warn" title="">
+
+裸 pip **不推荐**：对 `pyproject.toml` 可选依赖支持差，容易和系统包冲突。只有在你非常熟悉 Python 环境时再考虑。
+
+</Callout>
+
+</div>
+
+</PkgManager>
+
+记住你选的是哪一个——[安装页](./install/) 会按同样选项给你命令。
+
+</CheckItem>
+
+## 4. 端口与资源（轻量检查）
+
+Core 默认占用 **8765** 端口（可在配置里改）。
+
+<CheckItem
+  step={4}
+  title="确认 8765 端口空闲（或准备改端口）"
+  subtitle="被占用时后面启动会 Address already in use"
+  badge={{ text: "建议", type: "info" }}
+  storageKey="gs-env-port"
+>
+
+<OsTabs>
+
+<div data-os="windows">
+
+```shell
+netstat -ano | findstr 8765
+```
+
+没有输出 = 端口空闲。有输出则记下 PID，或准备在配置里改 `PORT`。
+
+</div>
+
+<div data-os="linux">
+
+```shell
+ss -lptn 'sport = :8765'
+# 或
+lsof -i:8765
+```
+
+</div>
+
+<div data-os="macos">
+
+```shell
+lsof -i:8765
+```
+
+</div>
+
+</OsTabs>
+
+### 机器资源参考
+
+| 资源 | 最低 | 推荐 |
+|------|------|------|
+| 内存 | 1 GB | 2 GB+（开 AI 嵌入 / Rerank 更吃） |
+| 磁盘 | 2 GB | 10 GB+（资源图、日志、备份） |
+| 网络 | 能访问外网 | 国内可准备镜像 / 代理 |
+
+</CheckItem>
+
+## 可选：Playwright 浏览器
+
+部分插件用浏览器渲染图片。源码首次启动可能自动下载 Chromium（约 130MB）。  
+**Docker 镜像已预装**，可跳过。
+
+```shell
+uv run playwright install chromium
+# 下载慢时可设国内镜像环境变量后再装：
+# set PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/
+```
+
+## 做完了吗？
+
+勾选进度条应显示 **4 / 4**。然后：
+
+<NextSteps
+  items={[
+    {
+      title: '安装与启动 Core',
+      href: './install/',
+      desc: '克隆仓库 → 装依赖 → 第一次跑起来',
+      primary: true,
+    },
+    {
+      title: '改用 Docker',
+      href: './docker/',
+      desc: '跳过本机 Python 依赖',
+    },
+    {
+      title: '回看核心概念',
+      href: './concepts/',
+      desc: '还分不清 Core / Bot？',
+    },
+  ]}
+/>

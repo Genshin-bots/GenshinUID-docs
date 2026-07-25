@@ -1,0 +1,391 @@
+---
+title: "NoneBot2 保姆级接入"
+description: "从零创建 NoneBot2、装 QQ 适配器、接上 GsCore，带进度勾选与验收对话。"
+icon: PlugZap
+sectionTitles: true
+---
+
+<TimeEstimate minutes={45} level="medium" />
+
+本页专为**第一次用 NoneBot2 接 GsCore** 的人写。  
+假设你已经能 [启动 Core](./install/) 并完成 [首次配置](./first-config/)（至少填了 `masters`）。
+
+<BeginnerTip title="你将得到什么">
+
+一个能在 QQ（或其它平台）收消息的 NoneBot2，通过 WebSocket 连到 GsCore。  
+群里发消息 → Core 日志有记录 → 装插件后能回帮助图。
+
+</BeginnerTip>
+
+<CheckProgress
+  keys={[
+    'gs-nb2-pre',
+    'gs-nb2-create',
+    'gs-nb2-adapter',
+    'gs-nb2-gscore',
+    'gs-nb2-env',
+    'gs-nb2-run',
+    'gs-nb2-ok',
+  ]}
+  label="NoneBot2 接入进度"
+  doneText="恭喜，NoneBot2 ↔ GsCore 已打通！"
+/>
+
+## 架构再确认（30 秒）
+
+```text
+QQ 协议端（NapCat / Lagrange / go-cqhttp…）
+        ↕
+   NoneBot2（+ 平台适配器 + GsCore 适配插件）
+        ↕ WebSocket
+      GsCore（已启动）
+```
+
+- **NoneBot2** 负责平台；**GsCore** 负责业务插件  
+- 本页的「适配插件」是装在 **NoneBot2 项目里** 的，不是装进 `gsuid_core/plugins/`
+
+## 步骤 0：前提检查
+
+<CheckItem
+  step={0}
+  title="Core 已能启动，且你知道 HOST / PORT / TOKEN"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-nb2-pre"
+>
+
+| 检查项 | 你的值（写在纸上） |
+|--------|-------------------|
+| Core 是否在跑 | 是 / 否 |
+| `HOST` | 同机用 `127.0.0.1` |
+| `PORT` | 默认 `8765` |
+| `WS_TOKEN` | 与 `data/config.json` 一致；空则留空 |
+| `masters` 是否含你的 QQ 号 | 是 / 否 |
+
+同机示例环境变量（下一步会写入 NoneBot 的 `.env`）：
+
+```ini
+gsuid_core_host=127.0.0.1
+gsuid_core_port=8765
+gsuid_core_ws_token=
+gsuid_core_botid=NoneBot2
+```
+
+公网 / 跨机：`host` 改成 Core 的 IP，`ws_token` **必须**非空。见 [首次配置 · 公网](./first-config/)。
+
+</CheckItem>
+
+## 步骤 1：创建 NoneBot2 项目
+
+<CheckItem
+  step={1}
+  title="用脚手架生成机器人项目"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-nb2-create"
+>
+
+### 1.1 安装 nb-cli（推荐）
+
+```shell
+pip install nb-cli
+# 或
+pipx install nb-cli
+nb -V
+```
+
+### 1.2 创建项目
+
+```shell
+# 选一个目录，例如 D:\Bots
+nb create
+```
+
+按向导选择：
+
+- 驱动：常见选 **FastAPI**  
+- 适配器：先装你要的平台（QQ 选 **OneBot V11** 等，以官方列表为准）  
+- 项目模板：用户向选默认即可；开发者可选 `simple`
+
+也可以先看官方文档：[NoneBot2 文档](https://nonebot.dev/) / 镜像站 [nb2.baka.icu](https://nb2.baka.icu/)。
+
+### 1.3 确认目录结构大致如下
+
+```text
+my-bot/
+├── .env / .env.prod
+├── bot.py 或 pyproject.toml
+├── src/plugins/     # 部分模板
+└── ...
+```
+
+**先不要接 GsCore**：先保证 NoneBot2 + 平台适配器能单独收发 QQ 消息（协议端已连上）。  
+这一步翻车请优先查 NoneBot / 协议端文档，与 Core 无关。
+
+</CheckItem>
+
+## 步骤 2：平台协议端（QQ 示例）
+
+<CheckItem
+  step={2}
+  title="协议端与 NoneBot OneBot 适配器已互通"
+  subtitle="NapCat / Lagrange / LLOneBot 等"
+  badge={{ text: "平台侧", type: "info" }}
+  storageKey="gs-nb2-adapter"
+>
+
+以 QQ + OneBot V11 为例（具体软件随社区变化，名称仅作示意）：
+
+1. 启动协议端，开启正向/反向 WS（与 NoneBot 配置一致）  
+2. NoneBot 安装对应适配器，例如：
+
+```shell
+nb adapter install nonebot-adapter-onebot
+```
+
+3. 在 `.env` 中配置 OneBot 连接（以你模板为准）  
+4. `nb run` 后，用手机 QQ 给机器人发「你好」，确认 **NoneBot 日志有消息**
+
+<Callout type="warn" title="">
+
+**GsCore 适配插件不能代替 QQ 登录。**  
+没有协议端 / 平台适配器，消息进不了 NoneBot，更到不了 Core。
+
+</Callout>
+
+</CheckItem>
+
+## 步骤 3：安装 GsCore 适配插件
+
+两种方式**二选一**。
+
+<CheckItem
+  step={3}
+  title="把 GsCore 适配装进 NoneBot 项目"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-nb2-gscore"
+  checkable={false}
+>
+
+<PkgManager
+  label="安装方式"
+  options={[
+    {
+      id: 'user',
+      name: '用户模式',
+      desc: 'nb plugin install，最简单',
+      icon: 'sparkles',
+      recommended: true,
+    },
+    {
+      id: 'dev',
+      name: '开发者模式',
+      desc: 'git clone 分支，方便改代码',
+      icon: 'wrench',
+    },
+  ]}
+>
+
+<div data-pkg="user">
+
+在 **NoneBot 项目根目录**执行：
+
+```shell
+nb plugin install nonebot-plugin-genshinuid
+```
+
+然后正常 `nb run`。
+
+若包名/索引有变，以 [v4-nonebot2 仓库说明](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-nonebot2) 为准。
+
+</div>
+
+<div data-pkg="dev">
+
+适合插件开发者、模板为 `simple` 时：
+
+```shell
+# 进入 NoneBot 的插件目录，常见为 src/plugins
+cd src/plugins
+
+git clone -b v4-nonebot2 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
+
+cd GenshinUID
+# 若 Bot 使用虚拟环境，先 activate 再装
+pip install -r requirements.txt
+
+cd ../..   # 回到 Bot 根目录
+```
+
+确保 NoneBot 会加载该插件目录（`pyproject` / `plugin_dirs` 配置）。
+
+</div>
+
+</PkgManager>
+
+官方适配器索引也见 [链接 Bot 总览](./link-bot/)。
+
+</CheckItem>
+
+## 步骤 4：写入 .env 连接 Core
+
+<CheckItem
+  step={4}
+  title="配置 gsuid_core_* 环境变量"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-nb2-env"
+>
+
+在 **NoneBot 项目根**的 `.env` 或 `.env.prod` 中增加（没有就新建）：
+
+```dotenv
+# —— GsCore 连接 ——
+gsuid_core_host=127.0.0.1
+gsuid_core_port=8765
+gsuid_core_ws_token=
+gsuid_core_botid=NoneBot2
+```
+
+| 变量 | 含义 |
+|------|------|
+| `gsuid_core_host` | Core 地址，同机 `127.0.0.1` |
+| `gsuid_core_port` | 与 Core `PORT` 一致 |
+| `gsuid_core_ws_token` | 与 Core `WS_TOKEN` **完全一致** |
+| `gsuid_core_botid` | 连接路径上的 bot_id，可自定义 |
+
+<BeginnerTip variant="remember" title="Token 空格与引号">
+
+- 不要多空格、不要加引号除非框架文档明确要求  
+- Core 改了 Token 后，这里必须同步，否则常见 `1008 Policy Violation`  
+
+</BeginnerTip>
+
+跨机示例：
+
+```dotenv
+gsuid_core_host=192.168.1.100
+gsuid_core_port=8765
+gsuid_core_ws_token=你的长随机串
+gsuid_core_botid=NoneBot2
+```
+
+</CheckItem>
+
+## 步骤 5：按正确顺序启动
+
+<CheckItem
+  step={5}
+  title="先 Core，后 NoneBot2"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-nb2-run"
+>
+
+**终端 A（Core 仓库）：**
+
+```shell
+uv run core
+# 看到启动完成、WS 服务起来
+```
+
+**终端 B（NoneBot 项目）：**
+
+```shell
+nb run
+```
+
+### 期望日志（概念示意）
+
+| 位置 | 看到什么算好 |
+|------|----------------|
+| Core | 有客户端连接 / 无连续 Token 错误 |
+| NoneBot | 插件加载成功；连接 Core 成功或无狂刷重连错误 |
+| QQ | 机器人在线 |
+
+</CheckItem>
+
+## 步骤 6：联调验收
+
+<CheckItem
+  step={6}
+  title="聊天 + 双侧日志都有反应"
+  badge={{ text: "验收", type: "tip" }}
+  storageKey="gs-nb2-ok"
+>
+
+1. 用 **masters 里的 QQ** 私聊或群聊机器人  
+2. 发送任意文本，例如：`测试`  
+3. Core 日志应出现处理/收包相关输出  
+4. 若已装业务插件（在 **Core 侧** `plugins/`），试：
+
+```text
+gs帮助
+```
+
+或 Core 管理命令：
+
+```text
+core状态
+```
+
+<ChatPanel title="理想路径（示意）">
+  <ChatMessage nickname="你">core状态</ChatMessage>
+  <ChatMessage nickname="GsCore">（状态信息 / 图片）</ChatMessage>
+  <ChatMessage nickname="你">gs帮助</ChatMessage>
+  <ChatMessage nickname="GsCore">（帮助图，需 Core 已装 GenshinUID 等）</ChatMessage>
+</ChatPanel>
+
+<BeginnerTip variant="why" title="两个「插件」别搞混">
+
+| 装在哪 | 干什么 |
+|--------|--------|
+| NoneBot 的 GsCore 适配插件 | 只负责 **转发消息** 给 Core |
+| Core 的 `plugins/GenshinUID` 等 | 真正的 **业务命令**（帮助、UID…） |
+
+只装了 NoneBot 侧、没装 Core 业务插件 → 能连通但「啥也不会」。去 [安装插件](./install-plugins/)。
+
+</BeginnerTip>
+
+</CheckItem>
+
+## 常见翻车对照
+
+| 现象 | 处理 |
+|------|------|
+| NoneBot 狂重连 Core | Core 没开 / host 端口错 |
+| `1008` / Token 错误 | 两端 `WS_TOKEN` 不一致 |
+| NoneBot 有消息，Core 完全没日志 | 适配插件未加载；或连错了另一个 Core |
+| Core 有日志，QQ 无回复 | 业务插件未装；或命令前缀 `command_start`；或权限 |
+| 仅自己有响应、群友没有 | sv 权限 / 群策略；试 `重置core配置` 后重启（谨慎） |
+| 同机 Docker Core | host 用 `127.0.0.1` 且端口已映射；Bot 在容器内则用 `host.docker.internal` |
+
+更全的树状分流：[故障排查](/docs/operators/troubleshooting/)
+
+## 推荐阅读顺序（接好以后）
+
+1. [安装插件](./install-plugins/) — Core 侧装 GenshinUID  
+2. [验收清单](./checklist/)  
+3. 可选 [启用 AI](./enable-ai/)  
+
+<NextSteps
+  items={[
+    {
+      title: '安装业务插件',
+      href: './install-plugins/',
+      desc: 'Core 侧 core安装插件…',
+      primary: true,
+    },
+    {
+      title: '链接 Bot 总览',
+      href: './link-bot/',
+      desc: '其它框架一览',
+    },
+    {
+      title: '故障排查',
+      href: '/docs/operators/troubleshooting/',
+      desc: '连不上就来这',
+    },
+    {
+      title: '验收清单',
+      href: './checklist/',
+      desc: '全部打勾',
+    },
+  ]}
+/>

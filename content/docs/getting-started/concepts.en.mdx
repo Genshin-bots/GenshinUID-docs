@@ -1,0 +1,119 @@
+---
+title: "Core Concepts"
+description: "Beginner-friendly: Core, Bot, Adapter, Plugin, and how messages flow."
+icon: Lightbulb
+sectionTitles: true
+---
+
+<TimeEstimate minutes={8} level="easy" levelText="Easy" prefix="About" />
+
+Read this **before installing**. Ten minutes here saves hours of “Core runs but chat is silent”.
+
+## One-line model
+
+| Piece | Think of it as… |
+|------|------------------|
+| **Core** | The **brain** (commands, plugins, DB, optional AI) |
+| **Bot** | The **mouth & ears** (talks to QQ / Telegram / …) |
+| **Adapter** | The **translator** (platform protocol ⇄ GsCore) |
+| **Plugin** | A **skill cartridge** (UID query, art, push jobs) |
+
+<BeginnerTip title="The one sentence that matters">
+
+**Core is not a full chatbot.** You must connect an upstream Bot (+ adapter). Starting Core alone never delivers group messages.
+
+</BeginnerTip>
+
+## Click the pipeline
+
+<FlowDiagram
+  label="Tap each block to see what it does"
+  hint="Tap a node"
+  nodes={[
+    {
+      id: 'platform',
+      name: 'Chat app',
+      short: 'QQ / TG…',
+      icon: 'message',
+      detail: 'Where users chat. GsCore does not log into QQ itself—the Bot does.',
+    },
+    {
+      id: 'bot',
+      name: 'Bot + adapter',
+      short: 'NoneBot2…',
+      icon: 'bot',
+      detail: 'Bot speaks platform protocols. The adapter opens a WebSocket to Core and shuttles messages both ways.',
+    },
+    {
+      id: 'core',
+      name: 'GsCore',
+      short: 'Brain',
+      icon: 'server',
+      detail: 'Separate process (source or Docker). Routes events to plugins (and optional AI), then replies over the same WS.',
+    },
+    {
+      id: 'plugin',
+      name: 'Plugins',
+      short: 'Features',
+      icon: 'puzzle',
+      detail: 'Live under plugins/. Without business plugins Core has almost no fun commands—install at least one (e.g. GenshinUID).',
+    },
+  ]}
+/>
+
+## Where data lives
+
+| Path | Meaning |
+|------|---------|
+| `data/config.json` | masters, port, WS token, register code |
+| `data/` | Runtime “save data” |
+| `gsuid_core/plugins/` | Plugin **code** |
+
+## Pick a path
+
+<PathWizard
+  label="Choose the closest path"
+  startLabel="Start"
+  paths={[
+    {
+      id: 'newbie',
+      name: 'Total beginner',
+      desc: 'Step-by-step first bot',
+      icon: 'rocket',
+      recommended: true,
+      steps: [
+        { title: 'Environment', href: './environment/' },
+        { title: 'Install Core', href: './install/' },
+        { title: 'First config', href: './first-config/' },
+        { title: 'WebConsole', href: './webconsole/' },
+        { title: 'Link Bot', href: './link-bot/' },
+        { title: 'Plugins', href: './install-plugins/' },
+      ],
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      desc: 'Skip local Python deps',
+      icon: 'container',
+      steps: [
+        { title: 'Docker', href: './docker/' },
+        { title: 'First config', href: './first-config/' },
+        { title: 'Link Bot', href: './link-bot/' },
+        { title: 'Checklist', href: './checklist/' },
+      ],
+    },
+  ]}
+/>
+
+<NextSteps
+  items={[
+    {
+      title: 'Environment check',
+      href: './environment/',
+      desc: 'Progress checkboxes included',
+      primary: true,
+    },
+    { title: 'Docker', href: './docker/', desc: 'Container path' },
+    { title: 'Install', href: './install/', desc: 'Env already OK' },
+  ]}
+/>

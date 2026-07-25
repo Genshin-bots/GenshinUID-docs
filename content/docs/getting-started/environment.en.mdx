@@ -1,0 +1,106 @@
+---
+title: "Environment"
+description: "Hands-on Python, git, package manager, and port checks with progress tracking."
+icon: ClipboardCheck
+sectionTitles: true
+---
+
+<TimeEstimate minutes={10} level="easy" levelText="Easy" prefix="About" />
+
+This page **only checks**—it does not install Core yet. Mark each step done; progress is stored in your browser.
+
+<CheckProgress
+  keys={['gs-env-python', 'gs-env-git', 'gs-env-pkg', 'gs-env-port']}
+  label="Checklist"
+  doneText="Environment ready — go install Core."
+/>
+
+<CheckItem step={1} title="Python ≥ 3.11 (3.12 recommended)" badge={{ text: "Required", type: "warning" }} storageKey="gs-env-python">
+
+```shell
+python -V
+```
+
+<OsTabs label="Install tips by OS">
+<div data-os="windows">
+
+Install from [python.org](https://www.python.org/downloads/windows/) and **check “Add to PATH”**, then reopen the terminal.
+
+</div>
+<div data-os="linux">
+
+```shell
+sudo apt install -y python3.12 python3.12-venv python3-pip
+```
+
+</div>
+<div data-os="macos">
+
+```shell
+brew install python@3.12
+```
+
+</div>
+</OsTabs>
+
+</CheckItem>
+
+<CheckItem step={2} title="Git available" badge={{ text: "Required", type: "warning" }} storageKey="gs-env-git">
+
+```shell
+git -v
+```
+
+</CheckItem>
+
+<CheckItem step={3} title="One package manager (uv recommended)" badge={{ text: "uv", type: "tip" }} storageKey="gs-env-pkg">
+
+<PkgManager
+  label="Pick one"
+  options={[
+    { id: 'uv', name: 'uv', desc: 'Fastest', recommended: true },
+    { id: 'poetry', name: 'poetry', desc: 'Classic' },
+    { id: 'pdm', name: 'pdm', desc: 'PEP 582' },
+  ]}
+>
+<div data-pkg="uv">
+
+```shell
+uv -V
+# pip install uv
+```
+
+</div>
+<div data-pkg="poetry">
+
+```shell
+poetry -V
+```
+
+</div>
+<div data-pkg="pdm">
+
+```shell
+pdm -V
+```
+
+</div>
+</PkgManager>
+
+</CheckItem>
+
+<CheckItem step={4} title="Port 8765 free (or plan to change it)" storageKey="gs-env-port">
+
+```shell
+# Windows: netstat -ano | findstr 8765
+# Linux/macOS: lsof -i:8765
+```
+
+</CheckItem>
+
+<NextSteps
+  items={[
+    { title: 'Install & start', href: './install/', desc: 'Clone → deps → run', primary: true },
+    { title: 'Docker', href: './docker/', desc: 'Skip local Python' },
+  ]}
+/>

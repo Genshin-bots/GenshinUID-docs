@@ -1,0 +1,178 @@
+---
+title: "安装插件"
+description: "用聊天命令或手动 git 安装业务插件，弄懂镜像源、更新与重启。"
+icon: Package
+sectionTitles: true
+---
+
+<TimeEstimate minutes={15} level="easy" />
+
+Core 是「游戏机机身」，**插件才是游戏卡带**。  
+不装业务插件，机器人能连上也可能「啥都不会」。
+
+前提：
+
+1. 你在 `masters` 里  
+2. Bot 已连上 Core（见 [链接 Bot](./link-bot/)）  
+
+<CheckProgress
+  keys={['gs-pl-install', 'gs-pl-restart', 'gs-pl-help']}
+  label="插件进度"
+  doneText="插件已加载！去验收清单做最终确认。"
+/>
+
+## 三种来源
+
+| 类型 | 位置 | 你要不要管 |
+|------|------|------------|
+| 内置插件 | Core 自带 | 不用装，提供 `core安装插件` 等 |
+| 业务插件 | `gsuid_core/plugins/名字/` | **你要装的** |
+| 社区插件 | 同上 | 通过索引或手动 git |
+
+## 方法 A：聊天命令安装（推荐）
+
+<CheckItem
+  step={1}
+  title="用 master 账号发送安装命令"
+  subtitle="名字区分大小写，以索引为准"
+  badge={{ text: "推荐", type: "tip" }}
+  storageKey="gs-pl-install"
+>
+
+在**已连接 Bot 的聊天**里，用主人账号发送：
+
+```text
+core安装插件GenshinUID
+```
+
+<ChatPanel title="对话示意">
+  <ChatMessage nickname="你">core安装插件GenshinUID</ChatMessage>
+  <ChatMessage nickname="GsCore">正在安装…成功后请 core重启</ChatMessage>
+  <ChatMessage nickname="你">core重启</ChatMessage>
+  <ChatMessage nickname="GsCore">重启中…</ChatMessage>
+</ChatPanel>
+
+后台在做什么：
+
+1. 查官方索引 [plugin_list.json](https://docs.sayu-bot.com/plugin_list.json)  
+2. 优先从 `cnb.cool` 等镜像拉取  
+3. 镜像没有时 **自动回退 GitHub**  
+4. 克隆到 `plugins/` 目录  
+
+若提示「不存在该插件」：名字拼错 → 先发 `core刷新插件列表` 再试。
+
+</CheckItem>
+
+## 方法 B：手动 git（命令失败时）
+
+```shell
+cd gsuid_core/plugins
+
+git clone -b v4 https://github.com/KimigaiiWuyi/GenshinUID.git --depth=1 --single-branch
+
+# 其它插件换成对应仓库地址
+cd ../..
+```
+
+然后重启 Core（终端 `Ctrl+C` 再 `uv run core`，或聊天 `core重启`）。
+
+## 步骤 2：重启加载
+
+<CheckItem
+  step={2}
+  title="重启 Core 让插件生效"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-pl-restart"
+>
+
+| 方式 | 命令 / 操作 |
+|------|-------------|
+| 聊天 | `core重启`（master） |
+| 终端 | 停掉进程后重新 `uv run core` |
+| Docker | `docker restart gsuid_core` |
+
+启动日志里 **插件数量** 应比之前多；若插件加载报错，日志会有 traceback。
+
+</CheckItem>
+
+## 步骤 3：试一条业务命令
+
+<CheckItem
+  step={3}
+  title="发送帮助或插件命令"
+  subtitle="以各插件文档为准"
+  badge={{ text: "验收", type: "tip" }}
+  storageKey="gs-pl-help"
+>
+
+不同插件前缀不同。GenshinUID 常见：
+
+```text
+gs帮助
+```
+
+<ChatPanel title="有插件之后">
+  <ChatMessage nickname="你">gs帮助</ChatMessage>
+  <ChatMessage nickname="GsCore">（帮助图或分类菜单）</ChatMessage>
+</ChatPanel>
+
+站内插件列表（卡片）：[插件目录](/docs/guide/plugins-catalog/)  
+各游戏详细说明：[插件帮助](/docs/plugins-help/genshin-uid/)
+
+</CheckItem>
+
+## 日常管理命令
+
+| 命令 | 作用 |
+|------|------|
+| `core安装插件名字` | 按索引安装 |
+| `core卸载插件名字` | 二次确认后删除 |
+| `core更新插件` | 更新全部 |
+| `core更新插件名字` | 更新单个 |
+| `core强制更新插件名字` | 丢弃本地修改硬重置 |
+| `core刷新插件列表` | 重拉索引 |
+
+<Callout type="warn" title="">
+
+不要在 Core 仓库根目录随便 `git reset --hard` / `git clean -xdf`，可能误删 Core 本体。更新插件请用上面的 `core*插件` 命令。
+
+</Callout>
+
+## 拉不动代码时
+
+1. WebConsole → 插件管理 → **切换 Git 源**  
+2. 或配置 `core_config.json` 的 `ProxyURL`  
+3. Docker 内给 git 设代理  
+
+## 自动更新（了解）
+
+默认可能在凌晨自动 `git pull` Core/插件，但 **默认不自动重启**。  
+生产环境建议：`AutoRestartCore=true` + systemd/Docker 守护。  
+依赖新增时仍需手动 `uv sync` 等。
+
+## 浏览可装插件
+
+本站市场卡片（实时读索引）：
+
+→ [插件目录](/docs/guide/plugins-catalog/)
+
+<NextSteps
+  items={[
+    {
+      title: '验收清单',
+      href: './checklist/',
+      desc: '部署闭环最后一页',
+      primary: true,
+    },
+    {
+      title: '启用 AI（可选）',
+      href: './enable-ai/',
+      desc: '不装也能用插件',
+    },
+    {
+      title: '插件开发',
+      href: '/docs/developers/plugins/overview/',
+      desc: '想自己写功能',
+    },
+  ]}
+/>

@@ -1,0 +1,273 @@
+---
+title: "链接 Bot"
+description: "用大白话接上 NoneBot2 等上游框架：URL 怎么拼、同机/跨机怎么配、怎样算连成功。"
+icon: Bot
+sectionTitles: true
+---
+
+<TimeEstimate minutes={30} level="medium" />
+
+到这一步，Core 应该已经能启动，并且你填过 [masters](./first-config/)。  
+现在要让 **聊天平台上的消息** 流进 Core。
+
+<BeginnerTip title="本页你要完成的目标">
+
+Bot 日志显示「已连接 Core」+ 你在群里发一句话 + Core 日志出现处理记录 = 成功。
+
+</BeginnerTip>
+
+<CheckProgress
+  keys={['gs-bot-pick', 'gs-bot-url', 'gs-bot-order', 'gs-bot-test']}
+  label="连 Bot 进度"
+  doneText="链路已通！去装业务插件让机器人真正有用。"
+/>
+
+## 总览：谁连谁？
+
+```
+QQ 等平台 ←→ 你的 Bot 程序（含适配器）──WebSocket 客户端──→ GsCore
+```
+
+- Core **不会**主动去连 QQ  
+- 是 **Bot 主动连 Core**（像手机连 Wi‑Fi）
+
+## 连接 URL 公式
+
+```text
+ws://{HOST}:{PORT}/{BOT_ID}?token={WS_TOKEN}
+```
+
+| 零件 | 填什么 | 例子 |
+|------|--------|------|
+| `HOST` | Core 的地址 | 同机 `127.0.0.1`；跨机为服务器 IP |
+| `PORT` | Core 端口 | `8765` |
+| `BOT_ID` | 你自定义的名字 | `NoneBot2` / `nb2` |
+| `token` | 与 `config.json` 的 `WS_TOKEN` **完全一致** | 空 Token 时可省略部分适配器字段 |
+
+## 步骤 1：选一个上游 Bot
+
+<CheckItem
+  step={1}
+  title="选择 Bot 框架与适配器"
+  subtitle="新手优先 NoneBot2"
+  badge={{ text: "推荐", type: "tip" }}
+  storageKey="gs-bot-pick"
+  checkable={false}
+>
+
+<DecisionTree
+  label="你更熟哪个生态？"
+  options={[
+    {
+      id: 'nb2',
+      name: 'NoneBot2',
+      desc: '平台最全，社区最大',
+      icon: 'lightbulb',
+      recommended: true,
+    },
+    {
+      id: 'astrbot',
+      name: 'AstrBot',
+      desc: '带 WebUI，上手快',
+      icon: 'wrench',
+    },
+    {
+      id: 'other',
+      name: '其它框架',
+      desc: 'Hoshino / YunZai / Koishi…',
+      icon: 'box',
+    },
+  ]}
+>
+
+<div data-branch="nb2">
+
+### NoneBot2（推荐）
+
+**完整保姆级教程（推荐新手上这个）：**  
+→ [NoneBot2 保姆级接入](./nonebot2/)
+
+摘要：
+
+1. 先按 [NoneBot2 文档](https://nonebot.dev/) 建好机器人，并能在平台收发消息  
+2. 安装适配：`nb plugin install nonebot-plugin-genshinuid` 或 clone `v4-nonebot2`  
+3. `.env`：
+
+```ini
+gsuid_core_host=127.0.0.1
+gsuid_core_port=8765
+gsuid_core_ws_token=你的WS_TOKEN
+gsuid_core_botid=NoneBot2
+```
+
+</div>
+
+<div data-branch="astrbot">
+
+### AstrBot
+
+- 适配器仓库：[astrbot_plugin_gscore_adapter](https://github.com/KimigaiiWuyi/astrbot_plugin_gscore_adapter)  
+- 在 AstrBot 的 WebUI 里填写 Core 地址与 `WS_TOKEN`  
+- 适合不想写太多配置文件的用户  
+
+</div>
+
+<div data-branch="other">
+
+| 框架 | 适配器入口 |
+|------|------------|
+| HoshinoBot | [v4-hoshino](https://github.com/KimigaiiWuyi/GenshinUID/tree/v4-hoshino)（改 `client.py` 中 Token） |
+| ZeroBot | [GSUID_Utils_ZeroBot](https://github.com/RemKeeper/GSUID_Utils_ZeroBot) |
+| YunZai | [ws-plugin](https://gitee.com/xiaoye12123/ws-plugin) |
+| Koishi | [gscore-adapter](https://github.com/GithubCin/gscore-adapter) |
+| NapCat 直连 | [napcat-plugin-gscore-adapter](https://github.com/xiowo/napcat-plugin-gscore-adapter) |
+| 微信 XYBotV2 | [XYBotV2-GsCoreAdapter](https://github.com/qiye531667706/XYBotV2-GsCoreAdapter) |
+
+各仓库 README 会写具体安装命令；原则相同：**填 Core 地址 + Token**。
+
+</div>
+
+</DecisionTree>
+
+</CheckItem>
+
+## 步骤 2：对齐网络与 Token
+
+<CheckItem
+  step={2}
+  title="按同机 / 跨机改配置"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-bot-url"
+  checkable={false}
+>
+
+<DecisionTree
+  label="Bot 进程和 Core 进程在哪？"
+  options={[
+    {
+      id: 'same',
+      name: '同一台机器',
+      desc: '最简单',
+      icon: 'shield',
+      recommended: true,
+    },
+    {
+      id: 'cross',
+      name: '不同机器 / 容器',
+      desc: '必须 Token',
+      icon: 'alert',
+    },
+  ]}
+>
+
+<div data-branch="same">
+
+- Core：`HOST=localhost`（或默认）  
+- Bot：`host=127.0.0.1`，`port=8765`  
+- Token 可空，但建议与 Core 一致设一个  
+
+</div>
+
+<div data-branch="cross">
+
+- Core：`HOST=0.0.0.0` + 强 `WS_TOKEN`  
+- 防火墙放行端口  
+- Bot：`host=<Core IP>`，`token` 一致  
+- Docker：宿主机 Core ← 容器 Bot 时常用 `host.docker.internal`  
+
+</div>
+
+</DecisionTree>
+
+</CheckItem>
+
+## 步骤 3：启动顺序
+
+<CheckItem
+  step={3}
+  title="先 Core，后 Bot"
+  badge={{ text: "必做", type: "warning" }}
+  storageKey="gs-bot-order"
+>
+
+1. 启动 Core，确认日志里 WS 已起来  
+2. 再启动 Bot  
+3. 看 Bot 日志是否报连接成功 / 失败  
+
+**不要**反过来：Bot 先起、Core 没开，通常只会一直重连报错。
+
+</CheckItem>
+
+## 步骤 4：发消息验收
+
+<CheckItem
+  step={4}
+  title="聊天里发一句话，两侧日志都有反应"
+  badge={{ text: "验收", type: "tip" }}
+  storageKey="gs-bot-test"
+>
+
+<ChatPanel title="连通后的理想情况（示意）">
+  <ChatMessage nickname="你">测试</ChatMessage>
+  <ChatMessage nickname="GsCore">（若已有插件/AI 会回复；即使无插件，Core 日志也应有收到消息的记录）</ChatMessage>
+</ChatPanel>
+
+主人账号（在 `masters` 里）可试：
+
+```text
+core状态
+```
+
+或安装插件后的帮助命令（视插件而定，如 `gs帮助`）。
+
+</CheckItem>
+
+## 多 Bot 共用一个 Core
+
+每个 Bot 使用**不同的 `BOT_ID`**，共享同一个 `WS_TOKEN`：
+
+```text
+BotA → ws://IP:8765/bot_a?token=secret
+BotB → ws://IP:8765/bot_b?token=secret
+```
+
+## 连不上？对照表
+
+| 现象 | 原因与处理 |
+|------|------------|
+| Bot 报连接失败 | Core 没开 / IP 端口错 / 防火墙 |
+| `1008 Policy Violation` | **Token 不一致** 或 Core 拒绝空 Token 的外网连接 |
+| 能连上但没反应 | `masters` 未填导致部分命令无权限；或没装插件；或 `command_start` 前缀不匹配 |
+| Docker 主机名解析失败 | 补 `extra_hosts: host.docker.internal:host-gateway` |
+| 频繁断线 | 反代 `proxy_read_timeout` 太短；或网络不稳 |
+
+## 平台怎么选适配器（速查）
+
+| 你要上的平台 | 常见选择 |
+|--------------|----------|
+| QQ（OneBot） | NoneBot2 / Hoshino / ZeroBot / YunZai |
+| QQ 频道 | NoneBot2 / AstrBot |
+| Telegram | NoneBot2 / AstrBot |
+| Discord / KOOK / 飞书 | NoneBot2（视适配） |
+| 微信 | AstrBot / XYBotV2 / 特定协议端 |
+
+<NextSteps
+  items={[
+    {
+      title: '安装插件',
+      href: './install-plugins/',
+      desc: '装上 GenshinUID 等业务能力',
+      primary: true,
+    },
+    {
+      title: '验收清单',
+      href: './checklist/',
+      desc: '全部打勾再收工',
+    },
+    {
+      title: '首次配置',
+      href: './first-config/',
+      desc: 'Token / HOST 再检查一遍',
+    },
+  ]}
+/>

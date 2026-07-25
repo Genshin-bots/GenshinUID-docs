@@ -1,0 +1,328 @@
+---
+title: "故障排查"
+description: "按症状点选分流：启动失败、Bot 连不上、控制台、插件无响应、Docker、数据库。"
+icon: LifeBuoy
+sectionTitles: true
+---
+
+<TimeEstimate minutes={15} level="medium" />
+
+先别慌。绝大多数问题可以用下面的 **症状树** 缩小范围。  
+查完仍不懂 → 打开 [常见问题 FAQ](/docs/faq/) 搜索关键词，或把 `DEBUG` 日志带到 Issue。
+
+<BeginnerTip title="通用三板斧（任何症状先做）">
+
+1. 看 **最新日志**：`data/logs/` 下最新文件，或 `docker logs -f gsuid_core`  
+2. 确认 **启动顺序**：先 Core，后 Bot  
+3. 需要细节时：`config.json` 里 `"log": { "level": "DEBUG" }` 后重启  
+
+</BeginnerTip>
+
+## 主分流：你现在卡在哪？
+
+<DecisionTree
+  label="点最接近的一项"
+  options={[
+    {
+      id: 'start',
+      name: 'Core 启动失败 / 秒退',
+      desc: '进程起不来或立刻退出',
+      icon: 'alert',
+    },
+    {
+      id: 'ws',
+      name: 'Bot 连不上 Core',
+      desc: '重连、Token、1008',
+      icon: 'shield',
+    },
+    {
+      id: 'console',
+      name: '网页控制台异常',
+      desc: '/app 空白、登录失败',
+      icon: 'wrench',
+    },
+    {
+      id: 'cmd',
+      name: '能连上但命令没反应',
+      desc: '插件 / 权限 / 前缀',
+      icon: 'help',
+    },
+    {
+      id: 'docker',
+      name: 'Docker 相关',
+      desc: '容器、挂载、网络',
+      icon: 'box',
+    },
+    {
+      id: 'db',
+      name: '数据库 / greenlet',
+      desc: 'SQLite / MySQL / DLL',
+      icon: 'lightbulb',
+    },
+  ]}
+>
+
+<div data-branch="start">
+
+### Core 启动失败
+
+<DecisionTree
+  label="日志里最像哪一句？"
+  options={[
+    { id: 'mod', name: 'ModuleNotFoundError: gsuid_core', icon: 'alert' },
+    { id: 'json', name: 'JSONDecodeError', icon: 'alert' },
+    { id: 'addr', name: 'Address already in use', icon: 'alert' },
+    { id: 'other', name: '其它 / 闪退无字', icon: 'help' },
+  ]}
+>
+
+<div data-branch="mod">
+
+**原因**：不在仓库根目录。
+
+```shell
+cd 含有-pyproject.toml-的目录
+uv run core
+```
+
+→ [安装与启动](/docs/getting-started/install/)
+
+</div>
+
+<div data-branch="json">
+
+**原因**：`data/config.json` 或 `core_config.json` 坏了。
+
+```shell
+python -c "import json; json.load(open('data/config.json',encoding='utf-8'))"
+```
+
+从 `.bak` 恢复，或对照 [首次配置](/docs/getting-started/first-config/) 重写关键字段。
+
+</div>
+
+<div data-branch="addr">
+
+**原因**：8765 被占用。
+
+```shell
+# Windows
+netstat -ano | findstr 8765
+# 换端口
+uv run core --port 9527
+```
+
+</div>
+
+<div data-branch="other">
+
+- 用终端启动看完整 traceback（不要双击闪退）  
+- Docker：`docker logs gsuid_core`  
+- FAQ： [DBus / poetry](/docs/faq/) · [资源缺失](/docs/faq/)  
+
+</div>
+
+</DecisionTree>
+
+</div>
+
+<div data-branch="ws">
+
+### Bot ↔ Core WebSocket
+
+<DecisionTree
+  label="更具体的现象"
+  options={[
+    { id: 'fail', name: '一直连接失败', icon: 'alert', recommended: true },
+    { id: 'token', name: 'Token / 1008 错误', icon: 'shield' },
+    { id: 'ban', name: 'IP 被封禁', icon: 'alert' },
+    { id: 'drop', name: '能连但频繁断开', icon: 'wrench' },
+  ]}
+>
+
+<div data-branch="fail">
+
+检查清单：
+
+1. Core 是否在跑，日志有 WS 服务  
+2. Bot 的 host/port 是否指向这台 Core  
+3. 防火墙 / 安全组是否放行  
+4. Docker 是否该用 `host.docker.internal`  
+
+→ [链接 Bot](/docs/getting-started/link-bot/) · [NoneBot2 保姆级](/docs/getting-started/nonebot2/)
+
+</div>
+
+<div data-branch="token">
+
+**Core 与 Bot 的 `WS_TOKEN` 必须完全一致。**  
+公网时空 Token 会被拒绝。改完两端都要重启。
+
+→ [首次配置](/docs/getting-started/first-config/)
+
+</div>
+
+<div data-branch="ban">
+
+连错 Token 多次会封 IP（约 900 秒）。等冷却或 **重启 Core** 清内存状态。
+
+</div>
+
+<div data-branch="drop">
+
+反代请加大超时，例如 Nginx：
+
+```nginx
+proxy_read_timeout 600s;
+```
+
+检查网络抖动与协议端稳定性。
+
+</div>
+
+</DecisionTree>
+
+</div>
+
+<div data-branch="console">
+
+### WebConsole
+
+| 症状 | 处理 |
+|------|------|
+| `/app` 空白 404 | 等 `data/dist` 拉取；或从 Release 放 dist |
+| 请求无效 | Ctrl+Shift+R 强刷；对时；别用可疑代理 MITM |
+| 操作过于频繁 | 等限流结束或重启 Core |
+| 忘注册码 | `config.json` → `REGISTER_CODE` |
+| 忘密码 | 备份后清理 web 用户数据再注册（谨慎） |
+
+→ [网页控制台](/docs/getting-started/webconsole/) · [FAQ](/docs/faq/)
+
+</div>
+
+<div data-branch="cmd">
+
+### 连上了但没命令
+
+<DecisionTree
+  label="细化"
+  options={[
+    { id: 'nop', name: '任何命令都无反应', icon: 'alert' },
+    { id: 'help', name: '只有帮助图无反应', icon: 'help' },
+    { id: 'self', name: '只有我能用、群友不能', icon: 'shield' },
+    { id: 'res', name: '报找不到文件 / 资源', icon: 'box' },
+  ]}
+>
+
+<div data-branch="nop">
+
+1. Core 侧是否安装了**业务插件**并重启？  
+2. `masters` 是否包含你的 ID（管理命令）？  
+3. `command_start` 是否强制了前缀？  
+4. WebConsole 里对应 SV 是否被关掉？  
+
+→ [安装插件](/docs/getting-started/install-plugins/)
+
+</div>
+
+<div data-branch="help">
+
+发 `core重启` 刷新帮助图缓存。见 [FAQ](/docs/faq/)。
+
+</div>
+
+<div data-branch="self">
+
+权限 / sv 配置错乱：主人执行 `重置core配置` 后重启（会重置部分配置，先备份）。
+
+</div>
+
+<div data-branch="res">
+
+`core重启` 或 `下载全部资源`；慢则挂代理 / 离线资源包。见 [FAQ · 资源](/docs/faq/)。
+
+</div>
+
+</DecisionTree>
+
+</div>
+
+<div data-branch="docker">
+
+### Docker
+
+| 症状 | 处理 |
+|------|------|
+| 容器秒退 | `docker logs`；磁盘满；权限 |
+| WS 连不上 | 端口映射；`HOST` 被挂载 config 盖成 localhost；`extra_hosts` |
+| 升级后缺模块 | `docker compose down -v` 重建 venv（**data 别删**） |
+| git 装插件卡死 | 容器内 git 代理 / WebConsole 换镜像源 |
+
+→ [Docker 部署](/docs/getting-started/docker/)
+
+</div>
+
+<div data-branch="db">
+
+### 数据库
+
+**greenlet DLL（Windows）：**
+
+```shell
+uv pip install greenlet msvc-runtime
+```
+
+**MySQL 连不上：** 检查 host/端口/账号/库是否 `utf8mb4`、是否安装 `aiomysql` 或 `asyncmy`。
+
+**no such table：** 插件未正确加载，或删库重建前**务必备份** `GsData.db`。
+
+→ [FAQ · greenlet](/docs/faq/) · [数据布局](./data-layout/)
+
+</div>
+
+</DecisionTree>
+
+## 业务向（米游社等）
+
+| 症状 | 方向 |
+|------|------|
+| 签到 / 每日 1034 | 米游社验证码风控，需在 App 内解除 |
+| SSLCertVerificationError | 安装相关站点证书，见 FAQ |
+| Httpx Timeout（版本深渊） | 网络访问不到数据源，可忽略或代理 |
+
+完整条目：[常见问题](/docs/faq/)
+
+## 仍未解决：怎么提问
+
+1. Core 版本（启动 banner）  
+2. OS + 源码 / Docker  
+3. **完整**报错（DEBUG）  
+4. 最小复现步骤  
+
+GitHub Issues：https://github.com/Genshin-bots/gsuid_core/issues  
+
+<NextSteps
+  items={[
+    {
+      title: '搜索 FAQ',
+      href: '/docs/faq/',
+      desc: '关键词搜索历史问题',
+      primary: true,
+    },
+    {
+      title: 'NoneBot2 接入',
+      href: '/docs/getting-started/nonebot2/',
+      desc: '连 Bot 专项',
+    },
+    {
+      title: '验收清单',
+      href: '/docs/getting-started/checklist/',
+      desc: '对照是否跳步',
+    },
+    {
+      title: '运维首页',
+      href: '/docs/operators/',
+      desc: '配置与数据',
+    },
+  ]}
+/>
