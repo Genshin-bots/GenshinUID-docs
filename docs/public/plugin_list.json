@@ -545,6 +545,23 @@
         "吃啥",
         "美食"
       ]
+    },
+    "MikuSnap": {
+      "link": "https://github.com/MimoKit/MikuSnap",
+      "avatar": "https://github.com/MimoKit.png",
+      "cover": "https://raw.githubusercontent.com/MimoKit/MikuSnap/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "网页自动截图插件，自动识别聊天链接并用 Playwright 深色模式截图发送，支持长页分图和智能过滤",
+      "installMsg": "该插件需要 Playwright 和 Chromium 浏览器，请确认安装后继续。是否安装该插件？",
+      "alias": [
+        "MikuSnap",
+        "mikusnap",
+        "网页截图",
+        "截图",
+        "webshot"
+      ]
     }
   },
   "fun_plugins": [
@@ -586,7 +603,8 @@
     "BBBUID",
     "gs_kuro_cos",
     "VrChatUID",
-    "TodayWaifu"
+    "TodayWaifu",
+    "MikuSnap"
   ],
   "extra": {}
 }
