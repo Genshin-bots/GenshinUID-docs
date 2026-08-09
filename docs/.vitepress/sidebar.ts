@@ -8,6 +8,7 @@ export default {
         { text: '安装GsCore', link: '/Started/InstallCore' },
         { text: '启动GsCore', link: '/Started/StartCore' },
         { text: '使用Docker运行GsCore', link: '/Started/DockerCore' },
+        { text: '宝塔面板部署GsCore', link: '/Started/BTPanel' },
         { text: '配置GsCore', link: '/Started/CoreConfig' },
         { text: '🔒️ 安全配置', link: '/Started/Secure' },
         { text: '网页控制台', link: '/Started/WebConsole' },
