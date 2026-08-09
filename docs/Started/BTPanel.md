@@ -11,24 +11,24 @@ GsCore 已上架至宝塔的 Docker 应用商店，支持**一键安装**。
 
 进入宝塔面板首页，点击左侧菜单的 `Docker`，若未安装 Docker，宝塔会提示并引导你一键安装 Docker 及 Docker Compose，按提示完成安装即可。
 
-![宝塔面板安装Docker](./BTPanel-Docker-Install.png)
+![宝塔面板安装Docker](./../public/Started/BTPanel-Docker-Install.png)
 
 ## 3. 设置加速 URL（国内服务器用户）
 
 进入宝塔面板页面后，点击左侧的 `Docker` → 点击顶部的 `设置`，在 `基础设置` 中找到 `加速 URL`，填入国内可用的镜像加速地址（例如 Docker 官方、阿里云容器镜像服务的个人加速地址），保存即可加速镜像拉取。
 
-![宝塔面板设置加速URL](./BTPanel-Docker-Set-URL.png)
+![宝塔面板设置加速URL](./../public/Started/BTPanel-Docker-Set-URL.png)
 
 
 ## 4. 安装 GsCore
 
 进入 `Docker` 的 `应用商店`，在搜索框中搜索 `早柚核心`。
 
-![宝塔面板搜索早柚核心](./BTPanel-Docker-Search.png)
+![宝塔面板搜索早柚核心](./../public/Started/BTPanel-Docker-Search.png)
 
 点击 `安装`，按照安装页面提示填写配置（默认端口为 `8765`），点击 `安装`，等待安装成功。
 
-![宝塔面板安装早柚核心](./BTPanel-Docker-Install-Confirm.png)
+![宝塔面板安装早柚核心](./../public/Started/BTPanel-Docker-Install-Confirm.png)
 
 ::: tip
 
@@ -54,6 +54,6 @@ GsCore 已上架至宝塔的 Docker 应用商店，支持**一键安装**。
 
 更新镜像：进入 `Docker` → `容器编排`，找到早柚核心的编排，点击 `更新镜像` 即可更新到最新版本。
 
-![宝塔面板更新早柚核心镜像](./BTPanel-Docker-Update-Image.png)
+![宝塔面板更新早柚核心镜像](./../public/Started/BTPanel-Docker-Update-Image.png)
 
 :::
