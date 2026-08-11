@@ -39,7 +39,9 @@
 
 ### 🤖 YunZai-Bot
 
-[机器人](https://github.com/yoimiya-kokomi/Miao-Yunzai) | [适配器1](https://gitee.com/xiaoye12123/ws-plugin)、[适配器2](https://github.com/xiowo/yunzai-gscore-adapter)
+喵崽：[机器人](https://github.com/yoimiya-kokomi/Miao-Yunzai) | [适配器](https://gitee.com/xiaoye12123/ws-plugin)
+
+时雨崽：[机器人](https://github.com/TimeRainStarSky/Yunzai) | [适配器](https://github.com/xiowo/yunzai-gscore-adapter)
 
 ✨ 支持QQ协议登录！
 
