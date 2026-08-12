@@ -39,9 +39,16 @@
 
 ### 🤖 YunZai-Bot
 
-[机器人](https://github.com/yoimiya-kokomi/Miao-Yunzai) | [适配器](https://gitee.com/xiaoye12123/ws-plugin)
+喵崽：[机器人](https://github.com/yoimiya-kokomi/Miao-Yunzai) | [适配器](https://gitee.com/xiaoye12123/ws-plugin)
+
+时雨崽：[机器人](https://github.com/TimeRainStarSky/Yunzai) | [适配器](https://github.com/xiowo/yunzai-gscore-adapter)
 
 ✨ 支持QQ协议登录！
+
+### 🤖 ElainaBot_v2
+[机器人](https://github.com/ElainaCore/ElainaBot_v2) | [适配器](https://github.com/xiowo/elainabot_gscore_adapter)
+
+✨ 专为QQ官方机器人打造的框架！
 
 ### 🤖 Koishi
 
