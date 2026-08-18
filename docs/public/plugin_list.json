@@ -490,12 +490,13 @@
       "branch": "main",
       "type": "tip",
       "content": "普通",
-      "info": "库街区 COS/同人搬运插件",
-      "installMsg": "视频功能依赖 ffmpeg 处理媒体文件，请确认运行环境已安装 ffmpeg 后继续。是否安装该插件？",
+      "info": "库街区 / 米游社 COS·同人搬运插件（鸣潮 / 战双 / 原神）",
+      "installMsg": "该插件用于获取并发送鸣潮、战双、原神的 COS 与同人内容。是否安装该插件？",
       "alias": [
         "cos",
         "同人",
-        "库街区"
+        "库街区",
+        "米游社"
       ]
     },
     "VrChatUID": {
