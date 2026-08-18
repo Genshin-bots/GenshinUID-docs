@@ -483,7 +483,7 @@
         "BBB"
       ]
     },
-    "KuroCos": {
+    "gs_kuro_cos": {
       "link": "https://github.com/MimoKit/KuroCos",
       "avatar": "https://github.com/MimoKit.png",
       "cover": "https://raw.githubusercontent.com/MimoKit/KuroCos/main/ICON.png",
@@ -585,7 +585,7 @@
     "TodayEcho",
     "CCUID",
     "BBBUID",
-    "KuroCos",
+    "gs_kuro_cos",
     "VrChatUID",
     "TodayWaifu"
   ],
