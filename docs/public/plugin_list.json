@@ -484,9 +484,9 @@
       ]
     },
     "gs_kuro_cos": {
-      "link": "https://github.com/MimoKit/KuroCos",
+      "link": "https://github.com/MimoKit/gs_kuro_cos",
       "avatar": "https://github.com/MimoKit.png",
-      "cover": "https://raw.githubusercontent.com/MimoKit/KuroCos/main/ICON.png",
+      "cover": "https://raw.githubusercontent.com/MimoKit/gs_kuro_cos/main/ICON.png",
       "branch": "main",
       "type": "tip",
       "content": "普通",
