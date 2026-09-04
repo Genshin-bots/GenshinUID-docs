@@ -546,6 +546,25 @@
         "吃啥",
         "美食"
       ]
+    },
+    "YumekoSleep": {
+      "link": "https://github.com/MimoKit/YumekoSleep",
+      "avatar": "https://github.com/MimoKit.png",
+      "cover": "https://raw.githubusercontent.com/MimoKit/YumekoSleep/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "日系鸣潮风格「入梦·苏醒」早晚安打卡娱乐插件，纯状态驱动无定时器，支持本地时区自适应转换与表情包联动下发",
+      "installMsg": "",
+      "alias": [
+        "YumekoSleep",
+        "yumekosleep",
+        "晚安",
+        "早安",
+        "打卡",
+        "睡眠",
+        "梦境沉沦"
+      ]
     }
   },
   "fun_plugins": [
@@ -553,7 +572,8 @@
     "aemeth_ai",
     "pokemon",
     "core_plugin_memes",
-    "ChisaEating"
+    "ChisaEating",
+    "YumekoSleep"
   ],
   "tool_plugins": [
     "SayuStock",
