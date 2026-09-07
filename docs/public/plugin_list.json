@@ -43,6 +43,19 @@
         "模拟梭哈声骸"
       ]
     },
+    "CNBUpload": {
+      "link": "https://github.com/herijian1/CNBUpload",
+      "avatar": "https://raw.githubusercontent.com/herijian1/small/refs/heads/main/herijian.png",
+      "cover": "https://raw.githubusercontent.com/herijian1/small/refs/heads/main/herijian.png",
+      "branch": "master",
+      "type": "tip",
+      "content": "普通",
+      "info": "CNB代码仓库的图床插件",
+      "installMsg": "",
+      "alias": [
+        "corecnb图床帮助"
+      ]
+    },
     "core_plugin_memes": {
       "link": "https://github.com/Loping151/core_plugin_memes",
       "avatar": "https://github.com/Loping151.png",
