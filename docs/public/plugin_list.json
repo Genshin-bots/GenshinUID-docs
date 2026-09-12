@@ -578,6 +578,23 @@
         "睡眠",
         "梦境沉沦"
       ]
+    },
+    "MinecraftQueqiao": {
+      "link": "https://github.com/sssysy/MinecraftQueqiao",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/MinecraftQueqiao/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "我的世界多功能群服互联插件",
+      "installMsg": "",
+      "alias": [
+        "mc",
+        "minecraft",
+        "queqiao",
+        "我的世界",
+        "鹊桥"
+      ]
     }
   },
   "fun_plugins": [
@@ -620,7 +637,8 @@
     "BBBUID",
     "gs_kuro_cos",
     "VrChatUID",
-    "TodayWaifu"
+    "TodayWaifu",
+    "MinecraftQueqiao"
   ],
   "extra": {}
 }
