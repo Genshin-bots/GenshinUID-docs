@@ -1,5 +1,16 @@
 {
   "plugins": {
+    "MingChaoBQ": {
+      "link": "https://github.com/Xbaiyz12/MingChaoBQ",
+      "avatar": "https://github.com/Xbaiyz12.png",
+      "cover": "https://raw.githubusercontent.com/Xbaiyz12/MingChaoBQ/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "鸣潮表情包：随机表情、按角色 / 画师 / 表情名检索、列表图与帮助图，支持群黑白名单与戳一戳",
+      "installMsg": "",
+      "alias": ["鸣潮表情包", "表情包", "bq", "mingchaobq", "鸣潮表情"]
+    },
     "RoverSign": {
       "link": "https://github.com/Loping151/RoverSign",
       "avatar": "https://github.com/Loping151.png",
@@ -603,7 +614,8 @@
     "pokemon",
     "core_plugin_memes",
     "ChisaEating",
-    "YumekoSleep"
+    "YumekoSleep",
+    "MingChaoBQ"
   ],
   "tool_plugins": [
     "SayuStock",
