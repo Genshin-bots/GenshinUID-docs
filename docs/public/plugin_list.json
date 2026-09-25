@@ -1,5 +1,16 @@
 {
   "plugins": {
+    "MusicUID": {
+      "link": "https://github.com/Xbaiyz12/MusicUID",
+      "avatar": "https://github.com/Xbaiyz12.png",
+      "cover": "https://raw.githubusercontent.com/Xbaiyz12/MusicUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多平台点歌：网易云 / QQ音乐 / 酷狗 三平台搜索、语音下发与分享链接解析",
+      "installMsg": "",
+      "alias": ["点歌", "musicuid", "music", "网易云音乐", "qq音乐", "酷狗音乐"]
+    },
     "RoverSign": {
       "link": "https://github.com/Loping151/RoverSign",
       "avatar": "https://github.com/Loping151.png",
@@ -638,7 +649,8 @@
     "gs_kuro_cos",
     "VrChatUID",
     "TodayWaifu",
-    "MinecraftQueqiao"
+    "MinecraftQueqiao",
+    "MusicUID"
   ],
   "extra": {}
 }
