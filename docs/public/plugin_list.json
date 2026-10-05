@@ -617,6 +617,21 @@
         "我的世界",
         "鹊桥"
       ]
+    },
+    "Dota2UID": {
+      "alias": [
+        "dota2",
+        "dota2forge",
+        "刀塔"
+      ],
+      "avatar": "https://raw.githubusercontent.com/HBLADEH/Dota2UID/main/ICON.png",
+      "branch": "main",
+      "content": "普通",
+      "cover": "https://raw.githubusercontent.com/HBLADEH/Dota2UID/main/ICON.png",
+      "info": "Dota2Forge：Dota 2 账号绑定、玩家、战绩与单局图片查询",
+      "installMsg": "首次安装请按README停止宿主，运行install_runtime.py安装公开运行包后冷启动；再填写本地STRATZ Token与独立namespace。",
+      "link": "https://github.com/HBLADEH/Dota2UID",
+      "type": "tip"
     }
   },
   "fun_plugins": [
@@ -662,7 +677,8 @@
     "VrChatUID",
     "TodayWaifu",
     "MinecraftQueqiao",
-    "MusicUID"
+    "MusicUID",
+    "Dota2UID"
   ],
   "extra": {}
 }
