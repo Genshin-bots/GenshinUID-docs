@@ -628,8 +628,8 @@
       "branch": "main",
       "content": "普通",
       "cover": "https://raw.githubusercontent.com/HBLADEH/Dota2UID/main/ICON.png",
-      "info": "Dota2Forge：Dota 2 账号绑定、玩家、战绩与单局图片查询",
-      "installMsg": "首次安装请按README停止宿主，运行install_runtime.py安装公开运行包后冷启动；再填写本地STRATZ Token与独立namespace。",
+      "info": "Dota2Forge：查刀塔战绩、比赛详情和英雄热门出装，还能看段位和预估分数。",
+      "installMsg": "第一次安装请先看插件里的 INSTALL.md：关闭 GsCore，用它的 Python 运行 install_runtime.py 安装所需组件，然后重新启动。再按说明填写 STRATZ 密钥和插件标识（namespace）。只在商店点击安装还不能直接使用。",
       "link": "https://github.com/HBLADEH/Dota2UID",
       "type": "tip"
     }
