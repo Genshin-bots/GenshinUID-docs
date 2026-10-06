@@ -1,20 +1,5 @@
 {
   "plugins": {
-    "GTAOLUID": {
-      "link": "https://github.com/sssysy/GTAOLUID",
-      "avatar": "https://github.com/sssysy.png",
-      "cover": "https://raw.githubusercontent.com/sssysy/GTAOLUID/main/ICON.png",
-      "branch": "main",
-      "type": "tip",
-      "content": "普通",
-      "info": "多功能 GTA 线上模式查询插件",
-      "installMsg": "",
-      "alias": [
-        "gta",
-        "gtaol",
-        "rockstar"
-      ]
-    },
     "MingChaoBQ": {
       "link": "https://github.com/Xbaiyz12/MingChaoBQ",
       "avatar": "https://github.com/Xbaiyz12.png",
@@ -644,6 +629,21 @@
         "queqiao",
         "我的世界",
         "鹊桥"
+      ]
+    },
+    "GTAOLUID": {
+      "link": "https://github.com/sssysy/GTAOLUID",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/GTAOLUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多功能 GTA 线上模式查询插件",
+      "installMsg": "",
+      "alias": [
+        "gta",
+        "gtaol",
+        "rockstar"
       ]
     }
   },
