@@ -645,6 +645,21 @@
         "gtaol",
         "rockstar"
       ]
+    },
+    "Dota2UID": {
+      "alias": [
+        "dota2",
+        "dota2forge",
+        "刀塔"
+      ],
+      "avatar": "https://raw.githubusercontent.com/HBLADEH/Dota2UID/main/ICON.png",
+      "branch": "main",
+      "content": "普通",
+      "cover": "https://raw.githubusercontent.com/HBLADEH/Dota2UID/main/ICON.png",
+      "info": "Dota2Forge：查刀塔战绩、比赛详情和英雄热门出装，还能看段位和预估分数。",
+      "installMsg": "URL 安装后请完整重启 GsCore，运行库随插件提供。主人可发送 do核心状态 检查；需要恢复时发送 do安装核心，完成后按提示冷启动。再在后台插件配置 → Dota2UID 填 STRATZ Token 和 namespace，确认修改后 do停用，再重载当前插件；第三方依赖冲突见 INSTALL.md。",
+      "link": "https://github.com/HBLADEH/Dota2UID",
+      "type": "tip"
     }
   },
   "fun_plugins": [
@@ -691,7 +706,8 @@
     "TodayWaifu",
     "MinecraftQueqiao",
     "MusicUID",
-    "GTAOLUID"
+    "GTAOLUID",
+    "Dota2UID"
   ],
   "extra": {}
 }
