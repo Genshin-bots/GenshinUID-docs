@@ -660,6 +660,21 @@
       "installMsg": "URL 安装后请完整重启 GsCore，运行库随插件提供。主人可发送 do核心状态 检查；需要恢复时发送 do安装核心，完成后按提示冷启动。再在后台插件配置 → Dota2UID 填 STRATZ Token 和 namespace，确认修改后 do停用，再重载当前插件；第三方依赖冲突见 INSTALL.md。",
       "link": "https://github.com/HBLADEH/Dota2UID",
       "type": "tip"
+    },
+    "SteamUID": {
+      "link": "https://github.com/sssysy/SteamUID",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/SteamUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能 Steam 插件",
+      "installMsg": "",
+      "alias": [
+        "steamuid",
+        "steam",
+        "STEAM"
+      ]
     }
   },
   "fun_plugins": [
@@ -707,7 +722,8 @@
     "MinecraftQueqiao",
     "MusicUID",
     "GTAOLUID",
-    "Dota2UID"
+    "Dota2UID",
+    "SteamUID"
   ],
   "extra": {}
 }
