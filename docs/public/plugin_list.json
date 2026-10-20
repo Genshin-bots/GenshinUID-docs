@@ -1,5 +1,16 @@
 {
   "plugins": {
+    "AliceUID": {
+      "link": "https://github.com/dddada123/AliceUID",
+      "avatar": "https://github.com/dddada123.png",
+      "cover": "https://raw.githubusercontent.com/dddada123/AliceUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "胜利女神:NIKKE 日韩国际服查询插件",
+      "installMsg": "首次使用请按README准备依赖与Playwright Chromium，账号功能需本人登录。",
+      "alias": ["aliceuid", "nikke", "妮姬"]
+    },
     "MingChaoBQ": {
       "link": "https://github.com/Xbaiyz12/MingChaoBQ",
       "avatar": "https://github.com/Xbaiyz12.png",
