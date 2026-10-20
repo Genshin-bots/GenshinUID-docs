@@ -698,6 +698,7 @@
     "MingChaoBQ"
   ],
   "tool_plugins": [
+    "AliceUID",
     "SayuStock",
     "DeltaUID",
     "DNAUID",
