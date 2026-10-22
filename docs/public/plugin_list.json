@@ -675,6 +675,19 @@
         "steam",
         "STEAM"
       ]
+    },
+    "OneBotUID": {
+      "link": "https://github.com/xiowo/OneBotUID",
+      "avatar": "https://github.com/xiowo.png",
+      "cover": "https://raw.githubusercontent.com/xiowo/OneBotUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "适用于早柚核心的OneBot适配器",
+      "installMsg": "",
+      "alias": [
+        "onebot"
+      ]
     }
   },
   "fun_plugins": [
@@ -723,7 +736,8 @@
     "MusicUID",
     "GTAOLUID",
     "Dota2UID",
-    "SteamUID"
+    "SteamUID",
+    "OneBotUID"
   ],
   "extra": {}
 }
