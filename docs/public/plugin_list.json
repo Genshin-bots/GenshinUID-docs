@@ -512,6 +512,24 @@
         "战双"
       ]
     },
+    "PGRGachaSim": {
+      "link": "https://github.com/Xbaiyz12/PGRGachaSim",
+      "avatar": "https://github.com/Xbaiyz12.png",
+      "cover": "https://raw.githubusercontent.com/Xbaiyz12/PGRGachaSim/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "战双帕弥什模拟抽卡：版本卡池切换，构造体 / 武器 / 辅助机 / 联动池十连与百连，出货图按游戏研发结果界面还原",
+      "installMsg": "",
+      "alias": [
+        "战双抽卡",
+        "战双模拟抽卡",
+        "pgrgachasim",
+        "pgrgacha",
+        "zs抽卡",
+        "pgr抽卡"
+      ]
+    },
     "CCUID": {
       "link": "https://github.com/tyql688/CCUID",
       "avatar": "https://github.com/tyql688.png",
@@ -695,7 +713,8 @@
     "core_plugin_memes",
     "ChisaEating",
     "YumekoSleep",
-    "MingChaoBQ"
+    "MingChaoBQ",
+    "PGRGachaSim"
   ],
   "tool_plugins": [
     "AliceUID",
