@@ -688,6 +688,19 @@
       "alias": [
         "onebot"
       ]
+    },
+    "QQBotUID": {
+      "link": "https://github.com/xiowo/QQBotUID",
+      "avatar": "https://github.com/xiowo.png",
+      "cover": "https://raw.githubusercontent.com/xiowo/QQBotUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "适用于早柚核心的QQBot适配器",
+      "installMsg": "",
+      "alias": [
+        "qqbot"
+      ]
     }
   },
   "fun_plugins": [
@@ -737,7 +750,8 @@
     "GTAOLUID",
     "Dota2UID",
     "SteamUID",
-    "OneBotUID"
+    "OneBotUID",
+    "QQBotUID"
   ],
   "extra": {}
 }
