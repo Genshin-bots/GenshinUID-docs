@@ -747,6 +747,22 @@
         "营地扫码登录",
         "wzry扫码"
       ]
+    },
+    "VideoResolver": {
+      "link": "https://github.com/bvzrays/VideoResolver",
+      "avatar": "https://github.com/bvzrays.png",
+      "cover": "https://raw.githubusercontent.com/bvzrays/VideoResolver/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多平台视频、图文与音乐分享解析插件：支持哔哩哔哩、抖音、小红书、微博等链接识别、媒体发送和热门评论。",
+      "installMsg": "系统需安装 FFmpeg 并确保 ffmpeg 可在 PATH 中运行；抖音备用签名接口按需需要 Node.js。海外平台默认关闭，可在插件配置中启用并设置代理或 Cookie。",
+      "alias": [
+        "videoresolver",
+        "视频解析",
+        "视频解析插件",
+        "vr"
+      ]
     }
   },
   "adapter_plugins": [
@@ -802,7 +818,8 @@
     "MusicUID",
     "GTAOLUID",
     "Dota2UID",
-    "SteamUID"
+    "SteamUID",
+    "VideoResolver"
   ],
   "extra": {}
 }
