@@ -730,6 +730,23 @@
       "alias": [
         "qqbot"
       ]
+    },
+    "WzryScanLogin": {
+      "link": "https://github.com/1055169799/WzryScanLogin",
+      "avatar": "https://github.com/1055169799.png",
+      "cover": "https://raw.githubusercontent.com/1055169799/WzryScanLogin/main/ICON.png",
+      "branch": "main",
+      "type": "danger",
+      "content": "危险",
+      "info": "王者营地扫码登录辅助插件：微信/QQ 扫码获取营地 UID 与 CK，自动写入 WzryUID 账号池；支持 90 秒限时撤回与网页控制台配置。",
+      "installMsg": "QQ 扫码需要本机安装 Chrome/Edge。扫码会登录营地账号，可能顶掉营地 APP，建议使用不登录营地 APP 的账号；安装后可在 GsCore 控制台调整扫码方式与消息撤回时间。",
+      "alias": [
+        "wzryscanlogin",
+        "王者扫码",
+        "王者扫码登录",
+        "营地扫码登录",
+        "wzry扫码"
+      ]
     }
   },
   "fun_plugins": [
@@ -754,6 +771,7 @@
     "StarRailUID",
     "ZZZeroUID",
     "WzryUID",
+    "WzryScanLogin",
     "XutheringWavesUID",
     "WutheringWavesUID",
     "ArknightsUID",
