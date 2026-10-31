@@ -1,0 +1,21 @@
+{
+  "personas": {
+    "persona_sayu": {
+      "link": "https://github.com/KimigaiiWuyi/persona_sayu",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://raw.githubusercontent.com/KimigaiiWuyi/persona_sayu/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "早柚 AI 人格整包",
+      "installMsg": "",
+      "tags": ["人设文档", "形象参考", "配置", "表情包"],
+      "alias": [
+        "persona_sayu",
+        "早柚",
+        "sayu"
+      ]
+    }
+  },
+  "extra": {}
+}
