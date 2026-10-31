@@ -705,6 +705,32 @@
         "STEAM"
       ]
     },
+    "OneBotUID": {
+      "link": "https://github.com/xiowo/OneBotUID",
+      "avatar": "https://github.com/xiowo.png",
+      "cover": "https://raw.githubusercontent.com/xiowo/OneBotUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "适用于早柚核心的OneBot适配器",
+      "installMsg": "",
+      "alias": [
+        "onebot"
+      ]
+    },
+    "QQBotUID": {
+      "link": "https://github.com/xiowo/QQBotUID",
+      "avatar": "https://github.com/xiowo.png",
+      "cover": "https://raw.githubusercontent.com/xiowo/QQBotUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "适用于早柚核心的QQBot适配器",
+      "installMsg": "",
+      "alias": [
+        "qqbot"
+      ]
+    },
     "WzryScanLogin": {
       "link": "https://github.com/1055169799/WzryScanLogin",
       "avatar": "https://github.com/1055169799.png",
@@ -772,7 +798,9 @@
     "MusicUID",
     "GTAOLUID",
     "Dota2UID",
-    "SteamUID"
+    "SteamUID",
+    "OneBotUID",
+    "QQBotUID"
   ],
   "extra": {}
 }
