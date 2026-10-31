@@ -749,6 +749,10 @@
       ]
     }
   },
+  "adapter_plugins": [
+    "OneBotUID",
+    "QQBotUID"
+  ],
   "fun_plugins": [
     "PsyTest",
     "aemeth_ai",
@@ -798,9 +802,7 @@
     "MusicUID",
     "GTAOLUID",
     "Dota2UID",
-    "SteamUID",
-    "OneBotUID",
-    "QQBotUID"
+    "SteamUID"
   ],
   "extra": {}
 }
