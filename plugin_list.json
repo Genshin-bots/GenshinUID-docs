@@ -763,6 +763,23 @@
         "视频解析插件",
         "vr"
       ]
+    },
+    "DailyAnalyisis": {
+      "link": "https://github.com/bvzrays/DailyAnalyisis",
+      "avatar": "https://github.com/bvzrays.png",
+      "cover": "https://raw.githubusercontent.com/bvzrays/DailyAnalyisis/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "群聊分析与可视化日报插件：支持定时和增量分析、WebUI，以及每日群漫画生成。",
+      "installMsg": "群聊分析需在插件配置中填写可用的 OpenAI 兼容 API；使用每日群漫画还需配置支持图片生成的模型。",
+      "alias": [
+        "dailyanalyisis",
+        "群分析",
+        "群聊分析",
+        "群日报",
+        "群漫画"
+      ]
     }
   },
   "adapter_plugins": [
@@ -819,7 +836,8 @@
     "GTAOLUID",
     "Dota2UID",
     "SteamUID",
-    "VideoResolver"
+    "VideoResolver",
+    "DailyAnalyisis"
   ],
   "extra": {}
 }
