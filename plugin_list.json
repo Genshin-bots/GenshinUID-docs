@@ -780,6 +780,21 @@
         "群日报",
         "群漫画"
       ]
+    },
+    "ParserUID": {
+      "link": "https://github.com/sssysy/ParserUID",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/ParserUID/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "多平台聚合解析器。可插拔第三方和自定义的解析器和皮肤包，内置20+平台。",
+      "alias": [
+        "视频解析",
+        "parser",
+        "parseruid",
+        "解析器"
+      ]
     }
   },
   "adapter_plugins": [
@@ -837,7 +852,8 @@
     "Dota2UID",
     "SteamUID",
     "VideoResolver",
-    "DailyAnalyisis"
+    "DailyAnalyisis",
+    "ParserUID"
   ],
   "extra": {}
 }
