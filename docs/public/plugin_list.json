@@ -1,5 +1,16 @@
 {
   "plugins": {
+    "WanWanKit": {
+      "link": "https://github.com/xingjianya-86/WanWanKit",
+      "avatar": "https://github.com/xingjianya-86.png",
+      "cover": "https://raw.githubusercontent.com/xingjianya-86/WanWanKit/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "普通",
+      "info": "晚晚人格能力插件：日记/语音/自拍/短视频生成，抖音与B站刷评回+图文视频发布，手机自动化与HTTP工具",
+      "installMsg": "可选能力依赖：手机刷评回需 adb over TCP（配置 phone_serial）；短视频生成需宿主 ffmpeg；抖音发布需独立 douyin_venv 与登录 Cookie；生图/配音需火山方舟与小米 MiMo API Key。详见仓库 README 与 docs/INSTALL.md。",
+      "alias": ["wanwan", "wanwankit", "晚晚", "深海时间", "人格技能"]
+    },
     "AliceUID": {
       "link": "https://github.com/dddada123/AliceUID",
       "avatar": "https://github.com/dddada123.png",
@@ -853,7 +864,8 @@
     "SteamUID",
     "VideoResolver",
     "DailyAnalyisis",
-    "ParserUID"
+    "ParserUID",
+    "WanWanKit"
   ],
   "extra": {}
 }
