@@ -795,6 +795,52 @@
         "parseruid",
         "解析器"
       ]
+    },
+    "GsBrowserUse": {
+      "link": "https://github.com/KimigaiiWuyi/GsBrowserUse",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://raw.githubusercontent.com/KimigaiiWuyi/GsBrowserUse/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "AI",
+      "info": "给 GsCore 的 Agent 提供浏览器操作，可选 Obscura / Lightpanda 引擎",
+      "installMsg": "该插件需在插件配置中下载安装浏览器引擎（Obscura 或 Lightpanda），是否继续？",
+      "alias": [
+        "gsbrowseruse",
+        "浏览器",
+        "browser"
+      ]
+    },
+    "GsComputerUse": {
+      "link": "https://github.com/KimigaiiWuyi/GsComputerUse",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://raw.githubusercontent.com/KimigaiiWuyi/GsComputerUse/main/ICON.png",
+      "branch": "main",
+      "type": "tip",
+      "content": "AI",
+      "info": "给 GsCore 的 Agent 提供电脑操作，支持 InstaBox / Simular box / CUA Driver 后端",
+      "installMsg": "该插件需在插件配置中选择后端并填写对应 API Key，操作电脑默认仅主人可用，是否继续？",
+      "alias": [
+        "gscomputeruse",
+        "电脑操作",
+        "computeruse"
+      ]
+    },
+    "GsMail": {
+      "link": "https://github.com/KimigaiiWuyi/GsMail",
+      "avatar": "https://github.com/KimigaiiWuyi.png",
+      "cover": "https://raw.githubusercontent.com/KimigaiiWuyi/GsMail/master/ICON.png",
+      "branch": "master",
+      "type": "tip",
+      "content": "AI",
+      "info": "邮件基础设施插件，为其他插件和 AI 提供统一发信入口，支持 SMTP 与腾讯 Agently Mail 邮箱池",
+      "installMsg": "使用腾讯 Agently Mail 需另外安装 Node 包 @tencent-qqmail/agently-cli 并完成微信扫码授权，是否继续？",
+      "alias": [
+        "gsmail",
+        "邮件",
+        "mail",
+        "gscore_mail"
+      ]
     }
   },
   "adapter_plugins": [
@@ -853,7 +899,10 @@
     "SteamUID",
     "VideoResolver",
     "DailyAnalyisis",
-    "ParserUID"
+    "ParserUID",
+    "GsBrowserUse",
+    "GsComputerUse",
+    "GsMail"
   ],
   "extra": {}
 }
