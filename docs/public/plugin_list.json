@@ -841,6 +841,22 @@
         "mail",
         "gscore_mail"
       ]
+    },
+    "CalabiyauUID": {
+      "link": "https://github.com/sssysy/CalabiyauUID",
+      "avatar": "https://github.com/sssysy.png",
+      "cover": "https://raw.githubusercontent.com/sssysy/CalabiyauUID/master/ICON.png",
+      "branch": "master",
+      "type": "tip",
+      "content": "普通",
+      "info": "全功能卡拉彼丘端游插件",
+      "alias": [
+        "卡丘",
+        "卡拉彼丘",
+        "strinova",
+        "calabiyau",
+        "kq"
+      ]
     }
   },
   "adapter_plugins": [
@@ -902,7 +918,8 @@
     "ParserUID",
     "GsBrowserUse",
     "GsComputerUse",
-    "GsMail"
+    "GsMail",
+    "CalabiyauUID"
   ],
   "extra": {}
 }
